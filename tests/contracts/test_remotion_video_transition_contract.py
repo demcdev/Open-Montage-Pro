@@ -5,18 +5,38 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_video_scene_honors_hard_cut_tokens_and_backing_color() -> None:
-    source = (REPO_ROOT / "remotion-composer/src/Explainer.tsx").read_text(
+    """Hard-cut tokens must render as straight cuts, not fades.
+
+    The per-scene fade logic moved out of Explainer.tsx into
+    lib/transitions.tsx: Explainer resolves each boundary with
+    normalizeTransition() and wraps every scene in TransitionShell.
+    """
+    explainer = (REPO_ROOT / "remotion-composer/src/Explainer.tsx").read_text(
+        encoding="utf-8"
+    )
+    transitions = (REPO_ROOT / "remotion-composer/src/lib/transitions.tsx").read_text(
         encoding="utf-8"
     )
 
-    assert '["cut", "none"].includes((transitionIn || "").toLowerCase())' in source
-    assert '["cut", "none"].includes((transitionOut || "").toLowerCase())' in source
-    assert "transitionIn={cut.transition_in}" in source
-    assert "transitionOut={cut.transition_out}" in source
-    assert "sceneDurationSeconds={cut.out_seconds - cut.in_seconds}" in source
-    assert "Math.round(sceneDurationSeconds * fps)" in source
-    assert "durationInFrames - transitionFrames" in source
-    assert "backgroundColor={cut.backgroundColor}" in source
+    # "cut" is a real style, "none" aliases to it, and a missing value is a cut.
+    assert "cut: { enter: () => ({}), exit: none }" in transitions
+    assert 'none: "cut",' in transitions
+    assert 'if (!s) return "cut";' in transitions
+    # A cut adds no enter/exit look...
+    assert 'inT && inT.style !== "cut"' in transitions
+    assert 'outT && outT.style !== "cut"' in transitions
+    # ...and the out-transition stays inside the scene's own frames.
+    assert "seqFrames - outT.frames" in transitions
+
+    # Explainer resolves each boundary from the cuts and never overlaps on a cut.
+    assert "normalizeTransition(" in explainer
+    assert "nx.transition_in || c.transition_out || props.defaultTransition" in explainer
+    assert 'inT && inT.style !== "cut" ? Math.round(inT.frames / 2) : 0' in explainer
+    assert 'outT && outT.style !== "cut" ? Math.round(outT.frames / 2) : 0' in explainer
+    assert "<TransitionShell inT={inT} outT={outT} seqFrames={duration}>" in explainer
+
+    # Video scenes keep a backing color behind letterboxed footage.
+    assert 'backgroundColor={cut.backgroundColor ?? "#0F172A"}' in explainer
 
 
 def test_cinematic_fades_are_bounded_by_each_scene_duration() -> None:
