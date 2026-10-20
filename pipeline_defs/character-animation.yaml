@@ -51,6 +51,10 @@ required_skills:
   - creative/audio-post-cinema
   - meta/guionista-core
   - meta/guionista-ficcion-animada
+  - core/delivery-specs
+  - creative/film-look-finishing
+  - creative/title-thumbnail-trailer
+  - meta/budget-and-model-routing
 
 orchestration:
   mode: executive-producer
@@ -273,6 +277,7 @@ stages:
       - final_review
       - character_qa_report
     tools_available:
+      - film_look
       - audio_master
       - technical_qc
       - character_rig_renderer

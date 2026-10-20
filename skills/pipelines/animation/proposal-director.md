@@ -484,3 +484,12 @@ This stage gates on human approval (`human_approval_default: true`). After revie
 checkpoint with `status="awaiting_human"`, present the summary (the Backlot board renders
 the artifact), and **END YOUR TURN**. Do not start the next stage in the same response.
 Approval is per-gate — an earlier "go ahead" does not cover this gate.
+
+---
+
+<!-- transversal-skills-2026-10 -->
+## Transversal Skills (Binding)
+
+Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
+
+- `skills/meta/budget-and-model-routing.md` — classify shots by tier (premium models only on hero shots), estimate with real `estimate_cost`, fill `cost_estimate` and agree the cap; run paid calls through `cost_tracker` (estimate → reserve → reconcile).

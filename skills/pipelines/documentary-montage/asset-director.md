@@ -538,3 +538,4 @@ Approval is per-gate — an earlier "go ahead" does not cover this gate.
 Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
 
 - `skills/creative/audio-post-cinema.md` — five sound layers, per-scene sound map in `edit_decisions.metadata.sound_map`, licensed sources only.
+- `skills/creative/clip-conform.md` — run `clip_conform` `analyze` on every incoming clip and conform it to the project fps and size before review and edit; interpolate only to fill frames or for slow motion, never on animation.

@@ -723,6 +723,12 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | How should a scene be covered, staged and lit? | `skills/creative/cinematography.md` |
 | Where and how should I cut? | `skills/creative/editing-craft.md` |
 | How do I build the sound of a fiction or cinematic scene? | `skills/creative/audio-post-cinema.md` |
+| How do I add grain, halation, a LUT or match color between shots from different models? | `skills/creative/film-look-finishing.md` (tool `film_look`, LUTs in `assets/luts/`) |
+| Clips arrive at different fps, flicker, shake or are too small — how do I conform them? | `skills/creative/clip-conform.md` (tool `clip_conform`) |
+| Is this generated shot good enough, or should I regenerate it? | `skills/meta/ai-shot-qa.md` |
+| What are the specs for YouTube, Shorts, Reels or TikTok, the EN/ES versions and SRT/VTT files? | `skills/core/delivery-specs.md` |
+| How do I design thumbnails, titles, credits and a next-episode teaser? | `skills/creative/title-thumbnail-trailer.md` |
+| Which model should each shot use, and how do I keep spending under a cap? | `skills/meta/budget-and-model-routing.md` (`tools/cost_tracker.py`, `video_selector.estimate_cost`) |
 
 ## What Not To Do
 

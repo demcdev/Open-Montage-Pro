@@ -302,3 +302,4 @@ Approval is per-gate — an earlier "go ahead" does not cover this gate.
 Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
 
 - `skills/meta/production-bible.md` — characters, wardrobe states, locations, light map and references come from the project bible; run its continuity check on sampled frames.
+- `skills/meta/ai-shot-qa.md` — review every generated clip frame by frame (`frame_sampler` + visual inspection, `video_understand` as a second opinion); accept, trim or regenerate by the threshold and log rejections in `asset_manifest.metadata.shot_qa`.

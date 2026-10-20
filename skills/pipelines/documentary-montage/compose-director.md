@@ -394,3 +394,5 @@ Read these before working in this stage. They are shared across pipelines; this 
 
 - `skills/core/loudness-mastering.md` — master the final mix with `audio_master` (two-pass, linear) to the delivery preset; never ship a single-pass draft level.
 - `skills/meta/technical-qc-gate.md` — run `technical_qc` on every render shown to the user and on the final master; `block` stops delivery, every `warn` is opened and resolved. Declare planned silences/holds in `edit_decisions.metadata.intentional_ranges`.
+- `skills/core/delivery-specs.md` — destination specs (YouTube, Shorts, Reels, TikTok), one complete version per language, SRT/VTT rules and chapters; never burn subtitles.
+- `skills/creative/film-look-finishing.md` — finish with `film_look` (preview one frame first); intensity follows the style (`flat_vector` is almost untouched), match color between models before adding texture, and always write BT.709 tags.

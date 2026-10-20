@@ -43,10 +43,13 @@ across all stages is to:
 | Stage | Director skill | Produces |
 |-------|----------------|----------|
 | `idea` | `idea-director.md` | brief (topic, tone, duration, shape) |
-| `scene` | `scene-director.md` | shot_list (slot descriptions + queries) |
+| `research` | `research-director.md` | research_brief (verified claims, footage sources + licences, ethics notes) |
+| `script` | `script-director.md` | script (beat map, on-screen text in EN/ES, verified end-tag, narration only if approved) |
+| `scene_plan` | `scene-director.md` | scene_plan (slot descriptions + queries) |
 | `assets` | `asset-director.md` | asset_manifest (corpus built + per-slot picks) |
 | `edit` | `edit-director.md` | edit_decisions (timeline + transitions + music) |
 | `compose` | `compose-director.md` | render_report (final mp4) |
+| `publish` | `publish-director.md` | publish_log (per-language package, credits, QC reports) |
 
 Each director skill has its own quality gate. Read the director skill
 before starting the stage.
@@ -73,6 +76,9 @@ call adapter classes directly from a skill or director.
 - **Build the corpus before picking clips**. Do not run clip_search
   against an empty or half-built corpus. If retrieval results are
   weak (all scores < 0.25), grow the corpus with new queries.
+- **Words on screen are claims.** Dates, places and the end-tag go
+  through `research` and `script`; a fact that cannot be sourced is cut,
+  not softened.
 - **Keep a decision log of rejected picks**. When you pass on a clip
   with a high score, note why (wrong era, overlit, wrong emotional
   register). This helps the review stage.

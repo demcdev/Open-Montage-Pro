@@ -39,6 +39,8 @@ required_skills:
   - meta/technical-qc-gate
   - core/loudness-mastering
   - creative/editing-craft
+  - core/delivery-specs
+  - creative/title-thumbnail-trailer
 
 compatible_playbooks:
   recommended:

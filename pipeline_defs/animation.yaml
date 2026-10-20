@@ -52,6 +52,11 @@ required_skills:
   - meta/guionista-core
   - meta/guionista-ficcion-animada
   - meta/guionista-documental
+  - core/delivery-specs
+  - creative/film-look-finishing
+  - creative/title-thumbnail-trailer
+  - meta/ai-shot-qa
+  - meta/budget-and-model-routing
 
 orchestration:
   mode: executive-producer
@@ -267,10 +272,12 @@ stages:
       - video_compose
       - audio_mixer
     optional_tools:
+      - film_look
       - audio_master
       - technical_qc
       - video_stitch
     tools_available:
+      - film_look
       - audio_master
       - technical_qc
       - video_compose

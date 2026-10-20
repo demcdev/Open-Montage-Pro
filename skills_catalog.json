@@ -7,8 +7,8 @@
       "Capa 2 (skills/): Habilidades directivas, convenciones, reglas de calidad y gobernanza de OpenMontage.",
       "Capa 3 (.agents/skills/): Habilidades técnicas de proveedores, modelos de IA y librerías instaladas en el repositorio."
     ],
-    "total_skills": 258,
-    "total_layer_2_skills": 168,
+    "total_skills": 267,
+    "total_layer_2_skills": 177,
     "total_layer_3_skills": 90
   },
   "layer_2_openmontage_skills": {
@@ -18,6 +18,12 @@
         "file": "color-grading.md",
         "path": "skills/core/color-grading.md",
         "description": "Aplicación de perfiles de color y LUTs en FFmpeg para homogeneizar metraje de distintas fuentes."
+      },
+      {
+        "name": "delivery-specs",
+        "file": "delivery-specs.md",
+        "path": "skills/core/delivery-specs.md",
+        "description": "Especificaciones de entrega por destino (YouTube 16:9, Shorts, Reels, TikTok), versiones completas en inglés y español, normas de SRT/VTT y capítulos; nunca subtítulos incrustados."
       },
       {
         "name": "ffmpeg",
@@ -58,6 +64,12 @@
     ],
     "meta": [
       {
+        "name": "ai-shot-qa",
+        "file": "ai-shot-qa.md",
+        "path": "skills/meta/ai-shot-qa.md",
+        "description": "Revisión de cada plano de video generado (manos, morphing, parpadeo, cambio de rostro) con frame_sampler y video_understand; aceptar, recortar o regenerar y registro de rechazos."
+      },
+      {
         "name": "animation-runtime-selector",
         "file": "animation-runtime-selector.md",
         "path": "skills/meta/animation-runtime-selector.md",
@@ -68,6 +80,12 @@
         "file": "bespoke-composition.md",
         "path": "skills/meta/bespoke-composition.md",
         "description": "Modo Atelier para diseñar videos desde cero a medida, sin plantillas genéricas."
+      },
+      {
+        "name": "budget-and-model-routing",
+        "file": "budget-and-model-routing.md",
+        "path": "skills/meta/budget-and-model-routing.md",
+        "description": "Niveles de plano para enrutar modelos (caros solo en planos héroe), estimación con estimate_cost real y control de gasto con cost_tracker y tope."
       },
       {
         "name": "capability-extension",
@@ -222,6 +240,12 @@
         "description": "Cobertura de escena, regla de 180°, línea de mirada, puesta en escena, lente y luz. Quien habla se ve."
       },
       {
+        "name": "clip-conform",
+        "file": "clip-conform.md",
+        "path": "skills/creative/clip-conform.md",
+        "description": "Igualar clips antes de editar con clip_conform: fps a 24 o 30, deflicker, interpolación solo para rellenar o cámara lenta, estabilización (vidstab) y reescalado con upscale."
+      },
+      {
         "name": "data-visualization",
         "file": "data-visualization.md",
         "path": "skills/creative/data-visualization.md",
@@ -250,6 +274,12 @@
         "file": "face-restore-usage.md",
         "path": "skills/creative/face-restore-usage.md",
         "description": "Restauración y mejora facial en videos o imágenes generadas."
+      },
+      {
+        "name": "film-look-finishing",
+        "file": "film-look-finishing.md",
+        "path": "skills/creative/film-look-finishing.md",
+        "description": "Acabado de imagen con film_look: grano, halación, bloom, viñeta, LUT .cube, empate de color entre modelos y etiquetas BT.709; intensidad según el estilo (casi nula en vector plano)."
       },
       {
         "name": "grok-prompting",
@@ -364,6 +394,12 @@
         "file": "talking-head-gen-usage.md",
         "path": "skills/creative/talking-head-gen-usage.md",
         "description": "Generación y animación de personajes parlantes a partir de fotos o avatares."
+      },
+      {
+        "name": "title-thumbnail-trailer",
+        "file": "title-thumbnail-trailer.md",
+        "path": "skills/creative/title-thumbnail-trailer.md",
+        "description": "Tres miniaturas honestas para la prueba A/B, opciones de título, títulos de serie, créditos y avance del próximo capítulo."
       },
       {
         "name": "typography",
@@ -733,10 +769,28 @@
           "description": "Idea Director - Documentary Montage Pipeline"
         },
         {
+          "name": "publish-director",
+          "file": "publish-director.md",
+          "path": "skills/pipelines/documentary-montage/publish-director.md",
+          "description": "Publish Director - Documentary Montage Pipeline"
+        },
+        {
+          "name": "research-director",
+          "file": "research-director.md",
+          "path": "skills/pipelines/documentary-montage/research-director.md",
+          "description": "Research Director - Documentary Montage Pipeline"
+        },
+        {
           "name": "scene-director",
           "file": "scene-director.md",
           "path": "skills/pipelines/documentary-montage/scene-director.md",
           "description": "Scene Director - Documentary Montage Pipeline"
+        },
+        {
+          "name": "script-director",
+          "file": "script-director.md",
+          "path": "skills/pipelines/documentary-montage/script-director.md",
+          "description": "Script Director - Documentary Montage Pipeline"
         }
       ],
       "explainer": [

@@ -29,6 +29,10 @@ required_skills:
   - meta/technical-qc-gate
   - core/loudness-mastering
   - creative/editing-craft
+  - core/delivery-specs
+  - creative/clip-conform
+  - creative/film-look-finishing
+  - creative/title-thumbnail-trailer
 
 orchestration:
   mode: executive-producer
@@ -121,9 +125,11 @@ stages:
     required_tools:
       - subtitle_gen     # captions
     optional_tools:
+      - clip_conform
       - audio_mixer      # audio prep
       - image_selector
     tools_available:
+      - clip_conform
       - subtitle_gen
       - audio_mixer
       - image_selector
@@ -177,6 +183,7 @@ stages:
       - video_compose    # rendering
       - audio_mixer      # audio layering + segmented music
     optional_tools:
+      - film_look
       - audio_master
       - technical_qc
       - face_enhance     # face enhancement
@@ -192,6 +199,7 @@ stages:
       - video_stitch     # multi-clip assembly with transitions
       - visual_qa        # frame extraction + quality validation
     tools_available:
+      - film_look
       - audio_master
       - technical_qc
       - video_compose

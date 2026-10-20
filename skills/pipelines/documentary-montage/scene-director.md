@@ -16,6 +16,8 @@ good as the slot descriptions you write.
 |-------|----------|---------|
 | Schema | `schemas/artifacts/scene_plan.schema.json` | Artifact validation |
 | Prior artifact | `state.artifacts["idea"]["brief"]` | Thematic question, tone, duration, shape |
+| Prior artifact | `state.artifacts["script"]["script"]` | Beat map (`metadata.beat_map`), on-screen text, silence windows — slots follow the movements |
+| Prior artifact | `state.artifacts["research"]["research_brief"]` (optional) | `metadata.footage_sources` (collections, search terms, licences) and `ethics_notes` |
 | Reference | `skills/pipelines/documentary-montage/executive-producer.md` | Cross-stage rules |
 | Tools | none yet — this stage is pure planning | — |
 
@@ -360,7 +362,7 @@ Approval is per-gate — an earlier "go ahead" does not cover this gate.
 <!-- guionista-skill -->
 ## Guionista Skill (Binding)
 
-Documentary montage has no separate `script` stage: the slot descriptions and any narration or titles are the script. Before writing them, read `skills/meta/guionista-core.md` and `skills/meta/guionista-documental.md` (claims register with sources, ethics for real people and victims, no humor where there is pain, licences for archive footage and music). The YouTube Policy Gate and this pipeline's contract win over them if they conflict.
+The `script` stage owns the beat map, the on-screen words and any narration; the slot descriptions here must follow its movements and never add a factual claim it did not verify. Before writing them, read `skills/meta/guionista-core.md` and `skills/meta/guionista-documental.md` (claims register with sources, ethics for real people and victims, no humor where there is pain, licences for archive footage and music). The YouTube Policy Gate and this pipeline's contract win over them if they conflict.
 
 ---
 

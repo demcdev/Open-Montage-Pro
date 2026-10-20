@@ -70,6 +70,9 @@ required_skills:
   - meta/technical-qc-gate
   - core/loudness-mastering
   - creative/editing-craft
+  - core/delivery-specs
+  - creative/clip-conform
+  - creative/title-thumbnail-trailer
 
 compatible_playbooks:
   recommended:
@@ -154,12 +157,14 @@ stages:
       - asset_manifest
     required_tools: []
     optional_tools:
+      - clip_conform
       - subtitle_gen
       - tts_selector
       - image_selector
       - diagram_gen
       - audio_enhance
     tools_available:
+      - clip_conform
       - subtitle_gen
       - tts_selector
       - image_selector

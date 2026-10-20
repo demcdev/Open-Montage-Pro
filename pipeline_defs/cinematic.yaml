@@ -58,6 +58,12 @@ required_skills:
   - creative/audio-post-cinema
   - meta/guionista-core
   - meta/guionista-ficcion-animada
+  - core/delivery-specs
+  - creative/clip-conform
+  - creative/film-look-finishing
+  - creative/title-thumbnail-trailer
+  - meta/ai-shot-qa
+  - meta/budget-and-model-routing
 
 compatible_playbooks:
   recommended:
@@ -178,6 +184,7 @@ stages:
     produces:
       - asset_manifest
     optional_tools:
+      - clip_conform
       - subtitle_gen
       - audio_enhance
       - image_selector
@@ -191,6 +198,7 @@ stages:
       - freesound_music
       - music_gen
     tools_available:
+      - clip_conform
       - subtitle_gen
       - audio_enhance
       - image_selector
@@ -250,6 +258,7 @@ stages:
       - video_compose
       - audio_mixer
     optional_tools:
+      - film_look
       - audio_master
       - technical_qc
       - video_stitch
@@ -258,6 +267,7 @@ stages:
       - audio_enhance
       - bgm_montage_lite
     tools_available:
+      - film_look
       - audio_master
       - technical_qc
       - video_compose

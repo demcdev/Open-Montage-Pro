@@ -93,6 +93,7 @@ Key capability families to look for in the output:
 | Subtitle Sync | `core/subtitle-sync.md` | Subtitle timing and alignment | `remotion-best-practices` |
 | Color Grading | `core/color-grading.md` | FFmpeg color profiles, LUT workflow, accessibility | `ffmpeg` |
 | Loudness Mastering | `core/loudness-mastering.md` | Final audio level per platform: two-pass linear master with `audio_master`, measured and verified (YouTube −14 LUFS / −1 dBTP, podcast, broadcast); de-esser for TTS | `ffmpeg` |
+| Delivery Specs | `core/delivery-specs.md` | Per-destination masters (YouTube 16:9, Shorts, Reels, TikTok), one complete EN/ES version each, SRT/VTT rules (42 chars, 17 cps), chapters; never burn subtitles | — |
 
 ## Creative Skills
 
@@ -131,6 +132,9 @@ Key capability families to look for in the output:
 | Cinematography | `creative/cinematography.md` | Scene coverage, 180° rule and eyelines, staging, lens and light decisions; fills `scene_plan.shot_language`. Speaking character stays on screen | — |
 | Editing Craft | `creative/editing-craft.md` | J/L cuts, cut on action, match cuts, reaction cuts, rhythm, humor flash cuts, trailer structure; `cut` is the only straight-cut value renderers honor | — |
 | Audio Post (Cinema) | `creative/audio-post-cinema.md` | Five sound layers (dialogue, ambience, foley, spot FX, music), per-scene sound map, licensed sources, dialogue space and dubbing | `sound-effects`, `media-use`, `hyperframes-media` |
+| Film Look Finishing | `creative/film-look-finishing.md` | Grain, halation, bloom, vignette, `.cube` LUTs (`assets/luts/`), shot color match across models, BT.709 tags with `film_look`; intensity by style (almost none on flat vector) | `ffmpeg` |
+| Clip Conform | `creative/clip-conform.md` | Conform clips with `clip_conform`: fps to 24/30, deflicker, interpolation only to fill frames or slow motion, vidstab stabilization, resize; delegates heavy upscaling to `upscale` | `ffmpeg` |
+| Title, Thumbnail & Trailer | `creative/title-thumbnail-trailer.md` | Three honest thumbnail variants for YouTube Test & Compare, title options, series title cards, credits, next-episode teaser | — |
 
 ## Pipeline Type Skills
 
@@ -285,6 +289,20 @@ Stage director skills teach the agent HOW to execute each pipeline stage. Each s
 | Compose Director | `pipelines/localization-dub/compose-director.md` | `compose` | Per-locale rendering, subtitle-fit checks, output labeling |
 | Publish Director | `pipelines/localization-dub/publish-director.md` | `publish` | Locale packaging, metadata precision, QA-note retention |
 
+### Documentary Montage Pipeline (`pipelines/documentary-montage/`)
+
+| Skill | File | Stage | Key Capabilities |
+|-------|------|-------|-----------------|
+| **Executive Producer** | `pipelines/documentary-montage/executive-producer.md` | `all` | **Retrieval-first orchestration, juxtaposition over narration, no generated clips by default** |
+| Idea Director | `pipelines/documentary-montage/idea-director.md` | `idea` | Thematic question, tone register, shape, mandatory music and end-tag plans |
+| Research Director | `pipelines/documentary-montage/research-director.md` | `research` | Verify every on-screen fact and the end-tag thesis, map archive sources and licences, ethics notes for real people |
+| Script Director | `pipelines/documentary-montage/script-director.md` | `script` | Beat map, sparse sourced on-screen text in EN/ES, verified end-tag, narration only if approved |
+| Scene Director | `pipelines/documentary-montage/scene-director.md` | `scene_plan` | CLIP-searchable slot descriptions and queries per movement |
+| Asset Director | `pipelines/documentary-montage/asset-director.md` | `assets` | Corpus build, per-slot retrieval, provenance and licences |
+| Edit Director | `pipelines/documentary-montage/edit-director.md` | `edit` | Beat-driven arrangement, holds, music sync, end-tag timing |
+| Compose Director | `pipelines/documentary-montage/compose-director.md` | `compose` | Remotion CinematicRenderer, uniform grade, end-tag overlay |
+| Publish Director | `pipelines/documentary-montage/publish-director.md` | `publish` | Per-language packages, archive credits and attribution, QC per master |
+
 ## Meta Skills
 
 Cross-cutting skills that apply to all pipelines:
@@ -305,6 +323,8 @@ Cross-cutting skills that apply to all pipelines:
 | Production Bible | `meta/production-bible.md` | Visual/sound contract per project or series: character sheets, wardrobe states, locations, light map, reference injection per model, continuity check |
 | Shot List & Storyboard | `meta/shot-list-storyboard.md` | One `scene_plan` entry per shot, one keyframe per shot, approval ladder one frame → board → 30 s before producing |
 | Technical QC Gate | `meta/technical-qc-gate.md` | Binding technical gate with `technical_qc`: black, freeze, silence, loudness, true peak, conformity, licenses → pass / warn / block |
+| AI Shot QA | `meta/ai-shot-qa.md` | Frame-by-frame review of every generated clip (hands, morphing, flicker, face drift) with `frame_sampler` + `video_understand`; accept / trim / regenerate threshold and rejection log |
+| Budget & Model Routing | `meta/budget-and-model-routing.md` | Shot tiers (premium models only on hero shots), real `estimate_cost` estimates into `proposal_packet.cost_estimate`, spend control with `cost_tracker` (estimate → reserve → reconcile) |
 
 ## Style Playbooks
 

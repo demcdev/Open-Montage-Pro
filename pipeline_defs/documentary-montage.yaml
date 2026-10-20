@@ -32,10 +32,13 @@ extensions:
 required_skills:
   - pipelines/documentary-montage/executive-producer
   - pipelines/documentary-montage/idea-director
+  - pipelines/documentary-montage/research-director
+  - pipelines/documentary-montage/script-director
   - pipelines/documentary-montage/scene-director
   - pipelines/documentary-montage/asset-director
   - pipelines/documentary-montage/edit-director
   - pipelines/documentary-montage/compose-director
+  - pipelines/documentary-montage/publish-director
   - meta/reviewer
   - meta/checkpoint-protocol
   - meta/youtube-policy-gate
@@ -47,6 +50,10 @@ required_skills:
   - creative/audio-post-cinema
   - meta/guionista-core
   - meta/guionista-documental
+  - core/delivery-specs
+  - creative/clip-conform
+  - creative/film-look-finishing
+  - creative/title-thumbnail-trailer
 
 compatible_playbooks:
   custom_allowed: true
@@ -72,10 +79,53 @@ stages:
       - music_plan present in metadata (source may be `none` ONLY with explicit user opt-out note)
       - end_tag_plan present in metadata (text, palette, duration, mode — may be `null` ONLY with explicit user opt-out note)
 
+  - name: research
+    skill: pipelines/documentary-montage/research-director
+    required_artifacts_in:
+      - brief
+    produces:
+      - research_brief
+    tools_available:
+      - web_search
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Every date, place, name and the end-tag thesis are backed by a data point or listed in claims_to_cut
+      - Footage sources are mapped only from providers available at preflight, each with its licence
+      - Ethics notes exist when identifiable real people appear
+    success_criteria:
+      - Schema-valid research_brief artifact
+      - metadata.footage_sources[] present with licence per source
+      - At least 3 verified data_points
+
+  - name: script
+    skill: pipelines/documentary-montage/script-director
+    required_artifacts_in:
+      - brief
+      - research_brief
+    produces:
+      - script
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Beat map matches the brief shape and duration
+      - On-screen words are few, exact and sourced (source_ref on every factual word)
+      - End-tag is the approved brief line, verified and unchanged
+      - No narration unless the brief approved it
+      - Every on-screen text exists in English and Spanish
+    success_criteria:
+      - Schema-valid script artifact
+      - metadata.beat_map and metadata.on_screen_text present
+      - Sum of section durations within 5% of brief duration
+
   - name: scene_plan
     skill: pipelines/documentary-montage/scene-director
     required_artifacts_in:
       - brief
+      - script
+    optional_artifacts_in:
+      - research_brief
     produces:
       - scene_plan
     tools_available: []
@@ -101,11 +151,13 @@ stages:
       - asset_manifest
     required_tools: []  # fast path needs only direct_clip_search; standard path needs corpus_builder + clip_search
     optional_tools:
+      - clip_conform
       - direct_clip_search
       - corpus_builder
       - clip_search
       - music_gen
     tools_available:
+      - clip_conform
       - direct_clip_search
       - corpus_builder
       - clip_search
@@ -158,6 +210,7 @@ stages:
     required_tools:
       - video_compose
     optional_tools:
+      - film_look
       - audio_master
       - technical_qc
       - audio_mixer
@@ -165,6 +218,7 @@ stages:
       - video_trimmer
       - video_stitch
     tools_available:
+      - film_look
       - audio_master
       - technical_qc
       - video_compose
@@ -189,3 +243,34 @@ stages:
       - render_report.end_tag_rendered = true (or explicit opt-out)
       - render_report.end_tag_mode = "overlay" or "concat"
       - render_report.music_mixed = true (or explicit opt-out)
+
+  - name: publish
+    skill: pipelines/documentary-montage/publish-director
+    required_artifacts_in:
+      - render_report
+    optional_artifacts_in:
+      - brief
+      - script
+      - research_brief
+      - asset_manifest
+    produces:
+      - publish_log
+    required_tools:
+      - export_bundle
+    optional_tools:
+      - technical_qc
+      - subtitle_gen
+    tools_available:
+      - technical_qc
+      - export_bundle
+      - subtitle_gen
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Every shipped master passed technical_qc (planned holds declared as intentional ranges)
+      - Credits cover every asset whose licence requires attribution
+      - One complete package per rendered language; no burned-in subtitles
+      - Thumbnails are real frames from the film and metadata is honest
+    success_criteria:
+      - Schema-valid publish_log artifact
+      - Export package contains video, metadata and thumbnail per language

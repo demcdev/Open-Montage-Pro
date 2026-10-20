@@ -220,3 +220,12 @@ This stage gates on human approval (`human_approval_default: true`). After revie
 checkpoint with `status="awaiting_human"`, present the summary (the Backlot board renders
 the artifact), and **END YOUR TURN**. Do not start the next stage in the same response.
 Approval is per-gate — an earlier "go ahead" does not cover this gate.
+
+---
+
+<!-- transversal-skills-2026-10 -->
+## Transversal Skills (Binding)
+
+Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
+
+- `skills/creative/clip-conform.md` — run `clip_conform` `analyze` on every incoming clip and conform it to the project fps and size before review and edit; interpolate only to fill frames or for slow motion, never on animation.

@@ -122,3 +122,5 @@ Read these before working in this stage. They are shared across pipelines; this 
 
 - `skills/meta/production-bible.md` — characters, wardrobe states, locations, light map and references come from the project bible; run its continuity check on sampled frames.
 - `skills/creative/audio-post-cinema.md` — five sound layers, per-scene sound map in `edit_decisions.metadata.sound_map`, licensed sources only.
+- `skills/creative/clip-conform.md` — run `clip_conform` `analyze` on every incoming clip and conform it to the project fps and size before review and edit; interpolate only to fill frames or for slow motion, never on animation.
+- `skills/meta/ai-shot-qa.md` — review every generated clip frame by frame (`frame_sampler` + visual inspection, `video_understand` as a second opinion); accept, trim or regenerate by the threshold and log rejections in `asset_manifest.metadata.shot_qa`.

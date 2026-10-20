@@ -65,7 +65,7 @@ Cada fila agrupa varias propuestas de los reportes. Ninguna se clona en los 12 p
 | 6 | `editing-craft` | Cortes J y L, corte sobre la acción, corte por coincidencia (forma, color, movimiento), ritmo de escena, cortes relámpago para humor y estructura de tráiler | El `edit-director` cinematic tiene solo 2 KB. Incluye tu preferencia de cortes rápidos a otra escena | Sonnet (`cinematic-editing-craft`), Qwen (`seamless-transition-engine`), Gemini Flash (`match-cut-and-seamless-flow`) | `skills/creative/editing-craft.md`. La enlazan todos los `edit-director` |
 | 7 | `audio-post-cinema` | Arquitectura de sonido por capas: ambiente o room tone, foley, efectos puntuales, música y voz. Incluye mapa de dónde entra y sale la música y silencios intencionales | `sound-design.md` está pensada para explicativos. Tus capítulos usan una capa ambiental sintética provisional | Sonnet, Gemini Flash (`foley-and-micro-sfx-layering`), Opus (`sound-supervisor`) | `skills/creative/audio-post-cinema.md`. La enlazan `asset-director` y `edit-director` |
 
-### Fase 2: prioridad media
+### Fase 2: prioridad media (hecha el 2026-10-20)
 
 | # | Skill | Qué hace | Por qué sí | Propuesta por | Dónde se implementa |
 |---|---|---|---|---|---|
@@ -140,10 +140,10 @@ Cada fila agrupa varias propuestas de los reportes. Ninguna se clona en los 12 p
 
 1. **Higiene (horas):** borrar `heygen`, nota de Wav2Lip, sincronizar `.claude/skills/` (`scripts/sync_claude_skills.py`). **Hecho el 2026-10-20.**
 2. **Fase 1:** `technical-qc-gate`, `loudness-mastering`, `production-bible`, `shot-list-storyboard`, `cinematography-director` (archivo `skills/creative/cinematography.md`), `editing-craft`, `audio-post-cinema`. **Hecho el 2026-10-20**, con dos herramientas nuevas: `technical_qc` y `audio_master` (en vez de modificar `audio_mixer`).
-3. **Fase 2:** `film-look-finishing`, `clip-conform`, `ai-shot-qa`, `delivery-specs`, `title-thumbnail-trailer`, `budget-and-model-routing`, directores de `documentary-montage`.
+3. **Fase 2:** `film-look-finishing`, `clip-conform`, `ai-shot-qa`, `delivery-specs`, `title-thumbnail-trailer`, `budget-and-model-routing`, directores de `documentary-montage`. **Hecho el 2026-10-20**, con dos herramientas nuevas: `film_look` (`tools/enhancement/`, más 4 LUTs CC0 en `assets/luts/`) y `clip_conform` (`tools/video/`, delega el reescalado en `upscale`). `ai-shot-qa` no necesitó herramienta: usa `frame_sampler`, `video_understand`, `clip_conform` y `technical_qc`. `documentary-montage` suma los stages `research`, `script` y `publish`. La interpolación usa `minterpolate` de FFmpeg; RIFE no está en el repo.
 4. **Fase 3:** `performance-analytics-loop`, `genre-playbooks` y, si aplica, `vfx-compositing` y guías de Kling y Runway.
 
-Las skills 1, 2, 8, 9 y 10 necesitan herramientas nuevas en Python además del texto. Las demás son solo instrucciones.
+Las skills 1, 2, 8 y 9 necesitaron herramientas nuevas en Python además del texto; la 10 se resolvió con herramientas existentes. Las demás son solo instrucciones.
 
 ## 8. Advertencias
 
