@@ -44,3 +44,12 @@ Recommended metadata keys:
 - Forcing every language to match source timing exactly.
 - Mixing locale-specific notes into one ambiguous edit list.
 - Hiding sections where the dub treatment is visually weak.
+
+---
+
+<!-- transversal-skills-2026-10 -->
+## Transversal Skills (Binding)
+
+Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
+
+- `skills/creative/editing-craft.md` — cut types (J/L, on action, match, reaction), rhythm, humor cuts; use `cut` for every straight cut (other strings render as fades).

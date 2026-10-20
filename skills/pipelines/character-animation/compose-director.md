@@ -47,3 +47,13 @@ sampling, and report the reduced confidence.
 
 Do not present the output as complete when `character_qa_report.status` is
 `revise` or `fail`.
+
+---
+
+<!-- transversal-skills-2026-10 -->
+## Transversal Skills (Binding)
+
+Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
+
+- `skills/core/loudness-mastering.md` — master the final mix with `audio_master` (two-pass, linear) to the delivery preset; never ship a single-pass draft level.
+- `skills/meta/technical-qc-gate.md` — run `technical_qc` on every render shown to the user and on the final master; `block` stops delivery, every `warn` is opened and resolved. Declare planned silences/holds in `edit_decisions.metadata.intentional_ranges`.

@@ -234,3 +234,13 @@ Recommended metadata keys:
 - **Skipping `composition_validator`** — catches missing files, bad timings, audio mismatches before you waste render time.
 - **Not extracting frames for self-review** — a rendered video is not "done" until frames are visually inspected. Black frames, missing particles, or invisible images are not always obvious from file size alone.
 - **Using `durationInFrames` from `useVideoConfig()` for scene-level timing** — this returns the FULL composition duration, not the scene's Sequence duration. See `skills/core/remotion.md` Critical Constraints.
+
+---
+
+<!-- transversal-skills-2026-10 -->
+## Transversal Skills (Binding)
+
+Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
+
+- `skills/core/loudness-mastering.md` — master the final mix with `audio_master` (two-pass, linear) to the delivery preset; never ship a single-pass draft level.
+- `skills/meta/technical-qc-gate.md` — run `technical_qc` on every render shown to the user and on the final master; `block` stops delivery, every `warn` is opened and resolved. Declare planned silences/holds in `edit_decisions.metadata.intentional_ranges`.

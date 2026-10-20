@@ -64,3 +64,12 @@ Recommended metadata keys:
 - Letting branding delay the hook.
 - Overcrowding the screen with hook text, subtitles, watermark, and lower third simultaneously.
 - Applying inconsistent transition timing across the batch.
+
+---
+
+<!-- transversal-skills-2026-10 -->
+## Transversal Skills (Binding)
+
+Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
+
+- `skills/creative/editing-craft.md` — cut types (J/L, on action, match, reaction), rhythm, humor cuts; use `cut` for every straight cut (other strings render as fades).

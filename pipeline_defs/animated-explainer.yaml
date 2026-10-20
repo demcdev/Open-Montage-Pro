@@ -41,6 +41,12 @@ required_skills:
   - meta/skill-creator
   - meta/animation-runtime-selector
   - meta/voice-performance-director
+  - meta/technical-qc-gate
+  - core/loudness-mastering
+  - creative/editing-craft
+  - meta/production-bible
+  - meta/shot-list-storyboard
+  - creative/cinematography
 
 orchestration:
   mode: executive-producer
@@ -230,8 +236,12 @@ stages:
       - video_compose
       - audio_mixer
     optional_tools:
+      - audio_master
+      - technical_qc
       - video_stitch
     tools_available:
+      - audio_master
+      - technical_qc
       - video_compose
       - hyperframes_compose
       - video_stitch
@@ -257,7 +267,7 @@ stages:
       - proposal_packet
     produces:
       - publish_log
-    tools_available: [export_bundle]
+    tools_available: [export_bundle, technical_qc]
     checkpoint_required: true
     human_approval_default: true
     review_focus:

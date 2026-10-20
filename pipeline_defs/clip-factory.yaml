@@ -34,6 +34,9 @@ required_skills:
   - pipelines/clip-factory/publish-director
   - meta/reviewer
   - meta/checkpoint-protocol
+  - meta/technical-qc-gate
+  - core/loudness-mastering
+  - creative/editing-craft
 
 compatible_playbooks:
   recommended:
@@ -167,9 +170,13 @@ stages:
       - video_trimmer
       - audio_mixer
     optional_tools:
+      - audio_master
+      - technical_qc
       - audio_enhance
       - color_grade
     tools_available:
+      - audio_master
+      - technical_qc
       - video_compose
       - video_trimmer
       - audio_mixer
@@ -194,7 +201,7 @@ stages:
       - brief
     produces:
       - publish_log
-    tools_available: []
+    tools_available: [technical_qc]
     checkpoint_required: true
     human_approval_default: true
     review_focus:

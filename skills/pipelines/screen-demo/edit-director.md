@@ -85,3 +85,12 @@ Use `cuts[]` for actual source segments and speed changes. Use `overlays[]`, `su
 - Overbuilding the edit with cinematic transitions the workflow does not need.
 - Letting sped-up audio become a wall of harsh clicks and typing.
 - Forgetting that crop and speed plans live in metadata, not arbitrary schema fields.
+
+---
+
+<!-- transversal-skills-2026-10 -->
+## Transversal Skills (Binding)
+
+Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
+
+- `skills/creative/editing-craft.md` — cut types (J/L, on action, match, reaction), rhythm, humor cuts; use `cut` for every straight cut (other strings render as fades).

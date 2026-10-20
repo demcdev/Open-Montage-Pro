@@ -45,3 +45,12 @@ Recommended metadata keys:
 - Overcutting to simulate energy.
 - Letting captions, side panels, and lower thirds compete for the same area.
 - Ending without a clean CTA hold.
+
+---
+
+<!-- transversal-skills-2026-10 -->
+## Transversal Skills (Binding)
+
+Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
+
+- `skills/creative/editing-craft.md` — cut types (J/L, on action, match, reaction), rhythm, humor cuts; use `cut` for every straight cut (other strings render as fades).

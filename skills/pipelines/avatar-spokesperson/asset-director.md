@@ -142,3 +142,12 @@ Approval is per-gate — an earlier "go ahead" does not cover this gate.
 ## HeyGen Avatar V
 
 Use `heygen_avatar` for explicitly approved HeyGen digital twins. Inspect the look before rendering: Avatar V requires `digital_twin` and `avatar_v` in `supported_api_engines`. Pass script plus voice_id, or one supplied audio source. Keep the returned resume_job/job_path if polling times out; resume the job instead of submitting again. An ineligible look is a blocker, never permission to switch to Avatar IV. Read the provider-model-refresh skill.
+
+---
+
+<!-- transversal-skills-2026-10 -->
+## Transversal Skills (Binding)
+
+Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
+
+- `skills/meta/production-bible.md` — characters, wardrobe states, locations, light map and references come from the project bible; run its continuity check on sampled frames.

@@ -74,3 +74,12 @@ If the scene plan includes overlays:
 ### Step 7: Submit
 
 Validate the edit_decisions against the schema and persist via checkpoint.
+
+---
+
+<!-- transversal-skills-2026-10 -->
+## Transversal Skills (Binding)
+
+Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
+
+- `skills/creative/editing-craft.md` — cut types (J/L, on action, match, reaction), rhythm, humor cuts; use `cut` for every straight cut (other strings render as fades).

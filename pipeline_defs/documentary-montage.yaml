@@ -38,6 +38,12 @@ required_skills:
   - pipelines/documentary-montage/compose-director
   - meta/reviewer
   - meta/checkpoint-protocol
+  - meta/technical-qc-gate
+  - core/loudness-mastering
+  - creative/editing-craft
+  - meta/shot-list-storyboard
+  - creative/cinematography
+  - creative/audio-post-cinema
 
 compatible_playbooks:
   custom_allowed: true
@@ -149,11 +155,15 @@ stages:
     required_tools:
       - video_compose
     optional_tools:
+      - audio_master
+      - technical_qc
       - audio_mixer
       - color_grade
       - video_trimmer
       - video_stitch
     tools_available:
+      - audio_master
+      - technical_qc
       - video_compose
       - audio_mixer
       - color_grade

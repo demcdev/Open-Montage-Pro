@@ -25,6 +25,9 @@ required_skills:
   - pipelines/talking-head/publish-director
   - meta/reviewer
   - meta/checkpoint-protocol
+  - meta/technical-qc-gate
+  - core/loudness-mastering
+  - creative/editing-craft
 
 orchestration:
   mode: executive-producer
@@ -173,6 +176,8 @@ stages:
       - video_compose    # rendering
       - audio_mixer      # audio layering + segmented music
     optional_tools:
+      - audio_master
+      - technical_qc
       - face_enhance     # face enhancement
       - eye_enhance      # eye brightening, dark circle removal
       - color_grade      # color correction
@@ -186,6 +191,8 @@ stages:
       - video_stitch     # multi-clip assembly with transitions
       - visual_qa        # frame extraction + quality validation
     tools_available:
+      - audio_master
+      - technical_qc
       - video_compose
       - audio_mixer
       - face_enhance
@@ -217,7 +224,7 @@ stages:
       - final_review
     produces:
       - publish_log
-    tools_available: []
+    tools_available: [technical_qc]
     checkpoint_required: true
     human_approval_default: true
     review_focus:

@@ -684,7 +684,7 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | **Video generation** | `seedance-2-0` (preferred premium default — cinematic, trailer, multi-shot, synced audio, lip-sync), `gemini-omni` (conversational video editing, reference tags, timecoded beats), `ai-video-gen`, `ltx2` |
 | **Audio** | `elevenlabs`, `music`, `sound-effects`, `acestep`, `text-to-speech`, `azure-text-to-speech` (optional cloud TTS — tool `azure_tts`, same Speech key as `azure_stt`), `setup-api-key` |
 | **Speech-to-text** | `speech-to-text` (whisper `transcriber` — default, offline), `azure-speech-to-text` (optional cloud STT — tool `azure_stt`, preferred when `AZURE_SPEECH_KEY` is set) |
-| **Avatar / lip-sync** | `avatar-video`, `heygen`, `create-video`, `faceswap`, `video-translate`, `agents` |
+| **Avatar / lip-sync** | `avatar-video`, `create-video`, `faceswap`, `video-translate`, `agents` |
 | **Capture** | `playwright-recording` (browser flows), `ffmpeg` (post) |
 | **Visualization** | `beautiful-mermaid`, `d3-viz`, `manim-composer`, `manimce-best-practices`, `manimgl-best-practices` |
 | **Media editing** | `video-edit`, `video-download`, `video-understand`, `video-toolkit`, `visual-style` |
@@ -703,6 +703,13 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | How does a tool actually work? | the tool's `usage_location` from the registry |
 | How should this pipeline stage behave? | `skills/pipelines/<pipeline>/...` |
 | What is the checkpoint/review policy? | `skills/meta/` |
+| Is this render technically fit to ship (black frames, silences, loudness, specs, licenses)? | `skills/meta/technical-qc-gate.md` (tool `technical_qc`) |
+| How loud should the final audio be, and how do I master it? | `skills/core/loudness-mastering.md` (tool `audio_master`) |
+| How do I keep characters, wardrobe, locations and light consistent across shots and chapters? | `skills/meta/production-bible.md` |
+| How do I plan shots and get them approved before producing? | `skills/meta/shot-list-storyboard.md` |
+| How should a scene be covered, staged and lit? | `skills/creative/cinematography.md` |
+| Where and how should I cut? | `skills/creative/editing-craft.md` |
+| How do I build the sound of a fiction or cinematic scene? | `skills/creative/audio-post-cinema.md` |
 
 ## What Not To Do
 

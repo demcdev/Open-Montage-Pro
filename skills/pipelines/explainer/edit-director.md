@@ -168,3 +168,12 @@ Validate the edit_decisions artifact against the schema and persist via checkpoi
 - **No ducking**: Music playing at full volume under narration makes the video unwatchable. Always configure ducking.
 - **Same transition everywhere**: Varying transitions creates rhythm. Use the playbook's allowed set, but don't use the same one for every cut.
 - **Subtitle font mismatch**: Subtitles should use the playbook's body font, not a random default.
+
+---
+
+<!-- transversal-skills-2026-10 -->
+## Transversal Skills (Binding)
+
+Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
+
+- `skills/creative/editing-craft.md` — cut types (J/L, on action, match, reaction), rhythm, humor cuts; use `cut` for every straight cut (other strings render as fades).

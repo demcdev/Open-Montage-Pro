@@ -14,6 +14,26 @@ RESIZE FACTOR:    1 = full res (best), 2 = half res (recommended for drafts)
 KEY RULE:         Use lip_sync for VIDEO input; use talking_head for PHOTO input
 ```
 
+## Choose the Lip-Sync Path First
+
+Wav2Lip (2020) works on a low-resolution mouth crop, so on close-ups and 1080p+
+faces the mouth region often looks soft or smeared. Treat `lip_sync` as the
+**fallback**, not the default. Prefer, in this order:
+
+1. **Native lip-sync at generation time** — Seedance 2.0/2.5 or Veo with dialogue
+   in the prompt (see `skills/creative/prompting/seedance-prompting.md`), or a
+   HeyGen avatar (`heygen_avatar`, `heygen_video`). Audio and mouth are generated
+   together, so there is nothing to re-sync.
+2. **`kling_lip_sync`** — when the clip already exists and must take new audio
+   (dubbing, line changes). Read `.agents/skills/kling-official/SKILL.md` first.
+3. **`lip_sync` (Wav2Lip)** — offline, free, or when the providers above are
+   unavailable. Fine for drafts, wide shots and small faces.
+4. **2D/vector animation** — do not use any of these. Drive the mouth from the
+   dialogue audio envelope inside the composition so it opens smoothly with the
+   voice; random open/close cycles read as fake.
+
+Announce the chosen path and why (Decision Communication Contract in `AGENT_GUIDE.md`).
+
 ## When to Use lip_sync
 
 Lip sync is a **post-production** step. Use it after generating replacement audio.

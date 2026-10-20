@@ -48,6 +48,13 @@ required_skills:
   - meta/reviewer
   - meta/checkpoint-protocol
   - meta/animation-runtime-selector
+  - meta/technical-qc-gate
+  - core/loudness-mastering
+  - creative/editing-craft
+  - meta/production-bible
+  - meta/shot-list-storyboard
+  - creative/cinematography
+  - creative/audio-post-cinema
 
 compatible_playbooks:
   recommended:
@@ -240,12 +247,16 @@ stages:
       - video_compose
       - audio_mixer
     optional_tools:
+      - audio_master
+      - technical_qc
       - video_stitch
       - video_trimmer
       - color_grade
       - audio_enhance
       - bgm_montage_lite
     tools_available:
+      - audio_master
+      - technical_qc
       - video_compose
       - hyperframes_compose
       - audio_mixer
@@ -277,7 +288,7 @@ stages:
       - script
     produces:
       - publish_log
-    tools_available: []
+    tools_available: [technical_qc]
     checkpoint_required: true
     human_approval_default: true
     review_focus:
