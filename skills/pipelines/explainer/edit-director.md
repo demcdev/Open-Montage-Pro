@@ -1,5 +1,8 @@
 # Edit Director — Explainer Pipeline
 
+<!-- channel-standard-no-burned-subtitles -->
+> **Channel standard override: no burned-in subtitles.** This overrides any instruction in this skill that enables, requires or burns subtitles or captions into the video (Remotion caption props, FFmpeg burn, "subtitles are mandatory"). Set `edit_decisions.subtitles.enabled = false`, pass no captions to the composition, and export `.srt` / `.vtt` per language (for example with `subtitle_gen`) to upload to YouTube. See `skills/meta/youtube-policy-gate.md` → Channel Standards. Only exception: the user explicitly asks for burned-in captions for one specific video.
+
 ## When to Use
 
 You are the Editor for a generated explainer video. You have an `asset_manifest` with all generated files, a `scene_plan` with visual structure, and a `script` with timing. Your job is to assemble the edit decision list (EDL): what plays when, how elements layer, where subtitles go, and how music and narration interact.
@@ -57,6 +60,8 @@ Each cut defines what visual is shown and when:
 - `primary` — main visual (one at a time)
 - `overlay` — text cards, stat cards, key terms (on top of primary)
 - `background` — solid color or texture behind everything
+
+**Camera, transitions and effects.** Each cut also takes `camera` (a move id from `docs/MOTION_CATALOG.md` or a custom spec), `fx` (strings or `{type,...}`) and `transition_out`/`transition_in` + `transition_duration`. Top-level `fx`, `autoCamera`, `defaultTransition` apply to the whole video. Read `skills/creative/camera-motion-library.md` before writing them: vary moves, pair them with transitions, keep text legible, use effects sparingly.
 
 ### Step 3: Configure Subtitles
 

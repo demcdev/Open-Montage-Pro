@@ -25,6 +25,7 @@ required_skills:
   - pipelines/talking-head/publish-director
   - meta/reviewer
   - meta/checkpoint-protocol
+  - meta/youtube-policy-gate
   - meta/technical-qc-gate
   - core/loudness-mastering
   - creative/editing-craft
@@ -155,7 +156,7 @@ stages:
     human_approval_default: false
     review_focus:
       - Cuts reference valid source files
-      - Subtitles enabled with proper styling
+      - Subtitles stay off in the video (captions exported as .srt/.vtt for YouTube)
       - Audio configuration is complete
     success_criteria:
       - Schema-valid edit_decisions artifact
@@ -211,7 +212,7 @@ stages:
     human_approval_default: false
     review_focus:
       - Output video exists and is playable
-      - Subtitles are synced with speech
+      - Caption files (.srt/.vtt) are synced with speech; nothing is burned into the video
       - Audio is clear with balanced levels
     success_criteria:
       - Schema-valid render_report artifact

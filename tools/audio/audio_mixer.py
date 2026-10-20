@@ -238,6 +238,25 @@ class AudioMixer(BaseTool):
         """
         return f"[{in_label}]alimiter=limit=1:level=0[{out_label}]"
 
+    def _stereo48(self, path: str) -> str:
+        """Filter chain that brings any input to 48 kHz stereo WITHOUT changing level.
+
+        FFmpeg's default mono->stereo upmix is power-preserving (-3 dB per
+        channel), so mono sources are duplicated with ``pan`` instead.
+        """
+        try:
+            channels = int(
+                self.run_command(
+                    ["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries",
+                     "stream=channels", "-of", "csv=p=0", str(path)]
+                ).stdout.strip().splitlines()[0]
+            )
+        except Exception:
+            channels = 2
+        if channels == 1:
+            return "aresample=48000,pan=stereo|c0=c0|c1=c0"
+        return "aresample=48000,aformat=channel_layouts=stereo"
+
     def _track_filters(self, track: dict[str, Any]) -> list[str]:
         """Build per-track filters on the source timeline before scheduling it.
 
@@ -314,7 +333,10 @@ class AudioMixer(BaseTool):
 
         for i, track in enumerate(tracks):
             input_args.extend(["-i", track["path"]])
-            filters = self._track_filters(track)
+            # amix keeps the FIRST input's format. TTS narration is usually
+            # 24 kHz mono, which would silently downmix and band-limit the music
+            # ("radio" sound). Normalise every track to 48 kHz stereo first.
+            filters = [self._stereo48(track["path"])] + self._track_filters(track)
 
             if filters:
                 filter_chain = ",".join(filters)
@@ -433,13 +455,17 @@ class AudioMixer(BaseTool):
 
         # Sidechain compress: use speech as the key signal to duck music
         filter_complex = (
-            f"[1:a]sidechaincompress="
+            # Both inputs go to 48 kHz stereo so mono 24 kHz speech cannot drag
+            # the music down to its format (that sounded like a radio).
+            f"[0:a]{self._stereo48(speech_path)},asplit=2[sp][sc];"
+            f"[1:a]{self._stereo48(music_path)}[mu];"
+            f"[mu][sc]sidechaincompress="
             f"threshold=0.02:ratio=9:attack={attack}:release={release}:"
             f"level_sc=1:mix=0.9[ducked];"
             f"[ducked]volume={music_vol * 3}[music_out];"  # compensate sidechain level
             # normalize=0: the default normalize=1 halves both inputs, so the
             # speech came out 6 dB down. No loudnorm follows, so guard clipping.
-            f"[0:a][music_out]amix=inputs=2:duration=longest:normalize=0[mixed];"
+            f"[sp][music_out]amix=inputs=2:duration=longest:normalize=0[mixed];"
             + self._limiter_filter("mixed", "out")
         )
 

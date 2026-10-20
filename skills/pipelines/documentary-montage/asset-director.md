@@ -516,6 +516,11 @@ clip_search.execute({
 Used when the edit director wants to confirm the provider/URL before
 locking the cut.
 
+<!-- youtube-policy-gate -->
+## YouTube Policy Gate
+
+Apply the **assets** row of `skills/meta/youtube-policy-gate.md`: record `license` and `source_tool` for every asset; music only from the YouTube Audio Library, our own music, or a source licensed for monetizing on YouTube (keep the evidence); no realistic AI imagery presented as real; no real-person likeness.
+
 ---
 
 ## Gate Reminder (Binding)

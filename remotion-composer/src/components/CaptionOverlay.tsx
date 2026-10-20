@@ -138,6 +138,14 @@ const PageRenderer: React.FC<{
   );
 };
 
+// Soft cross-fade between caption pages instead of an abrupt swap.
+const PageFade: React.FC<{ duration: number; children: React.ReactNode }> = ({ duration, children }) => {
+  const frame = useCurrentFrame();
+  const fadeIn = interpolate(frame, [0, 5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeOut = interpolate(frame, [Math.max(0, duration - 4), duration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return <AbsoluteFill style={{ opacity: Math.min(fadeIn, fadeOut) }}>{children}</AbsoluteFill>;
+};
+
 export const CaptionOverlay: React.FC<CaptionOverlayProps> = ({
   words,
   wordsPerPage = 6,
@@ -163,15 +171,17 @@ export const CaptionOverlay: React.FC<CaptionOverlayProps> = ({
 
         return (
           <Sequence key={i} from={fromFrame} durationInFrames={duration}>
-            <PageRenderer
-              page={page}
-              fontSize={fontSize}
-              color={color}
-              highlightColor={highlightColor}
-              backgroundColor={backgroundColor}
-              fontFamily={fontFamily}
-              wordSeparator={wordSeparator}
-            />
+            <PageFade duration={duration}>
+              <PageRenderer
+                page={page}
+                fontSize={fontSize}
+                color={color}
+                highlightColor={highlightColor}
+                backgroundColor={backgroundColor}
+                fontFamily={fontFamily}
+                wordSeparator={wordSeparator}
+              />
+            </PageFade>
           </Sequence>
         );
       })}

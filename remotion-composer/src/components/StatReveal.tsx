@@ -29,7 +29,7 @@ export const StatReveal: React.FC<StatRevealProps> = ({
   const scale = spring({
     frame,
     fps,
-    config: { damping: 10, stiffness: 100, mass: 0.8 },
+    config: { damping: 26, stiffness: 70, mass: 1 },
     from: 0,
     to: 1,
   });

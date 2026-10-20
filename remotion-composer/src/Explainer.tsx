@@ -33,6 +33,13 @@ import { ProviderChip } from "./components/ProviderChip";
 import { resolveAsset } from "./lib/resolveAsset";
 import type { ParticleType } from "./components/ParticleOverlay";
 import { resolveTheme, type ThemeConfig, DEFAULT_THEME } from "./Root";
+import { Stage, SceneTimingContext, normalizeFx, type FxItem } from "./lib/stage";
+import { legacyMotionToSpec, moveIds, type CameraInput } from "./lib/motion";
+import { TransitionShell, normalizeTransition, type TransitionSpec } from "./lib/transitions";
+import { ScaleWorld, BoneSection } from "./components/ScaleScene";
+import type { ScaleWorldProps } from "./components/ScaleScene";
+import { KineticText, SplitScreen, Collage, FocusRing, Arrow, LowerThird, HudFrame } from "./components/Cinematic";
+import type { TextMode, Panel, SplitLayout, CollageItem } from "./components/Cinematic";
 
 // Load Space Grotesk font for cinematic typography
 const { fontFamily } = loadSpaceGrotesk(["400", "700"]);
@@ -235,6 +242,39 @@ interface Cut {
   backgroundVideo?: string; // Video clip rendered behind the component (takes priority over backgroundImage)
   backgroundVideoStart?: number; // Seek position in seconds for background video (default 0)
   backgroundOverlay?: number; // Opacity of dark overlay on backgroundImage/backgroundVideo (0-1, default 0.55)
+  /**
+   * Camera move on backgroundImage. Scale zooms toward `origin` (percent of the frame,
+   * the object the camera "points at"); x/y translate in percent of the frame.
+   * Omitted: the default subtle 8% push-in.
+   */
+  backgroundMotion?: {
+    origin?: { x: number; y: number };
+    from?: { scale?: number; x?: number; y?: number };
+    to?: { scale?: number; x?: number; y?: number };
+  };
+  /**
+   * Camera move (id from lib/motion-catalog.json, e.g. "dolly_in", "whip_pan_left",
+   * or a custom spec). Applies to the background and, damped by parallax, to the content.
+   */
+  camera?: CameraInput;
+  /** Effects stack: ["film_grain", {"type":"vignette","strength":0.5}, "grade_teal_orange"] */
+  fx?: FxItem[];
+  /** Second image for double_exposure */
+  imageB?: string;
+  // kinetic_text
+  textMode?: TextMode;
+  highlight?: string[];
+  uppercase?: boolean;
+  // split_screen / collage
+  panels?: Panel[];
+  layout?: SplitLayout;
+  gap?: number;
+  items?: CollageItem[];
+  /** scale_comparison: props of ScaleWorld (items, viewFrom, viewTo, bands, marks...) */
+  scale?: Omit<ScaleWorldProps, "color" | "accentColor" | "fontFamily">;
+  /** bone_section */
+  label?: string;
+  sublabel?: string;
   color?: string;
   accentColor?: string;
   fontSize?: number;
@@ -268,7 +308,7 @@ interface Cut {
 }
 
 interface Overlay {
-  type: "section_title" | "stat_reveal" | "hero_title" | "provider_chip";
+  type: "section_title" | "stat_reveal" | "hero_title" | "provider_chip" | "focus_ring" | "arrow" | "lower_third" | "hud_frame";
   in_seconds: number;
   out_seconds: number;
   text?: string;
@@ -279,6 +319,14 @@ interface Overlay {
   providers?: string[];
   cycleSeconds?: number;
   label?: string;
+  // focus_ring / arrow
+  x?: number;
+  y?: number;
+  radius?: number;
+  shape?: "circle" | "square";
+  side?: "right" | "left" | "top" | "bottom";
+  angle?: number;
+  color?: string;
 }
 
 interface AudioLayer {
@@ -305,6 +353,13 @@ export interface ExplainerProps {
   overlays?: Overlay[];
   captions?: WordCaption[];
   audio?: AudioConfig;
+  /** Effects applied to every scene (e.g. film_grain, vignette, letterbox). */
+  fx?: FxItem[];
+  /** Give background scenes without a camera a rotating default move. */
+  autoCamera?: boolean | string[];
+  /** Default transition between cuts when a cut does not declare one. */
+  defaultTransition?: string;
+  defaultTransitionSeconds?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -342,238 +397,48 @@ const Vignette: React.FC = () => (
 // Enhanced Image Scene — spring physics, parallax, variety
 // ---------------------------------------------------------------------------
 
-const ImageScene: React.FC<{ src: string; animation?: string }> = ({
-  src,
-  animation,
-}) => {
-  const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
+const ImageScene: React.FC<{ cut: Cut; src: string; animation?: string }> = ({ cut, src, animation }) => (
+  <Stage
+    src={src}
+    srcB={cut.imageB}
+    camera={cut.camera ?? (cut.backgroundMotion ? legacyMotionToSpec(cut.backgroundMotion) : undefined)}
+    legacyAnimation={cut.camera || cut.backgroundMotion ? undefined : animation || "zoom-in"}
+    fx={cut.fx}
+    backgroundColor="#0F172A"
+  />
+);
 
-  // Smooth spring fade-in
-  const fadeIn = spring({ frame, fps, config: { damping: 18, stiffness: 80 } });
-
-  // Fade-out for crossfade effect
-  const fadeOutStart = durationInFrames - 8;
-  const fadeOut = interpolate(frame, [fadeOutStart, durationInFrames], [1, 0.3], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-
-  let scale = 1;
-  let translateX = 0;
-  let translateY = 0;
-  const anim = animation || "zoom-in";
-
-  // Progress with easing — smoother than linear
-  const progress = interpolate(frame, [0, durationInFrames], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-
-  if (anim === "zoom-in") {
-    scale = 1 + progress * 0.18;
-  } else if (anim === "zoom-out") {
-    scale = 1.18 - progress * 0.18;
-  } else if (anim === "pan-left") {
-    translateX = interpolate(progress, [0, 1], [40, -40]);
-    scale = 1.15;
-  } else if (anim === "pan-right") {
-    translateX = interpolate(progress, [0, 1], [-40, 40]);
-    scale = 1.15;
-  } else if (anim === "ken-burns" || anim === "ken-burns-slow-zoom") {
-    // Cinematic Ken Burns: gentle zoom + diagonal drift
-    scale = 1 + progress * 0.22;
-    translateX = interpolate(progress, [0, 1], [0, -25]);
-    translateY = interpolate(progress, [0, 1], [0, -15]);
-  } else if (anim === "parallax") {
-    // Subtle parallax — foreground moves faster
-    translateY = interpolate(progress, [0, 1], [15, -15]);
-    scale = 1.1;
-  }
-  // "static" or "none" → just display
-
-  return (
-    <AbsoluteFill style={{ overflow: "hidden", background: "#0F172A" }}>
-      <Img
-        src={resolveAsset(src)}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          opacity: fadeIn * fadeOut,
-          transform: `scale(${scale}) translate(${translateX}px, ${translateY}px)`,
-          willChange: "transform, opacity",
-        }}
-      />
-      <Vignette />
-    </AbsoluteFill>
-  );
-};
-
-// ---------------------------------------------------------------------------
-// Enhanced Video Scene
-// ---------------------------------------------------------------------------
-
-const VideoScene: React.FC<{
-  src: string;
-  startFrom?: number;
-  transitionIn?: string;
-  transitionOut?: string;
-  transitionDuration?: number;
-  sceneDurationSeconds: number;
-  backgroundColor?: string;
-}> = ({
-  src,
-  startFrom = 0,
-  transitionIn,
-  transitionOut,
-  transitionDuration,
-  sceneDurationSeconds,
-  backgroundColor = "#0F172A",
-}) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const durationInFrames = Math.max(1, Math.round(sceneDurationSeconds * fps));
-
-  const hardIn = ["cut", "none"].includes((transitionIn || "").toLowerCase());
-  const hardOut = ["cut", "none"].includes((transitionOut || "").toLowerCase());
-  const transitionFrames = Math.max(
-    1,
-    Math.round((transitionDuration ?? 8 / fps) * fps),
-  );
-  const fadeIn = hardIn
-    ? 1
-    : interpolate(frame, [0, transitionFrames], [0, 1], {
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp",
-      });
-  const fadeOutStart = Math.max(0, durationInFrames - transitionFrames);
-  const fadeOut = hardOut
-    ? 1
-    : interpolate(frame, [fadeOutStart, durationInFrames], [1, 0], {
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp",
-      });
-
-  return (
-    <AbsoluteFill style={{ background: backgroundColor }}>
-      <OffthreadVideo
-        src={resolveAsset(src)}
-        startFrom={Math.round(startFrom * fps)}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          opacity: fadeIn * fadeOut,
-        }}
-        muted
-      />
-      <Vignette />
-    </AbsoluteFill>
-  );
-};
+const VideoScene: React.FC<{ cut: Cut; src: string; startFrom?: number }> = ({ cut, src, startFrom = 0 }) => (
+  <Stage
+    video={{ src, startFrom }}
+    camera={cut.camera}
+    fx={cut.fx}
+    backgroundColor={cut.backgroundColor ?? "#0F172A"}
+  />
+);
 
 // ---------------------------------------------------------------------------
 // Scene renderer — maps cut type / source to the right component
 // ---------------------------------------------------------------------------
 
-// Background image layer — renders an AI-generated/stock image behind data components
-const BackgroundImageLayer: React.FC<{
-  src: string;
-  overlayOpacity?: number;
-  children: React.ReactNode;
-}> = ({ src, overlayOpacity = 0.55, children }) => {
-  const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
-
-  // Subtle ken-burns on the background
-  const progress = interpolate(frame, [0, durationInFrames], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const bgScale = 1 + progress * 0.08;
-
-  return (
-    <AbsoluteFill style={{ overflow: "hidden" }}>
-      {/* Background image with subtle zoom */}
-      <Img
-        src={resolveAsset(src)}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          transform: `scale(${bgScale})`,
-          willChange: "transform",
-        }}
-      />
-      {/* Dark overlay for readability */}
-      <AbsoluteFill
-        style={{
-          background: `rgba(15, 23, 42, ${overlayOpacity})`,
-        }}
-      />
-      {/* Component content on top */}
-      {children}
-    </AbsoluteFill>
-  );
-};
-
-// Background video layer — plays a looping video behind component content with dark overlay
-const BackgroundVideoLayer: React.FC<{
-  src: string;
-  startFrom?: number;
-  overlayOpacity?: number;
-  children: React.ReactNode;
-}> = ({ src, startFrom = 0, overlayOpacity = 0.55, children }) => {
-  const { fps } = useVideoConfig();
-
-  return (
-    <AbsoluteFill style={{ overflow: "hidden" }}>
-      {/* Background video */}
-      <OffthreadVideo
-        src={resolveAsset(src)}
-        startFrom={Math.round(startFrom * fps)}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
-        muted
-      />
-      {/* Dark overlay for readability */}
-      <AbsoluteFill
-        style={{
-          background: `rgba(15, 23, 42, ${overlayOpacity})`,
-        }}
-      />
-      {/* Component content on top */}
-      {children}
-    </AbsoluteFill>
-  );
-};
-
 const SceneRenderer: React.FC<{ cut: Cut; theme: ThemeConfig }> = ({ cut, theme }) => {
   // Wrap component with background video or image if specified
   const maybeWrapWithBg = (element: React.ReactElement) => {
-    if (cut.backgroundVideo) {
+    const hasBg = !!(cut.backgroundVideo || cut.backgroundImage);
+    // Backgrounds, a camera move, or fx all go through Stage so content gets
+    // parallax + the cinematic overlay stack.
+    if (hasBg || cut.camera || (cut.fx && cut.fx.length)) {
       return (
-        <BackgroundVideoLayer
-          src={cut.backgroundVideo}
-          startFrom={cut.backgroundVideoStart ?? 0}
-          overlayOpacity={cut.backgroundOverlay ?? 0.55}
+        <Stage
+          src={cut.backgroundVideo ? undefined : cut.backgroundImage}
+          video={cut.backgroundVideo ? { src: cut.backgroundVideo, startFrom: cut.backgroundVideoStart ?? 0 } : undefined}
+          srcB={cut.imageB}
+          camera={cut.camera ?? (cut.backgroundMotion ? legacyMotionToSpec(cut.backgroundMotion) : hasBg ? { from: { s: 1 }, to: { s: 1.08 }, ease: "linear" } : undefined)}
+          fx={cut.fx}
+          overlayOpacity={hasBg ? cut.backgroundOverlay ?? 0.55 : 0}
         >
           {element}
-        </BackgroundVideoLayer>
-      );
-    }
-    if (cut.backgroundImage) {
-      return (
-        <BackgroundImageLayer
-          src={cut.backgroundImage}
-          overlayOpacity={cut.backgroundOverlay ?? 0.55}
-        >
-          {element}
-        </BackgroundImageLayer>
+        </Stage>
       );
     }
     return element;
@@ -722,6 +587,48 @@ const SceneRenderer: React.FC<{ cut: Cut; theme: ThemeConfig }> = ({ cut, theme 
     );
   }
 
+  // --- Cinematic scene types ---
+  if (cut.type === "kinetic_text" && cut.text) {
+    return maybeWrapWithBg(
+      <KineticText
+        text={cut.text} mode={cut.textMode} fontSize={cut.fontSize} color={textColor} accentColor={accent}
+        highlight={cut.highlight} uppercase={cut.uppercase} fontFamily={[theme.headingFont, fontFamily, "sans-serif"].filter(Boolean).join(", ")}
+      />
+    );
+  }
+  if (cut.type === "split_screen" && cut.panels && cut.panels.length) {
+    return <SplitScreen panels={cut.panels} layout={cut.layout} gap={cut.gap} accentColor={accent} background={cut.backgroundColor} />;
+  }
+  if (cut.type === "collage" && cut.items && cut.items.length) {
+    return <Collage items={cut.items} accentColor={accent} background={cut.backgroundColor} />;
+  }
+  if (cut.type === "scale_comparison" && cut.scale) {
+    return (
+      <Stage
+        camera={cut.camera}
+        fx={cut.fx}
+        world={<ScaleWorld {...cut.scale} color={textColor} accentColor={accent} fontFamily={[theme.headingFont, fontFamily, "sans-serif"].filter(Boolean).join(", ")} />}
+      />
+    );
+  }
+  if (cut.type === "bone_section") {
+    return (
+      <Stage
+        camera={cut.camera}
+        fx={cut.fx}
+        world={<BoneSection color={textColor} accentColor={accent} label={cut.label} sublabel={cut.sublabel} fontFamily={[theme.headingFont, fontFamily, "sans-serif"].filter(Boolean).join(", ")} />}
+      />
+    );
+  }
+  if (cut.type === "double_exposure" && cut.source && cut.imageB) {
+    return (
+      <Stage
+        src={cut.source} srcB={cut.imageB} camera={cut.camera ?? "dolly_in"}
+        fx={[{ type: "double_exposure", blend: "screen" }, ...(cut.fx ?? [])]} backgroundColor="#0F172A"
+      />
+    );
+  }
+
   // --- Anime scene (multi-image crossfade + particles) ---
   if (cut.type === "anime_scene" && cut.images && cut.images.length > 0) {
     return (
@@ -744,27 +651,17 @@ const SceneRenderer: React.FC<{ cut: Cut; theme: ThemeConfig }> = ({ cut, theme 
   // --- Media types (image / video fallback) ---
   const animation = cut.animation || cut.transform?.animation;
 
-  if (cut.source && isImage(cut.source)) {
-    return maybeWrapWithBg(<ImageScene src={cut.source} animation={animation} />);
+  if (cut.source && isImage(cut.source) && !cut.backgroundImage && !cut.backgroundVideo) {
+    return <ImageScene cut={cut} src={cut.source} animation={animation} />;
   }
 
   if (cut.source && isVideo(cut.source)) {
-    return maybeWrapWithBg(
-      <VideoScene
-        src={cut.source}
-        startFrom={cut.source_in_seconds ?? 0}
-        transitionIn={cut.transition_in}
-        transitionOut={cut.transition_out}
-        transitionDuration={cut.transition_duration}
-        sceneDurationSeconds={cut.out_seconds - cut.in_seconds}
-        backgroundColor={cut.backgroundColor}
-      />,
-    );
+    return <VideoScene cut={cut} src={cut.source} startFrom={cut.source_in_seconds ?? 0} />;
   }
 
   // Final fallback — try as image if source exists, otherwise show text_card
-  if (cut.source) {
-    return maybeWrapWithBg(<ImageScene src={cut.source} animation={animation} />);
+  if (cut.source && !cut.backgroundImage && !cut.backgroundVideo) {
+    return <ImageScene cut={cut} src={cut.source} animation={animation} />;
   }
 
   // No source, no type — render as text card with cut id as fallback
@@ -813,6 +710,18 @@ const OverlayRenderer: React.FC<{ overlay: Overlay; theme: ThemeConfig }> = ({
       />
     );
   }
+  if (overlay.type === "focus_ring") {
+    return <FocusRing x={overlay.x} y={overlay.y} radius={overlay.radius} label={overlay.text ?? overlay.label} color={overlay.color ?? overlay.accentColor ?? theme.accentColor} shape={overlay.shape} side={overlay.side} />;
+  }
+  if (overlay.type === "arrow") {
+    return <Arrow x={overlay.x} y={overlay.y} label={overlay.text ?? overlay.label} color={overlay.color ?? overlay.accentColor ?? theme.accentColor} angle={overlay.angle} />;
+  }
+  if (overlay.type === "lower_third") {
+    return <LowerThird text={overlay.text ?? ""} subtitle={overlay.subtitle} color={overlay.color ?? overlay.accentColor ?? theme.accentColor} />;
+  }
+  if (overlay.type === "hud_frame") {
+    return <HudFrame label={overlay.text ?? overlay.label} color={overlay.color ?? overlay.accentColor ?? theme.accentColor} />;
+  }
   if (overlay.type === "provider_chip" && overlay.providers) {
     return (
       <ProviderChip
@@ -839,18 +748,45 @@ export const Explainer: React.FC<ExplainerProps> = (props) => {
   const theme = resolveTheme(props as Record<string, unknown>);
 
   return (
-    <AbsoluteFill style={{ background: theme.backgroundColor, fontFamily: theme.headingFont || fontFamily }}>
+    <AbsoluteFill style={{ background: theme.backgroundColor, fontFamily: [theme.headingFont, fontFamily, "sans-serif"].filter(Boolean).join(", ") }}>
       {/* Layer 0: Animated gradient background — driven by theme */}
       <AnimatedBackground theme={theme} />
 
-      {/* Layer 1: Visual scenes */}
-      {cuts.map((cut) => {
-        const from = Math.round(cut.in_seconds * fps);
-        const duration = Math.round((cut.out_seconds - cut.in_seconds) * fps);
+      {/* Layer 1: Visual scenes (overlapped for transitions) */}
+      {cuts.map((cut, i) => {
+        const prev = cuts[i - 1];
+        const next = cuts[i + 1];
+        const trFrames = (c: Cut, nx: Cut | undefined) => {
+          const style = normalizeTransition(
+            nx ? nx.transition_in || c.transition_out || props.defaultTransition : c.transition_out
+          );
+          const secs = (nx?.transition_duration ?? c.transition_duration ?? props.defaultTransitionSeconds ?? 0.4);
+          return { style, frames: Math.max(2, Math.round(secs * fps)) } as TransitionSpec;
+        };
+        const inT = prev ? trFrames(prev, cut) : undefined;
+        const outT = next ? trFrames(cut, next) : undefined;
+        const inHalf = inT && inT.style !== "cut" ? Math.round(inT.frames / 2) : 0;
+        const outHalf = outT && outT.style !== "cut" ? Math.round(outT.frames / 2) : 0;
+        const baseFrom = Math.round(cut.in_seconds * fps);
+        const baseEnd = Math.round(cut.out_seconds * fps);
+        const from = Math.max(0, baseFrom - inHalf);
+        const duration = baseEnd + outHalf - from;
 
+        // Auto camera: background scenes without a camera get a rotating default move.
+        const autoList = Array.isArray(props.autoCamera) ? props.autoCamera : ["dolly_in", "pan_right", "zoom_in_slow", "tilt_up", "pan_left", "ken_burns"];
+        const hasBg = !!(cut.backgroundImage || cut.backgroundVideo || (cut.source && !cut.type));
+        const withDefaults: Cut = {
+          ...cut,
+          camera: cut.camera ?? (props.autoCamera && hasBg && !cut.backgroundMotion ? autoList[i % autoList.length] : undefined),
+          fx: [...normalizeFx(props.fx), ...normalizeFx(cut.fx)] as FxItem[],
+        };
         return (
           <Sequence key={cut.id} from={from} durationInFrames={duration}>
-            <SceneRenderer cut={cut} theme={theme} />
+            <SceneTimingContext.Provider value={duration}>
+              <TransitionShell inT={inT} outT={outT} seqFrames={duration}>
+                <SceneRenderer cut={withDefaults} theme={theme} />
+              </TransitionShell>
+            </SceneTimingContext.Provider>
           </Sequence>
         );
       })}

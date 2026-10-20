@@ -25,6 +25,11 @@ Produce `publish_log` with:
 - platform-specific export notes,
 - limitations or follow-up recommendations.
 
+<!-- youtube-policy-gate -->
+## YouTube Policy Gate
+
+Run the **Publish Checklist** of `skills/meta/youtube-policy-gate.md` and write it to `publish_log.metadata.youtube_policy_checklist`; show it at the approval gate. Upload as private or unlisted first. Captions go up as `.srt` / `.vtt`, never burned into the video.
+
 ---
 
 ## Gate Reminder (Binding)

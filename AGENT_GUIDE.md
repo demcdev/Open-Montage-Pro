@@ -505,7 +505,7 @@ Three selector tools abstract multi-provider capabilities. **Selectors auto-disc
 
 | Selector | Routes to | How it discovers |
 |----------|-----------|-----------------|
-| `tts_selector` | All tools with `capability="tts"` (ElevenLabs, Google TTS, OpenAI, Piper, Azure, fish.audio) | `registry.get_by_capability("tts")` |
+| `tts_selector` | All tools with `capability="tts"` (ElevenLabs, Google TTS, OpenAI, Piper, Azure, Polly, fish.audio) | `registry.get_by_capability("tts")` |
 | `image_selector` | All tools with `capability="image_generation"` (FLUX, Google Imagen, GPT Image, Recraft, etc.) | `registry.get_by_capability("image_generation")` |
 | `video_selector` | All tools with `capability="video_generation"` | `registry.get_by_capability("video_generation")` |
 
@@ -546,6 +546,16 @@ Check music availability in this order and present the options:
 **If no music source is available:** Tell the user explicitly. Do NOT let this surface as a surprise at the asset stage.
 
 Record the music decision in the proposal/brief artifact so the asset director knows what to do.
+
+## YouTube Policy Gate (Binding)
+
+Every video can end up on YouTube, so every production passes the **YouTube Policy Gate** so the channel is not demonetized, limited or terminated. Read `skills/meta/youtube-policy-gate.md` at the first creative stage (idea / proposal), and again at script, assets and publish. The reference text is `docs/youtube-policy-reference.md` (official English pages win over it).
+
+- **Proposal:** every concept gets a policy review (made for kids, originality, AI disclosure, music plan, sensitive topics, health claims) recorded in `proposal_packet.metadata.youtube_policy_review`. A concept with a `blocker` is not presented.
+- **Script and assets:** sources for every factual claim, a license for every asset, music only from the YouTube Audio Library, our own music, or a source licensed for YouTube monetization.
+- **Publish:** the Publish Checklist goes in `publish_log.metadata.youtube_policy_checklist` and is shown at the gate. Upload as private or unlisted first.
+- **Channel standards (user-set):** **no burned-in subtitles in any video** (`edit_decisions.subtitles.enabled = false`; export `.srt` / `.vtt` per language for YouTube) and **English + Spanish audio** for now, so on-screen text stays almost language-neutral. These standards override any stage director that enables, requires or burns subtitles.
+- If a request clashes with the gate, warn before executing and propose a compliant alternative.
 
 ## Pipeline Asset Expectations
 
@@ -702,6 +712,9 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | What tools exist for a vendor? | `registry.provider_catalog()` |
 | How does a tool actually work? | the tool's `usage_location` from the registry |
 | How should this pipeline stage behave? | `skills/pipelines/<pipeline>/...` |
+| Which camera move / transition / effect should this scene use? | `skills/creative/camera-motion-library.md` and `docs/MOTION_CATALOG.md` |
+| Is this video safe to publish on YouTube (policies, kids flag, music, AI disclosure)? | `skills/meta/youtube-policy-gate.md` and `docs/youtube-policy-reference.md` |
+| How do I write or rewrite a script (fiction series, documentary, essay)? | `skills/meta/guionista-core.md` plus `skills/meta/guionista-ficcion-animada.md` (fiction) or `skills/meta/guionista-documental.md` (non-fiction) |
 | What is the checkpoint/review policy? | `skills/meta/` |
 | Is this render technically fit to ship (black frames, silences, loudness, specs, licenses)? | `skills/meta/technical-qc-gate.md` (tool `technical_qc`) |
 | How loud should the final audio be, and how do I master it? | `skills/core/loudness-mastering.md` (tool `audio_master`) |
@@ -725,3 +738,6 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 - Do not present a single unavailable tool in isolation. Always show the full capability picture: "X of Y providers configured for this capability."
 - Do not skip the Provider Menu at preflight. The user must see what they have AND what they could unlock.
 - Do not change provider, model, or render path without telling the user first and getting approval when the change is material.
+- **Do not skip the YouTube Policy Gate.** A concept, script, asset set or publish step that has not been through `skills/meta/youtube-policy-gate.md` is not ready.
+- **Do not write a script without the matching guionista skill.** Read `skills/meta/guionista-core.md` and the type skill (`guionista-ficcion-animada.md` for fiction, `guionista-documental.md` for non-fiction) before the `script` stage; the YouTube Policy Gate and the pipeline contract win if they conflict.
+- **Do not burn subtitles into the video.** Captions are separate `.srt` / `.vtt` files configured in YouTube.

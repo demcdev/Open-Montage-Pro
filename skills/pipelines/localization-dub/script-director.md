@@ -64,6 +64,11 @@ add the source. Do not invent statistics, dates, or attributions.
 - Letting product names drift across languages.
 - Treating translation text as final timing without acknowledging length drift.
 
+<!-- youtube-policy-gate -->
+## YouTube Policy Gate
+
+Before checkpointing the script, apply the **script** row of `skills/meta/youtube-policy-gate.md`: a source for every factual claim, an honest hook, sensitive context inside the narration, no real-person likeness, no "expert" persona for health, legal or finance advice. Add `metadata.policy_notes`. Keep on-screen text language-neutral when the video has more than one audio language.
+
 ---
 
 ## Gate Reminder (Binding)

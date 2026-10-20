@@ -98,6 +98,10 @@ downstream template (`hero_title`, `stat_card`, charts, `comparison`,
 `callout`, or `progress_bar`) in each description. These render entirely from
 Remotion components with zero external dependencies.
 
+### Step 3b: Give Every Scene a Camera Move
+
+Static scenes are a defect. For each scene choose a **camera move** (and, when it helps, a transition and effects) from `skills/creative/camera-motion-library.md` — index in `docs/MOTION_CATALOG.md`. Record the move in `shot_language.camera_movement` and name the exact catalog id in the scene description (e.g. "`dolly_in` toward the Moon, origin 61/52"). Vary the move and its direction between consecutive scenes, and say what the camera should **point at** (it becomes `camera.origin`).
+
 ### Step 4: Apply the Visual Technique Library
 
 These are proven patterns for explainer visuals. Reference them by name in scene descriptions:

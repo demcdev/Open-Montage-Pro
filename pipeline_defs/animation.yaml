@@ -41,6 +41,7 @@ required_skills:
   - meta/checkpoint-protocol
   - meta/animation-runtime-selector
   - meta/voice-performance-director
+  - meta/youtube-policy-gate
   - meta/technical-qc-gate
   - core/loudness-mastering
   - creative/editing-craft
@@ -48,6 +49,9 @@ required_skills:
   - meta/shot-list-storyboard
   - creative/cinematography
   - creative/audio-post-cinema
+  - meta/guionista-core
+  - meta/guionista-ficcion-animada
+  - meta/guionista-documental
 
 orchestration:
   mode: executive-producer

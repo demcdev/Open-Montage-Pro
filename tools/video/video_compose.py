@@ -2078,7 +2078,11 @@ class VideoCompose(BaseTool):
             # so run_command() does not kill Remotion before its own timeout fires.
             remotion_timeout_ms = inputs.get("remotion_timeout_ms")
             scene_count = len(props.get("scenes") or props.get("cuts") or [])
-            subprocess_timeout = max(600, scene_count * 15)
+            # Heavy fx (SVG filters, grain) render slowly: scale with video length.
+            total_seconds = max(
+                [float(c.get("out_seconds", 0) or 0) for c in (props.get("scenes") or props.get("cuts") or []) if isinstance(c, dict)] or [0.0]
+            )
+            subprocess_timeout = max(600, scene_count * 15, int(total_seconds * 30))
             if remotion_timeout_ms:
                 try:
                     ms = int(remotion_timeout_ms)

@@ -26,6 +26,29 @@ When you add a new component, append it here and in `src/components/index.ts`.
 | **`terminal_scene`** | **`TerminalScene`** | **`steps`** (list of cmd/out/pause/pill) | **`terminalTitle`, `prompt`, `accentColor`** | **Synthetic terminal animation — NO real capture needed. See [`.agents/skills/synthetic-screen-recording/SKILL.md`](../.agents/skills/synthetic-screen-recording/SKILL.md)** |
 | **`screenshot_scene`** | **`ScreenshotScene`** | **`backgroundImage`** (path in `public/`), **`screenshotSteps`** (list of overlays) | **`screenshotSize` (natural px w/h), `cursorStartAt`, `accentColor`** | **Approach-1 synthetic UI — drop any screenshot, animate scripted overlays on top (cursor, click_pulse, type_into, bubble_append, typing_dots, highlight_box, callout_balloon). Viewer-indistinguishable from a real recording for 15–30s focused demos. Coordinates are normalized (0–1) against the contain-fit rect. See [`.agents/skills/synthetic-ui-recording/SKILL.md`](../.agents/skills/synthetic-ui-recording/SKILL.md) (planned).** |
 
+### Camera moves, effects and transitions (any cut)
+
+Every cut can carry `camera` and `fx`; scenes with a `backgroundImage`/`backgroundVideo` (and bare image/video sources) render through the **Stage**, which gives the background a camera move and the foreground content parallax. 83 moves, 59 effects and 34 transitions are catalogued in [`docs/MOTION_CATALOG.md`](../docs/MOTION_CATALOG.md); guidance is in [`skills/creative/camera-motion-library.md`](../skills/creative/camera-motion-library.md).
+
+```json
+{ "id": "c1", "type": "stat_card", "stat": "1,3 s", "backgroundImage": "moon.jpg",
+  "camera": { "move": "dolly_in", "origin": { "x": 61, "y": 52 } },
+  "fx": ["halation", "film_grain"], "transition_out": "whip_pan_right", "transition_duration": 0.35 }
+```
+
+Top-level props: `fx` (all scenes), `autoCamera` (true or list of move ids), `defaultTransition`, `defaultTransitionSeconds`. The legacy `backgroundMotion` (`origin`, `from`, `to`) still works and is converted to a camera spec.
+
+### Extra scene types
+
+| `type` | Required fields | Common fields | Purpose |
+|---|---|---|---|
+| `kinetic_text` | `text` | `textMode` (12 modes), `highlight[]`, `uppercase`, `fontSize` | Animated typography |
+| `split_screen` | `panels[]` | `layout` (2h, 2v, 3h, 3v, 4, pip, 1+2), `gap`; each panel: `src`, `camera`, `fx`, `label` | Side-by-side / multi-panel |
+| `collage` | `items[]` (`src`,`x`,`y`,`w`,`h`) | `rotate`, `delay`, `camera`, `label` per item | Pop-in tiles |
+| `scale_comparison` | `scale` (items, viewFrom, viewTo, bands, marks) | `camera`, `fx` | Silhouettes at true relative size on a metric ruler; the view can zoom out |
+| `bone_section` | — | `label`, `sublabel` | Schematic bone cross-section |
+| `double_exposure` | `source`, `imageB` | `camera`, `fx` | Two images blended |
+
 ---
 
 ## Overlay types (`overlay.type`)
@@ -36,6 +59,10 @@ When you add a new component, append it here and in `src/components/index.ts`.
 | `stat_reveal` | `StatReveal` | `text` | `subtitle`, `accentColor`, `position` | Corner stat badge |
 | `hero_title` | `HeroTitle` (as overlay) | `text` | `subtitle` | Full-frame title overlay |
 | **`provider_chip`** | **`ProviderChip`** | **`providers`** (list of strings) | **`cycleSeconds`, `position`, `accentColor`, `label`** | **Rotating badge that cycles through provider names — used in AI-generated-motion scenes to show which model produced the clip** |
+| `focus_ring` | `Cinematic.FocusRing` | `x`, `y` (percent) | `radius`, `text`, `side`, `shape`, `color` | Ring/square that points at an object |
+| `arrow` | `Cinematic.Arrow` | `x`, `y` | `angle`, `text`, `color` | Bobbing pointer arrow |
+| `lower_third` | `Cinematic.LowerThird` | `text` | `subtitle`, `color` | Caption/name bar |
+| `hud_frame` | `Cinematic.HudFrame` | — | `text`, `color` | Corner brackets, crosshair, REC, timecode |
 
 ---
 

@@ -66,6 +66,7 @@ required_skills:
   - meta/reviewer
   - meta/checkpoint-protocol
   - meta/animation-runtime-selector
+  - meta/youtube-policy-gate
   - meta/technical-qc-gate
   - core/loudness-mastering
   - creative/editing-craft

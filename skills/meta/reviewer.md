@@ -352,3 +352,18 @@ The templated→atelier inversion (`AGENT_GUIDE.md` → "Composition Authoring M
 
 ### At publish stage (when composition_mode == "atelier"):
 1. All six atelier compose-stage checks above (existence of `atelier` block, stock_reuse, art_direction_declared, scene_distinctness, captions/text dedup, human distinctness review) must show `resolved` in the review record. Any unresolved: **CRITICAL** — "Cannot publish atelier piece with unresolved doctrine or distinctness findings."
+
+## YouTube Policy Review
+
+Policy problems are cheap to fix early and expensive after publishing, so check them at **every** stage. Load `skills/meta/youtube-policy-gate.md` and review the row for the current stage.
+
+### Checks:
+1. **Proposal:** `metadata.youtube_policy_review` exists for the selected concept, with the made-for-kids call, AI-disclosure decision, music plan and a `status`.
+2. **Script:** every factual claim is sourced, the hook delivers what it promises, sensitive context is inside the narration, no real-person likeness.
+3. **Assets:** every asset has `license` and `source_tool`; music is licensed for YouTube monetization.
+4. **Edit / compose:** `edit_decisions.subtitles.enabled` is `false` and nothing burns captions into the video; `.srt` / `.vtt` exist per language.
+5. **Publish:** the Publish Checklist is complete and shown to the user.
+
+### Severity:
+- **Critical:** unlicensed music, undisclosed realistic AI, real-person likeness, misleading title or thumbnail, unresolved made-for-kids, unverified health claims, burned-in subtitles.
+- **Suggestion:** templated series, thin sources, one-country sources for a multi-country audience.

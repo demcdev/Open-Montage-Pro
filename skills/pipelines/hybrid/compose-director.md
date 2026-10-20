@@ -1,5 +1,8 @@
 # Compose Director - Hybrid Pipeline
 
+<!-- channel-standard-no-burned-subtitles -->
+> **Channel standard override: no burned-in subtitles.** This overrides any instruction in this skill that enables, requires or burns subtitles or captions into the video (Remotion caption props, FFmpeg burn, "subtitles are mandatory"). Set `edit_decisions.subtitles.enabled = false`, pass no captions to the composition, and export `.srt` / `.vtt` per language (for example with `subtitle_gen`) to upload to YouTube. See `skills/meta/youtube-policy-gate.md` → Channel Standards. Only exception: the user explicitly asks for burned-in captions for one specific video.
+
 ## When To Use
 
 Render the hybrid project so source media, support graphics, and audio all remain coherent across outputs.

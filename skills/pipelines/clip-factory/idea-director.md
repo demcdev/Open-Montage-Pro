@@ -103,6 +103,11 @@ Recommended metadata keys:
 - Treating all clips as interchangeable instead of intentionally varied.
 - Starting extraction without defining what "good" means for this batch.
 
+<!-- youtube-policy-gate -->
+## YouTube Policy Gate
+
+Before any concept is shown to the user, read `skills/meta/youtube-policy-gate.md` and run its **Proposal Policy Review** for every concept: made for kids, originality, AI disclosure, music plan, sensitive topics and health claims, advertiser-friendliness. Record the result in `proposal_packet.metadata.youtube_policy_review` (or in the brief's `metadata` when this pipeline has no proposal packet). Never present a concept with a `blocker`. Channel standards: no burned-in subtitles; English and Spanish audio.
+
 ---
 
 ## Gate Reminder (Binding)

@@ -38,12 +38,15 @@ required_skills:
   - pipelines/documentary-montage/compose-director
   - meta/reviewer
   - meta/checkpoint-protocol
+  - meta/youtube-policy-gate
   - meta/technical-qc-gate
   - core/loudness-mastering
   - creative/editing-craft
   - meta/shot-list-storyboard
   - creative/cinematography
   - creative/audio-post-cinema
+  - meta/guionista-core
+  - meta/guionista-documental
 
 compatible_playbooks:
   custom_allowed: true

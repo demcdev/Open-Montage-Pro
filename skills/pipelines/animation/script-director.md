@@ -135,6 +135,16 @@ add the source. Do not invent statistics, dates, or attributions.
 - **Writing research-less scripts when a research_brief exists.** If the research found surprising data, use it. Generic scripts waste the research investment.
 - **Oversimplifying math to the point of being wrong.** Check the research brief's accuracy notes.
 
+<!-- guionista-skill -->
+## Guionista Skill (Binding)
+
+Before writing or rewriting the script, read `skills/meta/guionista-core.md` and then the type skill that matches the video: `skills/meta/guionista-ficcion-animada.md` when the video is a story (fiction), `skills/meta/guionista-documental.md` when it is informative (explainer, documentary, essay). They set the hook, the open-loop ledger, humor, pacing (words per minute by format) and the delivery rules (valid `script` artifact plus production table). The YouTube Policy Gate and this pipeline's contract win over them if they conflict.
+
+<!-- youtube-policy-gate -->
+## YouTube Policy Gate
+
+Before checkpointing the script, apply the **script** row of `skills/meta/youtube-policy-gate.md`: a source for every factual claim, an honest hook, sensitive context inside the narration, no real-person likeness, no "expert" persona for health, legal or finance advice. Add `metadata.policy_notes`. Keep on-screen text language-neutral when the video has more than one audio language.
+
 ---
 
 ## Gate Reminder (Binding)

@@ -35,6 +35,7 @@ required_skills:
   - pipelines/podcast-repurpose/publish-director
   - meta/reviewer
   - meta/checkpoint-protocol
+  - meta/youtube-policy-gate
   - meta/technical-qc-gate
   - core/loudness-mastering
   - creative/editing-craft

@@ -357,6 +357,11 @@ checkpoint with `status="awaiting_human"`, present the summary (the Backlot boar
 the artifact), and **END YOUR TURN**. Do not start the next stage in the same response.
 Approval is per-gate — an earlier "go ahead" does not cover this gate.
 
+<!-- guionista-skill -->
+## Guionista Skill (Binding)
+
+Documentary montage has no separate `script` stage: the slot descriptions and any narration or titles are the script. Before writing them, read `skills/meta/guionista-core.md` and `skills/meta/guionista-documental.md` (claims register with sources, ethics for real people and victims, no humor where there is pain, licences for archive footage and music). The YouTube Policy Gate and this pipeline's contract win over them if they conflict.
+
 ---
 
 <!-- transversal-skills-2026-10 -->

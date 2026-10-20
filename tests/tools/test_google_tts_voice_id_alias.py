@@ -95,7 +95,10 @@ class TestVoiceIdAlias:
         assert voice_payload["name"] == "ja-JP-Chirp3-HD-Kore"
         assert voice_payload["languageCode"] == "en-US"
 
-    def test_default_voice_when_neither_field_set(self, tmp_path, captured_synthesize):
+    def test_default_voice_when_neither_field_set(
+        self, tmp_path, captured_synthesize, monkeypatch
+    ):
+        monkeypatch.delenv("GOOGLE_TTS_DEFAULT_VOICE", raising=False)
         result = _execute(tmp_path)
 
         assert result.success, result.error
@@ -161,3 +164,12 @@ class TestCostAndIdempotency:
             {"text": "hello", "voice_id": "en-US-Chirp3-HD-Orus"}
         )
         assert key_kore != key_orus
+
+    def test_default_voice_env_override(self, tmp_path, captured_synthesize, monkeypatch):
+        monkeypatch.setenv("GOOGLE_TTS_DEFAULT_VOICE", "es-US-Chirp3-HD-Iapetus")
+        result = _execute(tmp_path)
+
+        assert result.success, result.error
+        voice_payload = captured_synthesize[0]["payload"]["voice"]
+        assert voice_payload["name"] == "es-US-Chirp3-HD-Iapetus"
+        assert voice_payload["languageCode"] == "es-US"

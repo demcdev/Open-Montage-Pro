@@ -43,6 +43,11 @@ If the avatar path has limitations such as visible lip-sync risk, retain that no
 - Reusing generic metadata that ignores the spokesperson offer.
 - Dropping risk notes that matter for downstream publishing teams.
 
+<!-- youtube-policy-gate -->
+## YouTube Policy Gate
+
+Run the **Publish Checklist** of `skills/meta/youtube-policy-gate.md` and write it to `publish_log.metadata.youtube_policy_checklist`; show it at the approval gate. Upload as private or unlisted first. Captions go up as `.srt` / `.vtt`, never burned into the video.
+
 ---
 
 ## Gate Reminder (Binding)

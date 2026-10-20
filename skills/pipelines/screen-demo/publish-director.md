@@ -79,6 +79,11 @@ For developer or product-demo content, also package:
 - Using the same caption for YouTube, LinkedIn, and short-form social.
 - Building chapter markers from the script without checking the render.
 
+<!-- youtube-policy-gate -->
+## YouTube Policy Gate
+
+Run the **Publish Checklist** of `skills/meta/youtube-policy-gate.md` and write it to `publish_log.metadata.youtube_policy_checklist`; show it at the approval gate. Upload as private or unlisted first. Captions go up as `.srt` / `.vtt`, never burned into the video.
+
 ---
 
 ## Gate Reminder (Binding)

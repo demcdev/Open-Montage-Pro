@@ -1442,6 +1442,7 @@ These tools require only FFmpeg or Python packages — no GPU, no API key.
 | **Pixabay** | `PIXABAY_API_KEY` | `pixabay_image`, `pixabay_video` | Free |
 | **Piper** | — (install only) | `piper_tts` | Free |
 | **Azure AI Speech** | `AZURE_SPEECH_KEY` + `AZURE_SPEECH_REGION` | `azure_stt`, `azure_tts` | Free tier + paid |
+| **Amazon Polly** | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` (+ `AWS_DEFAULT_REGION`), `pip install boto3` | `polly_tts` (Long-Form, e.g. es-ES `Raul`) | Free 500k chars/month for 12 months, then ~$100 per 1M chars |
 | **Google** | `GOOGLE_API_KEY` (or `GEMINI_API_KEY`) | `google_tts`, `google_imagen`, `google_music`, `gemini_omni_video`, `veo_video` | Free tier (TTS) + paid |
 | **ElevenLabs** | `ELEVENLABS_API_KEY` | `elevenlabs_tts`, `music_gen` | Free tier + paid |
 | **fish.audio** | `FISH_AUDIO_API_KEY` | `fish_audio_tts` | Free tier (s2.1-pro-free) + paid |

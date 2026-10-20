@@ -29,7 +29,7 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({
   const slideIn = spring({
     frame,
     fps,
-    config: { damping: 15, stiffness: 80 },
+    config: { damping: 28, stiffness: 60 },
   });
 
   // Exit fade

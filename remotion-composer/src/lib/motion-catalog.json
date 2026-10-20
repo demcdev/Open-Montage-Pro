@@ -1,0 +1,2059 @@
+{
+ "version": 1,
+ "notes": "Camera moves are 2D approximations on stills/video (scale, translate, rotate, blur, parallax). True 3D moves (real orbit, pass-through, fly-through) need AI video generation; use each move's ai_prompt for that.",
+ "sources": [
+  "aicameramovements.com",
+  "melies.co/cinematic-techniques",
+  "eyecannndy.com",
+  "grokfilm.app (vocabulary only)"
+ ],
+ "ease": [
+  "linear",
+  "in_quad",
+  "out_quad",
+  "in_out_quad",
+  "in_cubic",
+  "out_cubic",
+  "in_out_cubic",
+  "in_expo",
+  "out_expo",
+  "in_out_expo",
+  "in_out_sine",
+  "smooth",
+  "whip",
+  "snap_end",
+  "step_mid",
+  "back_out",
+  "bounce_out",
+  "ramp_slow_fast",
+  "ramp_fast_slow",
+  "stutter"
+ ],
+ "camera": [
+  {
+   "id": "static",
+   "category": "hold",
+   "summary": "Locked-off frame, no movement.",
+   "from": {},
+   "to": {},
+   "ease": "smooth",
+   "aliases": [
+    "fixed",
+    "locked_off",
+    "tripod"
+   ],
+   "ai_prompt": "static. Movement: Locked-off frame, no movement.. Speed: still. Framing: same angle, height and lens for the whole clip. End: settle on a stable final composition."
+  },
+  {
+   "id": "breathe",
+   "category": "hold",
+   "summary": "Almost-still frame with a slow breathing scale.",
+   "from": {},
+   "to": {},
+   "ease": "smooth",
+   "aliases": [
+    "idle"
+   ],
+   "ai_prompt": "breathe. Movement: Almost-still frame with a slow breathing scale.. Speed: still. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "pulse": {
+     "s": 0.012,
+     "cycles": 1
+    }
+   }
+  },
+  {
+   "id": "pan_left",
+   "category": "pan",
+   "summary": "Camera rotates to the left; the scene slides right.",
+   "from": {
+    "x": -7
+   },
+   "to": {
+    "x": 7
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "pan left. Movement: rotate the camera horizontally from right to left from one fixed point. Speed: smooth constant rotation. Framing: keep the horizon level while new space enters from the left. End: settle on a stable final composition."
+  },
+  {
+   "id": "pan_right",
+   "category": "pan",
+   "summary": "Camera rotates to the right; the scene slides left.",
+   "from": {
+    "x": 7
+   },
+   "to": {
+    "x": -7
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "pan right. Movement: rotate the camera horizontally from left to right from one fixed point. Speed: smooth constant rotation. Framing: keep the horizon level while new space enters from the right. End: settle on a stable final composition."
+  },
+  {
+   "id": "whip_pan_left",
+   "category": "whip",
+   "summary": "Fast snap to the left with motion blur.",
+   "from": {
+    "x": 0
+   },
+   "to": {
+    "x": 60
+   },
+   "ease": "whip",
+   "aliases": [],
+   "ai_prompt": "whip pan left. Movement: rotate rapidly toward a new target on the left. Speed: fast snap with brief motion blur. Framing: begin on one readable composition and land on a second one. End: settle on a stable final composition.",
+   "autoBlur": 22
+  },
+  {
+   "id": "whip_pan_right",
+   "category": "whip",
+   "summary": "Fast snap to the right with motion blur.",
+   "from": {
+    "x": 0
+   },
+   "to": {
+    "x": -60
+   },
+   "ease": "whip",
+   "aliases": [],
+   "ai_prompt": "whip pan right. Movement: rotate rapidly toward a new target on the right. Speed: fast snap with brief motion blur. Framing: begin on one readable composition and land on a second one. End: settle on a stable final composition.",
+   "autoBlur": 22
+  },
+  {
+   "id": "tilt_up",
+   "category": "pan",
+   "summary": "Camera tilts up; the scene slides down.",
+   "from": {
+    "y": -7
+   },
+   "to": {
+    "y": 7
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "tilt up. Movement: rotate the camera upward from one fixed point. Speed: smooth constant rotation. Framing: keep the vertical subject centered as the frame travels upward. End: settle on a stable final composition."
+  },
+  {
+   "id": "tilt_down",
+   "category": "pan",
+   "summary": "Camera tilts down; the scene slides up.",
+   "from": {
+    "y": 7
+   },
+   "to": {
+    "y": -7
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "tilt down. Movement: rotate the camera downward from one fixed point. Speed: smooth constant rotation. Framing: keep the vertical subject centered as the frame travels downward. End: settle on a stable final composition."
+  },
+  {
+   "id": "whip_tilt_up",
+   "category": "whip",
+   "summary": "Fast snap upward with motion blur.",
+   "from": {
+    "y": 0
+   },
+   "to": {
+    "y": 60
+   },
+   "ease": "whip",
+   "aliases": [],
+   "ai_prompt": "whip tilt up. Movement: Fast snap upward with motion blur.. Speed: fast snap with brief motion blur. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "autoBlur": 22
+  },
+  {
+   "id": "whip_tilt_down",
+   "category": "whip",
+   "summary": "Fast snap downward with motion blur.",
+   "from": {
+    "y": 0
+   },
+   "to": {
+    "y": -60
+   },
+   "ease": "whip",
+   "aliases": [],
+   "ai_prompt": "whip tilt down. Movement: Fast snap downward with motion blur.. Speed: fast snap with brief motion blur. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "autoBlur": 22
+  },
+  {
+   "id": "reveal_right",
+   "category": "combo",
+   "summary": "Pan right while pulling out to reveal the subject.",
+   "from": {
+    "x": 10,
+    "s": 1.3
+   },
+   "to": {
+    "x": -2,
+    "s": 1.08
+   },
+   "ease": "out_cubic",
+   "aliases": [
+    "pan_and_discovery"
+   ],
+   "ai_prompt": "reveal right. Movement: Pan right while pulling out to reveal the subject.. Speed: slow cinematic drift. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "reveal_left",
+   "category": "combo",
+   "summary": "Pan left while pulling out to reveal the subject.",
+   "from": {
+    "x": -10,
+    "s": 1.3
+   },
+   "to": {
+    "x": 2,
+    "s": 1.08
+   },
+   "ease": "out_cubic",
+   "aliases": [],
+   "ai_prompt": "reveal left. Movement: Pan left while pulling out to reveal the subject.. Speed: slow cinematic drift. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "reveal_up",
+   "category": "combo",
+   "summary": "Tilt up while pulling out to reveal scale.",
+   "from": {
+    "y": -10,
+    "s": 1.3
+   },
+   "to": {
+    "y": 2,
+    "s": 1.08
+   },
+   "ease": "out_cubic",
+   "aliases": [
+    "tilt_reveal"
+   ],
+   "ai_prompt": "reveal up. Movement: Tilt up while pulling out to reveal scale.. Speed: slow cinematic drift. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "zoom_in_slow",
+   "category": "zoom",
+   "summary": "Slow, even zoom toward a tighter frame.",
+   "from": {
+    "s": 1.0
+   },
+   "to": {
+    "s": 1.25
+   },
+   "ease": "smooth",
+   "aliases": [
+    "slow_zoom_in",
+    "push_in_slow",
+    "zoom_in"
+   ],
+   "ai_prompt": "zoom in slow. Movement: slowly increase focal length toward a tighter frame. Speed: gradual and even. Framing: keep the main target readable as it grows. End: settle on a stable final composition."
+  },
+  {
+   "id": "zoom_out_slow",
+   "category": "zoom",
+   "summary": "Slow, even zoom away to a wider frame.",
+   "from": {
+    "s": 1.25
+   },
+   "to": {
+    "s": 1.0
+   },
+   "ease": "smooth",
+   "aliases": [
+    "slow_zoom_out",
+    "zoom_out"
+   ],
+   "ai_prompt": "zoom out slow. Movement: slowly decrease focal length toward a wider frame. Speed: gradual and even. Framing: keep the main target readable as more space appears. End: settle on a stable final composition."
+  },
+  {
+   "id": "zoom_in_fast",
+   "category": "zoom",
+   "summary": "Quick decisive zoom in.",
+   "from": {
+    "s": 1.0
+   },
+   "to": {
+    "s": 1.5
+   },
+   "ease": "out_cubic",
+   "aliases": [
+    "fast_zoom_in"
+   ],
+   "ai_prompt": "zoom in fast. Movement: Quick decisive zoom in.. Speed: quick and decisive. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "zoom_out_fast",
+   "category": "zoom",
+   "summary": "Quick decisive zoom out.",
+   "from": {
+    "s": 1.5
+   },
+   "to": {
+    "s": 1.0
+   },
+   "ease": "out_cubic",
+   "aliases": [
+    "fast_zoom_out"
+   ],
+   "ai_prompt": "zoom out fast. Movement: Quick decisive zoom out.. Speed: quick and decisive. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "crash_zoom_in",
+   "category": "crash",
+   "summary": "Sudden snap-zoom toward the target.",
+   "from": {
+    "s": 1.0
+   },
+   "to": {
+    "s": 1.8
+   },
+   "ease": "whip",
+   "aliases": [
+    "snap_zoom_in"
+   ],
+   "ai_prompt": "crash zoom in. Movement: snap the lens rapidly toward the main target. Speed: very fast and punchy. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "autoBlur": 14
+  },
+  {
+   "id": "crash_zoom_out",
+   "category": "crash",
+   "summary": "Sudden snap-zoom away from the target.",
+   "from": {
+    "s": 1.8
+   },
+   "to": {
+    "s": 1.0
+   },
+   "ease": "whip",
+   "aliases": [
+    "snap_zoom_out"
+   ],
+   "ai_prompt": "crash zoom out. Movement: snap the lens rapidly away from the main target. Speed: very fast and punchy. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "autoBlur": 14
+  },
+  {
+   "id": "punch_in",
+   "category": "crash",
+   "summary": "Instant scale-up on the beat (emphasis cut).",
+   "from": {
+    "s": 1.0
+   },
+   "to": {
+    "s": 1.14
+   },
+   "ease": "step_mid",
+   "aliases": [
+    "beat_zoom"
+   ],
+   "ai_prompt": "punch in. Movement: Instant scale-up on the beat (emphasis cut).. Speed: very fast and punchy. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "infinite_zoom",
+   "category": "special",
+   "summary": "Continuous accelerating zoom into the exact center.",
+   "from": {
+    "s": 1.0
+   },
+   "to": {
+    "s": 3.6
+   },
+   "ease": "in_cubic",
+   "aliases": [],
+   "ai_prompt": "infinite zoom. Movement: zoom continuously inward toward the exact center target. Speed: stylised. Framing: keep the central target centered as it expands. End: finish when the next visual world fills the frame.",
+   "autoBlur": 6,
+   "origin": {
+    "x": 50,
+    "y": 50
+   }
+  },
+  {
+   "id": "earth_zoom_out",
+   "category": "special",
+   "summary": "Rapid pull-out from a point to planet scale.",
+   "from": {
+    "s": 3.6
+   },
+   "to": {
+    "s": 1.0
+   },
+   "ease": "out_expo",
+   "aliases": [],
+   "ai_prompt": "earth zoom out. Movement: pull upward from the starting point through street, city, landscape and planet scale. Speed: stylised. Framing: keep the original location centered as scale grows. End: finish on a planet-scale view.",
+   "autoBlur": 6
+  },
+  {
+   "id": "dolly_zoom",
+   "category": "special",
+   "summary": "Vertigo effect: background grows while the foreground shrinks.",
+   "from": {
+    "s": 1.0
+   },
+   "to": {
+    "s": 1.5
+   },
+   "ease": "in_out_sine",
+   "aliases": [
+    "vertigo",
+    "zolly"
+   ],
+   "ai_prompt": "dolly zoom. Movement: dolly backward while zooming in so the subject keeps its size and the background stretches. Speed: stylised. Framing: keep the subject constant in frame. End: settle on a stable final composition.",
+   "fg": {
+    "from": {
+     "s": 1.0
+    },
+    "to": {
+     "s": 0.82
+    }
+   }
+  },
+  {
+   "id": "zoom_pulse",
+   "category": "special",
+   "summary": "Rhythmic zoom pulses.",
+   "from": {},
+   "to": {},
+   "ease": "smooth",
+   "aliases": [
+    "pulse_zoom"
+   ],
+   "ai_prompt": "zoom pulse. Movement: Rhythmic zoom pulses.. Speed: stylised. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "pulse": {
+     "s": 0.06,
+     "cycles": 3
+    }
+   }
+  },
+  {
+   "id": "ramp_push_in",
+   "category": "zoom",
+   "summary": "Push-in with a slow-to-fast speed ramp.",
+   "from": {
+    "s": 1.0
+   },
+   "to": {
+    "s": 1.6
+   },
+   "ease": "ramp_slow_fast",
+   "aliases": [
+    "speed_ramp_in"
+   ],
+   "ai_prompt": "ramp push in. Movement: Push-in with a slow-to-fast speed ramp.. Speed: gradual and even. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "ramp_pull_out",
+   "category": "zoom",
+   "summary": "Pull-out with a fast-to-slow speed ramp.",
+   "from": {
+    "s": 1.6
+   },
+   "to": {
+    "s": 1.0
+   },
+   "ease": "ramp_fast_slow",
+   "aliases": [
+    "speed_ramp_out"
+   ],
+   "ai_prompt": "ramp pull out. Movement: Pull-out with a fast-to-slow speed ramp.. Speed: gradual and even. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "dolly_in",
+   "category": "dolly",
+   "summary": "Camera physically moves toward the subject.",
+   "from": {
+    "s": 1.0,
+    "y": 0
+   },
+   "to": {
+    "s": 1.38,
+    "y": -1.5
+   },
+   "ease": "in_out_sine",
+   "aliases": [
+    "push_in",
+    "slow_dolly_in"
+   ],
+   "ai_prompt": "dolly in. Movement: move the camera physically forward in a straight line toward the main subject. Speed: smooth controlled travel. Framing: keep camera height and lens direction constant while distance closes. End: settle on a stable final composition."
+  },
+  {
+   "id": "dolly_out",
+   "category": "dolly",
+   "summary": "Camera physically moves away from the subject.",
+   "from": {
+    "s": 1.38,
+    "y": -1.5
+   },
+   "to": {
+    "s": 1.0,
+    "y": 0
+   },
+   "ease": "in_out_sine",
+   "aliases": [
+    "pull_back"
+   ],
+   "ai_prompt": "dolly out. Movement: move the camera physically backward away from the main subject. Speed: smooth controlled travel. Framing: more environment enters the frame. End: settle on a stable final composition."
+  },
+  {
+   "id": "dolly_left",
+   "category": "dolly",
+   "summary": "Lateral dolly to the left with parallax.",
+   "from": {
+    "x": -9
+   },
+   "to": {
+    "x": 9
+   },
+   "ease": "smooth",
+   "aliases": [
+    "lateral_left"
+   ],
+   "ai_prompt": "dolly left. Movement: Lateral dolly to the left with parallax.. Speed: smooth controlled travel. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "parallax": 0.35
+  },
+  {
+   "id": "dolly_right",
+   "category": "dolly",
+   "summary": "Lateral dolly to the right with parallax.",
+   "from": {
+    "x": 9
+   },
+   "to": {
+    "x": -9
+   },
+   "ease": "smooth",
+   "aliases": [
+    "lateral_right",
+    "lateral_tracking"
+   ],
+   "ai_prompt": "dolly right. Movement: Lateral dolly to the right with parallax.. Speed: smooth controlled travel. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "parallax": 0.35
+  },
+  {
+   "id": "truck_left",
+   "category": "dolly",
+   "summary": "Camera slides left on a straight horizontal path.",
+   "from": {
+    "x": -12
+   },
+   "to": {
+    "x": 12
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "truck left. Movement: Camera slides left on a straight horizontal path.. Speed: smooth controlled travel. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "parallax": 0.3
+  },
+  {
+   "id": "truck_right",
+   "category": "dolly",
+   "summary": "Camera slides right on a straight horizontal path.",
+   "from": {
+    "x": 12
+   },
+   "to": {
+    "x": -12
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "truck right. Movement: Camera slides right on a straight horizontal path.. Speed: smooth controlled travel. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "parallax": 0.3
+  },
+  {
+   "id": "pedestal_up",
+   "category": "dolly",
+   "summary": "Camera rises vertically with a level lens.",
+   "from": {
+    "y": -8
+   },
+   "to": {
+    "y": 8
+   },
+   "ease": "smooth",
+   "aliases": [
+    "boom_up"
+   ],
+   "ai_prompt": "pedestal up. Movement: Camera rises vertically with a level lens.. Speed: smooth controlled travel. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "pedestal_down",
+   "category": "dolly",
+   "summary": "Camera lowers vertically with a level lens.",
+   "from": {
+    "y": 8
+   },
+   "to": {
+    "y": -8
+   },
+   "ease": "smooth",
+   "aliases": [
+    "boom_down"
+   ],
+   "ai_prompt": "pedestal down. Movement: Camera lowers vertically with a level lens.. Speed: smooth controlled travel. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "slider_left",
+   "category": "dolly",
+   "summary": "Small slider move left; layers separate with parallax.",
+   "from": {
+    "x": -3.5,
+    "s": 1.06
+   },
+   "to": {
+    "x": 3.5,
+    "s": 1.06
+   },
+   "ease": "smooth",
+   "aliases": [
+    "parallax_left"
+   ],
+   "ai_prompt": "slider left. Movement: Small slider move left; layers separate with parallax.. Speed: smooth controlled travel. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "parallax": 0.7
+  },
+  {
+   "id": "slider_right",
+   "category": "dolly",
+   "summary": "Small slider move right; layers separate with parallax.",
+   "from": {
+    "x": 3.5,
+    "s": 1.06
+   },
+   "to": {
+    "x": -3.5,
+    "s": 1.06
+   },
+   "ease": "smooth",
+   "aliases": [
+    "parallax_right"
+   ],
+   "ai_prompt": "slider right. Movement: Small slider move right; layers separate with parallax.. Speed: smooth controlled travel. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "parallax": 0.7
+  },
+  {
+   "id": "push_past",
+   "category": "dolly",
+   "summary": "Glide forward past a foreground edge into the space beyond.",
+   "from": {
+    "s": 1.0
+   },
+   "to": {
+    "s": 2.4
+   },
+   "ease": "in_cubic",
+   "aliases": [
+    "pass_by"
+   ],
+   "ai_prompt": "push past. Movement: Glide forward past a foreground edge into the space beyond.. Speed: smooth controlled travel. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "fg": {
+    "from": {
+     "s": 1.0
+    },
+    "to": {
+     "s": 3.4
+    }
+   }
+  },
+  {
+   "id": "pass_through",
+   "category": "special",
+   "summary": "Glide through a surface or opening into the next space.",
+   "from": {
+    "s": 1.0
+   },
+   "to": {
+    "s": 5.0
+   },
+   "ease": "in_expo",
+   "aliases": [
+    "pass_through_objects",
+    "portal"
+   ],
+   "ai_prompt": "pass through. Movement: Glide through a surface or opening into the next space.. Speed: stylised. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "autoBlur": 10,
+   "fg": {
+    "from": {
+     "s": 1.0
+    },
+    "to": {
+     "s": 8.0
+    }
+   }
+  },
+  {
+   "id": "tracking",
+   "category": "track",
+   "summary": "Camera travels with the subject.",
+   "from": {
+    "x": 10
+   },
+   "to": {
+    "x": -10
+   },
+   "ease": "smooth",
+   "aliases": [
+    "tracking_shot"
+   ],
+   "ai_prompt": "tracking. Movement: Camera travels with the subject.. Speed: matched to the subject's pace. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "shake": {
+     "ax": 0.12,
+     "ay": 0.1,
+     "ar": 0.04,
+     "f": 0.6
+    }
+   },
+   "parallax": 0.3
+  },
+  {
+   "id": "follow",
+   "category": "track",
+   "summary": "Follow shot from behind the subject.",
+   "from": {
+    "s": 1.22,
+    "x": 2
+   },
+   "to": {
+    "s": 1.3,
+    "x": -2
+   },
+   "ease": "smooth",
+   "aliases": [
+    "follow_shot",
+    "over_the_shoulder"
+   ],
+   "ai_prompt": "follow. Movement: Follow shot from behind the subject.. Speed: matched to the subject's pace. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "shake": {
+     "ax": 0.2,
+     "ay": 0.25,
+     "ar": 0.06,
+     "f": 0.8
+    }
+   }
+  },
+  {
+   "id": "reverse_tracking",
+   "category": "track",
+   "summary": "Camera moves backward in front of the subject.",
+   "from": {
+    "s": 1.38
+   },
+   "to": {
+    "s": 1.0
+   },
+   "ease": "smooth",
+   "aliases": [
+    "walk_and_talk"
+   ],
+   "ai_prompt": "reverse tracking. Movement: Camera moves backward in front of the subject.. Speed: matched to the subject's pace. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "shake": {
+     "ax": 0.15,
+     "ay": 0.2,
+     "ar": 0.05,
+     "f": 0.8
+    }
+   }
+  },
+  {
+   "id": "side_tracking",
+   "category": "track",
+   "summary": "Camera travels parallel to the subject.",
+   "from": {
+    "x": 12
+   },
+   "to": {
+    "x": -12
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "side tracking. Movement: Camera travels parallel to the subject.. Speed: matched to the subject's pace. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "shake": {
+     "ax": 0.1,
+     "ay": 0.12,
+     "ar": 0.04,
+     "f": 0.7
+    }
+   },
+   "parallax": 0.4
+  },
+  {
+   "id": "low_tracking",
+   "category": "track",
+   "summary": "Low tracking shot skimming the ground plane.",
+   "from": {
+    "x": 12,
+    "y": 4
+   },
+   "to": {
+    "x": -12,
+    "y": 4
+   },
+   "ease": "smooth",
+   "aliases": [
+    "ground_level"
+   ],
+   "ai_prompt": "low tracking. Movement: Low tracking shot skimming the ground plane.. Speed: matched to the subject's pace. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "shake": {
+     "ax": 0.15,
+     "ay": 0.3,
+     "ar": 0.05,
+     "f": 1.0
+    }
+   },
+   "parallax": 0.4
+  },
+  {
+   "id": "vehicle_tracking",
+   "category": "track",
+   "summary": "Fast travel alongside a moving vehicle.",
+   "from": {
+    "x": 26
+   },
+   "to": {
+    "x": -26
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "vehicle tracking. Movement: Fast travel alongside a moving vehicle.. Speed: matched to the subject's pace. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "autoBlur": 8,
+   "mods": {
+    "shake": {
+     "ax": 0.15,
+     "ay": 0.25,
+     "ar": 0.05,
+     "f": 1.2
+    }
+   },
+   "parallax": 0.5
+  },
+  {
+   "id": "chase",
+   "category": "track",
+   "summary": "Fast reactive chase with energetic reframing.",
+   "from": {
+    "x": 20,
+    "s": 1.3
+   },
+   "to": {
+    "x": -20,
+    "s": 1.3
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "chase. Movement: Fast reactive chase with energetic reframing.. Speed: matched to the subject's pace. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "autoBlur": 8,
+   "mods": {
+    "shake": {
+     "ax": 0.7,
+     "ay": 0.6,
+     "ar": 0.25,
+     "f": 1.4
+    }
+   }
+  },
+  {
+   "id": "arc_left",
+   "category": "rotate",
+   "summary": "Shallow curved path around the subject toward the left.",
+   "from": {
+    "x": -8,
+    "r": 2.5,
+    "s": 1.18
+   },
+   "to": {
+    "x": 8,
+    "r": -2.5,
+    "s": 1.18
+   },
+   "ease": "smooth",
+   "aliases": [
+    "arc"
+   ],
+   "ai_prompt": "arc left. Movement: Shallow curved path around the subject toward the left.. Speed: smooth measured rotation. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "arc_right",
+   "category": "rotate",
+   "summary": "Shallow curved path around the subject toward the right.",
+   "from": {
+    "x": 8,
+    "r": -2.5,
+    "s": 1.18
+   },
+   "to": {
+    "x": -8,
+    "r": 2.5,
+    "s": 1.18
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "arc right. Movement: Shallow curved path around the subject toward the right.. Speed: smooth measured rotation. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "orbit_cw",
+   "category": "rotate",
+   "summary": "Circle clockwise around the subject (2D approximation).",
+   "from": {
+    "s": 1.22
+   },
+   "to": {
+    "s": 1.22
+   },
+   "ease": "smooth",
+   "aliases": [
+    "orbit",
+    "orbit_clockwise"
+   ],
+   "ai_prompt": "orbit cw. Movement: Circle clockwise around the subject (2D approximation).. Speed: smooth measured rotation. Framing: keep the subject centered while the background rotates around it. End: settle on a stable final composition.",
+   "mods": {
+    "orbit": {
+     "R": 7,
+     "turns": 1,
+     "rot": 2
+    }
+   }
+  },
+  {
+   "id": "orbit_ccw",
+   "category": "rotate",
+   "summary": "Circle counter-clockwise around the subject (2D approximation).",
+   "from": {
+    "s": 1.22
+   },
+   "to": {
+    "s": 1.22
+   },
+   "ease": "smooth",
+   "aliases": [
+    "orbit_counterclockwise"
+   ],
+   "ai_prompt": "orbit ccw. Movement: Circle counter-clockwise around the subject (2D approximation).. Speed: smooth measured rotation. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "orbit": {
+     "R": 7,
+     "turns": -1,
+     "rot": -2
+    }
+   }
+  },
+  {
+   "id": "lazy_susan",
+   "category": "rotate",
+   "summary": "Slow rotation as if on a turntable.",
+   "from": {
+    "r": 0,
+    "s": 1.6
+   },
+   "to": {
+    "r": -25,
+    "s": 1.6
+   },
+   "ease": "smooth",
+   "aliases": [
+    "turntable"
+   ],
+   "ai_prompt": "lazy susan. Movement: Slow rotation as if on a turntable.. Speed: smooth measured rotation. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "spiral_in",
+   "category": "rotate",
+   "summary": "Rotating push-in spiral.",
+   "from": {
+    "r": 0,
+    "s": 1.0
+   },
+   "to": {
+    "r": 30,
+    "s": 2.0
+   },
+   "ease": "in_cubic",
+   "aliases": [],
+   "ai_prompt": "spiral in. Movement: Rotating push-in spiral.. Speed: smooth measured rotation. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "autoBlur": 5
+  },
+  {
+   "id": "spiral_out",
+   "category": "rotate",
+   "summary": "Rotating pull-out spiral.",
+   "from": {
+    "r": 30,
+    "s": 2.0
+   },
+   "to": {
+    "r": 0,
+    "s": 1.0
+   },
+   "ease": "out_cubic",
+   "aliases": [],
+   "ai_prompt": "spiral out. Movement: Rotating pull-out spiral.. Speed: smooth measured rotation. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "autoBlur": 5
+  },
+  {
+   "id": "camera_roll",
+   "category": "rotate",
+   "summary": "Full 360-degree roll around the lens axis.",
+   "from": {
+    "r": 0,
+    "s": 2.15
+   },
+   "to": {
+    "r": 360,
+    "s": 2.15
+   },
+   "ease": "in_out_cubic",
+   "aliases": [
+    "roll",
+    "barrel_roll"
+   ],
+   "ai_prompt": "camera roll. Movement: Full 360-degree roll around the lens axis.. Speed: smooth measured rotation. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "dutch_angle",
+   "category": "rotate",
+   "summary": "Camera tilts onto a canted angle.",
+   "from": {
+    "r": 0,
+    "s": 1.25
+   },
+   "to": {
+    "r": -10,
+    "s": 1.25
+   },
+   "ease": "out_cubic",
+   "aliases": [
+    "canted_angle",
+    "oblique"
+   ],
+   "ai_prompt": "dutch angle. Movement: Camera tilts onto a canted angle.. Speed: smooth measured rotation. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "dutch_hold",
+   "category": "rotate",
+   "summary": "Static canted frame.",
+   "from": {
+    "r": -10,
+    "s": 1.25
+   },
+   "to": {
+    "r": -10,
+    "s": 1.25
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "dutch hold. Movement: Static canted frame.. Speed: smooth measured rotation. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "pendulum",
+   "category": "rotate",
+   "summary": "Slow pendulum swing.",
+   "from": {
+    "s": 1.15
+   },
+   "to": {
+    "s": 1.15
+   },
+   "ease": "smooth",
+   "aliases": [
+    "swing"
+   ],
+   "ai_prompt": "pendulum. Movement: Slow pendulum swing.. Speed: smooth measured rotation. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "orbit": {
+     "R": 0,
+     "turns": 1,
+     "rot": 3
+    }
+   }
+  },
+  {
+   "id": "wigglegram",
+   "category": "special",
+   "summary": "Tiny alternating parallax jiggle (3D wiggle illusion).",
+   "from": {
+    "s": 1.05
+   },
+   "to": {
+    "s": 1.05
+   },
+   "ease": "smooth",
+   "aliases": [
+    "wiggle"
+   ],
+   "ai_prompt": "wigglegram. Movement: Tiny alternating parallax jiggle (3D wiggle illusion).. Speed: stylised. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "wiggle": {
+     "x": 1.2,
+     "period": 4
+    }
+   },
+   "parallax": 0.8
+  },
+  {
+   "id": "crane_up",
+   "category": "crane",
+   "summary": "Camera rises smoothly, revealing scale.",
+   "from": {
+    "y": -10,
+    "s": 1.35
+   },
+   "to": {
+    "y": 10,
+    "s": 1.05
+   },
+   "ease": "in_out_sine",
+   "aliases": [
+    "jib_up"
+   ],
+   "ai_prompt": "crane up. Movement: travel smoothly upward through open space. Speed: slow controlled lift. Framing: keep the subject readable as the camera rises. End: settle on a stable final composition."
+  },
+  {
+   "id": "crane_down",
+   "category": "crane",
+   "summary": "Camera descends smoothly toward a detail.",
+   "from": {
+    "y": 10,
+    "s": 1.05
+   },
+   "to": {
+    "y": -10,
+    "s": 1.35
+   },
+   "ease": "in_out_sine",
+   "aliases": [
+    "jib_down"
+   ],
+   "ai_prompt": "crane down. Movement: travel smoothly downward through open space. Speed: slow controlled lift. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "crane_over",
+   "category": "crane",
+   "summary": "Arcing crane move over the scene.",
+   "from": {
+    "y": -8,
+    "x": -6,
+    "s": 1.3,
+    "r": -2
+   },
+   "to": {
+    "y": 8,
+    "x": 6,
+    "s": 1.1,
+    "r": 2
+   },
+   "ease": "in_out_sine",
+   "aliases": [],
+   "ai_prompt": "crane over. Movement: Arcing crane move over the scene.. Speed: slow controlled lift. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "drone_push_in",
+   "category": "drone",
+   "summary": "Aerial forward glide toward the subject.",
+   "from": {
+    "s": 1.0,
+    "y": 2
+   },
+   "to": {
+    "s": 1.6,
+    "y": -2
+   },
+   "ease": "in_out_sine",
+   "aliases": [
+    "aerial_push_in"
+   ],
+   "ai_prompt": "drone push in. Movement: Aerial forward glide toward the subject.. Speed: controlled aerial glide. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "drone_pull_back",
+   "category": "drone",
+   "summary": "Aerial backward glide away from the subject.",
+   "from": {
+    "s": 1.6,
+    "y": -2
+   },
+   "to": {
+    "s": 1.0,
+    "y": 2
+   },
+   "ease": "in_out_sine",
+   "aliases": [
+    "aerial_pull_back"
+   ],
+   "ai_prompt": "drone pull back. Movement: Aerial backward glide away from the subject.. Speed: controlled aerial glide. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "helicopter",
+   "category": "drone",
+   "summary": "Broad gradual high-altitude flight path.",
+   "from": {
+    "x": -9,
+    "y": 3,
+    "s": 1.35,
+    "r": -1.5
+   },
+   "to": {
+    "x": 9,
+    "y": -3,
+    "s": 1.35,
+    "r": 1.5
+   },
+   "ease": "in_out_sine",
+   "aliases": [
+    "aerial",
+    "helicopter_shot"
+   ],
+   "ai_prompt": "helicopter. Movement: Broad gradual high-altitude flight path.. Speed: controlled aerial glide. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "aerial_reveal",
+   "category": "drone",
+   "summary": "Rising aerial reveal of the landscape.",
+   "from": {
+    "y": 12,
+    "s": 1.5
+   },
+   "to": {
+    "y": -4,
+    "s": 1.15
+   },
+   "ease": "out_cubic",
+   "aliases": [],
+   "ai_prompt": "aerial reveal. Movement: Rising aerial reveal of the landscape.. Speed: controlled aerial glide. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "fpv_drone",
+   "category": "drone",
+   "summary": "Fast FPV flight with wobble.",
+   "from": {
+    "s": 1.0
+   },
+   "to": {
+    "s": 2.0
+   },
+   "ease": "in_cubic",
+   "aliases": [],
+   "ai_prompt": "fpv drone. Movement: Fast FPV flight with wobble.. Speed: controlled aerial glide. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "autoBlur": 7,
+   "mods": {
+    "shake": {
+     "ax": 0.8,
+     "ay": 0.7,
+     "ar": 0.9,
+     "f": 1.1
+    }
+   }
+  },
+  {
+   "id": "flythrough",
+   "category": "drone",
+   "summary": "Fast forward flythrough with drift.",
+   "from": {
+    "s": 1.0,
+    "x": -3
+   },
+   "to": {
+    "s": 2.6,
+    "x": 3
+   },
+   "ease": "in_cubic",
+   "aliases": [],
+   "ai_prompt": "flythrough. Movement: Fast forward flythrough with drift.. Speed: controlled aerial glide. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "autoBlur": 8
+  },
+  {
+   "id": "handheld",
+   "category": "human",
+   "summary": "Natural handheld sway.",
+   "from": {
+    "s": 1.06
+   },
+   "to": {
+    "s": 1.06
+   },
+   "ease": "smooth",
+   "aliases": [
+    "shaky_cam",
+    "handheld_shot"
+   ],
+   "ai_prompt": "handheld. Movement: Natural handheld sway.. Speed: organic, responsive. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "shake": {
+     "ax": 0.35,
+     "ay": 0.3,
+     "ar": 0.18,
+     "f": 1.0
+    }
+   }
+  },
+  {
+   "id": "handheld_intense",
+   "category": "human",
+   "summary": "Energetic documentary handheld.",
+   "from": {
+    "s": 1.12
+   },
+   "to": {
+    "s": 1.12
+   },
+   "ease": "smooth",
+   "aliases": [
+    "shaky_intense"
+   ],
+   "ai_prompt": "handheld intense. Movement: Energetic documentary handheld.. Speed: organic, responsive. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "shake": {
+     "ax": 1.0,
+     "ay": 0.9,
+     "ar": 0.5,
+     "f": 1.4
+    }
+   }
+  },
+  {
+   "id": "steadicam",
+   "category": "human",
+   "summary": "Smooth floating walk-through glide.",
+   "from": {
+    "x": -3,
+    "s": 1.1
+   },
+   "to": {
+    "x": 3,
+    "s": 1.1
+   },
+   "ease": "in_out_sine",
+   "aliases": [
+    "gimbal"
+   ],
+   "ai_prompt": "steadicam. Movement: Smooth floating walk-through glide.. Speed: organic, responsive. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "float": {
+     "y": 0.5,
+     "cycles": 3
+    }
+   }
+  },
+  {
+   "id": "snorricam",
+   "category": "human",
+   "summary": "Body-mounted look: the subject stays fixed, the world shakes behind.",
+   "from": {
+    "s": 1.12
+   },
+   "to": {
+    "s": 1.12
+   },
+   "ease": "smooth",
+   "aliases": [
+    "body_mounted"
+   ],
+   "ai_prompt": "snorricam. Movement: Body-mounted look: the subject stays fixed, the world shakes behind.. Speed: organic, responsive. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "shake": {
+     "ax": 1.4,
+     "ay": 1.2,
+     "ar": 1.2,
+     "f": 1.0
+    }
+   },
+   "parallax": 0.0
+  },
+  {
+   "id": "documentary_drift",
+   "category": "human",
+   "summary": "Slow wandering documentary drift.",
+   "from": {
+    "x": -2,
+    "y": 1,
+    "s": 1.1
+   },
+   "to": {
+    "x": 2,
+    "y": -1,
+    "s": 1.14
+   },
+   "ease": "smooth",
+   "aliases": [
+    "wandering"
+   ],
+   "ai_prompt": "documentary drift. Movement: Slow wandering documentary drift.. Speed: organic, responsive. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "shake": {
+     "ax": 0.12,
+     "ay": 0.1,
+     "ar": 0.05,
+     "f": 0.4
+    }
+   }
+  },
+  {
+   "id": "earthquake",
+   "category": "human",
+   "summary": "Heavy impact shake.",
+   "from": {
+    "s": 1.15
+   },
+   "to": {
+    "s": 1.15
+   },
+   "ease": "smooth",
+   "aliases": [
+    "shake",
+    "impact_shake"
+   ],
+   "ai_prompt": "earthquake. Movement: Heavy impact shake.. Speed: organic, responsive. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "shake": {
+     "ax": 1.9,
+     "ay": 1.7,
+     "ar": 1.0,
+     "f": 1.8
+    }
+   }
+  },
+  {
+   "id": "ken_burns",
+   "category": "combo",
+   "summary": "Classic slow zoom with diagonal drift.",
+   "from": {
+    "s": 1.0,
+    "x": 0,
+    "y": 0
+   },
+   "to": {
+    "s": 1.22,
+    "x": -3,
+    "y": -2
+   },
+   "ease": "smooth",
+   "aliases": [
+    "ken_burns_slow_zoom"
+   ],
+   "ai_prompt": "ken burns. Movement: Classic slow zoom with diagonal drift.. Speed: slow cinematic drift. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "ken_burns_reverse",
+   "category": "combo",
+   "summary": "Classic Ken Burns, pulling out.",
+   "from": {
+    "s": 1.22,
+    "x": -3,
+    "y": -2
+   },
+   "to": {
+    "s": 1.0,
+    "x": 0,
+    "y": 0
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "ken burns reverse. Movement: Classic Ken Burns, pulling out.. Speed: slow cinematic drift. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "parallax_drift",
+   "category": "combo",
+   "summary": "Slow lateral drift with foreground/background separation.",
+   "from": {
+    "x": 4,
+    "s": 1.1
+   },
+   "to": {
+    "x": -4,
+    "s": 1.1
+   },
+   "ease": "smooth",
+   "aliases": [
+    "parallax"
+   ],
+   "ai_prompt": "parallax drift. Movement: Slow lateral drift with foreground/background separation.. Speed: slow cinematic drift. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "parallax": 0.6
+  },
+  {
+   "id": "diagonal_drift",
+   "category": "combo",
+   "summary": "Diagonal slow drift.",
+   "from": {
+    "x": 5,
+    "y": 3,
+    "s": 1.12
+   },
+   "to": {
+    "x": -5,
+    "y": -3,
+    "s": 1.12
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "diagonal drift. Movement: Diagonal slow drift.. Speed: slow cinematic drift. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "zoom_pan_left",
+   "category": "combo",
+   "summary": "Zoom in while panning left.",
+   "from": {
+    "s": 1.0,
+    "x": -6
+   },
+   "to": {
+    "s": 1.3,
+    "x": 6
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "zoom pan left. Movement: Zoom in while panning left.. Speed: slow cinematic drift. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "zoom_pan_right",
+   "category": "combo",
+   "summary": "Zoom in while panning right.",
+   "from": {
+    "s": 1.0,
+    "x": 6
+   },
+   "to": {
+    "s": 1.3,
+    "x": -6
+   },
+   "ease": "smooth",
+   "aliases": [],
+   "ai_prompt": "zoom pan right. Movement: Zoom in while panning right.. Speed: slow cinematic drift. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "float",
+   "category": "combo",
+   "summary": "Gentle levitation.",
+   "from": {
+    "s": 1.08
+   },
+   "to": {
+    "s": 1.08
+   },
+   "ease": "smooth",
+   "aliases": [
+    "levitation",
+    "hover"
+   ],
+   "ai_prompt": "float. Movement: Gentle levitation.. Speed: slow cinematic drift. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "float": {
+     "y": 0.9,
+     "cycles": 1
+    }
+   }
+  },
+  {
+   "id": "bullet_time",
+   "category": "special",
+   "summary": "Half-orbit with a slow-mo mid-section (2D approximation).",
+   "from": {
+    "s": 1.25
+   },
+   "to": {
+    "s": 1.25
+   },
+   "ease": "ramp_fast_slow",
+   "aliases": [
+    "matrix_orbit"
+   ],
+   "ai_prompt": "bullet time. Movement: Half-orbit with a slow-mo mid-section (2D approximation).. Speed: stylised. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "mods": {
+    "orbit": {
+     "R": 14,
+     "turns": 0.5,
+     "rot": 3
+    }
+   }
+  },
+  {
+   "id": "tilt_shift_glide",
+   "category": "special",
+   "summary": "Miniature-look glide; pair with the tilt_shift fx.",
+   "from": {
+    "x": -3,
+    "s": 1.1
+   },
+   "to": {
+    "x": 3,
+    "s": 1.1
+   },
+   "ease": "smooth",
+   "aliases": [
+    "miniature"
+   ],
+   "ai_prompt": "tilt shift glide. Movement: Miniature-look glide; pair with the tilt_shift fx.. Speed: stylised. Framing: keep the main subject readable. End: settle on a stable final composition.",
+   "fx": [
+    "tilt_shift"
+   ]
+  },
+  {
+   "id": "scale_shift",
+   "category": "special",
+   "summary": "Large-to-normal scale settle used for match transitions.",
+   "from": {
+    "s": 1.8
+   },
+   "to": {
+    "s": 1.0
+   },
+   "ease": "out_expo",
+   "aliases": [
+    "match_zoom"
+   ],
+   "ai_prompt": "scale shift. Movement: Large-to-normal scale settle used for match transitions.. Speed: stylised. Framing: keep the main subject readable. End: settle on a stable final composition."
+  },
+  {
+   "id": "stutter",
+   "category": "special",
+   "summary": "Stepped, stuttering motion (low frame-rate feel).",
+   "from": {
+    "s": 1.0,
+    "x": -4
+   },
+   "to": {
+    "s": 1.2,
+    "x": 4
+   },
+   "ease": "stutter",
+   "aliases": [
+    "step_print"
+   ],
+   "ai_prompt": "stutter. Movement: Stepped, stuttering motion (low frame-rate feel).. Speed: stylised. Framing: keep the main subject readable. End: settle on a stable final composition."
+  }
+ ],
+ "transitions": [
+  {
+   "id": "cut",
+   "summary": "Hard cut."
+  },
+  {
+   "id": "dissolve",
+   "summary": "Cross-dissolve (fade between scenes)."
+  },
+  {
+   "id": "blur_dissolve",
+   "summary": "Dissolve through a blur."
+  },
+  {
+   "id": "dip_black",
+   "summary": "Fade to black then up."
+  },
+  {
+   "id": "dip_white",
+   "summary": "Fade through white."
+  },
+  {
+   "id": "flash",
+   "summary": "Quick white flash at the cut."
+  },
+  {
+   "id": "film_burn",
+   "summary": "Warm orange film-burn flash."
+  },
+  {
+   "id": "flash_cut",
+   "summary": "Extremely short white flash on the beat."
+  },
+  {
+   "id": "whip_pan_left",
+   "summary": "Whip pan to the left with motion blur."
+  },
+  {
+   "id": "whip_pan_right",
+   "summary": "Whip pan to the right with motion blur."
+  },
+  {
+   "id": "whip_pan_up",
+   "summary": "Whip tilt upward."
+  },
+  {
+   "id": "whip_pan_down",
+   "summary": "Whip tilt downward."
+  },
+  {
+   "id": "slide_left",
+   "summary": "Push: scenes slide out left."
+  },
+  {
+   "id": "slide_right",
+   "summary": "Push: scenes slide out right."
+  },
+  {
+   "id": "slide_up",
+   "summary": "Push: scenes slide upward."
+  },
+  {
+   "id": "slide_down",
+   "summary": "Push: scenes slide downward."
+  },
+  {
+   "id": "cover_left",
+   "summary": "New scene covers the old one from the right."
+  },
+  {
+   "id": "cover_right",
+   "summary": "New scene covers the old one from the left."
+  },
+  {
+   "id": "wipe_left",
+   "summary": "Wipe revealing from the right edge."
+  },
+  {
+   "id": "wipe_right",
+   "summary": "Wipe revealing from the left edge."
+  },
+  {
+   "id": "wipe_up",
+   "summary": "Wipe revealing from the bottom."
+  },
+  {
+   "id": "wipe_down",
+   "summary": "Wipe revealing from the top."
+  },
+  {
+   "id": "wipe_diagonal",
+   "summary": "Diagonal wipe."
+  },
+  {
+   "id": "iris_in",
+   "summary": "Circular iris opening on the new scene."
+  },
+  {
+   "id": "iris_out",
+   "summary": "Circular iris closing on the old scene."
+  },
+  {
+   "id": "zoom_through",
+   "summary": "Zoom into the old scene and out of the new one."
+  },
+  {
+   "id": "zoom_out_through",
+   "summary": "Pull out of the old scene into the new one."
+  },
+  {
+   "id": "crash_zoom",
+   "summary": "Punchy crash-zoom cut."
+  },
+  {
+   "id": "spin",
+   "summary": "Rotating transition."
+  },
+  {
+   "id": "scale_shift",
+   "summary": "Match-scale transition: old scene scales up, new one settles."
+  },
+  {
+   "id": "match_cut",
+   "summary": "Scale-matched dissolve for shape/position matches."
+  },
+  {
+   "id": "glitch",
+   "summary": "Digital glitch with RGB split and slicing."
+  },
+  {
+   "id": "rgb_split",
+   "summary": "Chromatic split transition."
+  },
+  {
+   "id": "shutter",
+   "summary": "Horizontal shutter bars."
+  }
+ ],
+ "fx": [
+  {
+   "id": "grade_teal_orange",
+   "category": "grade",
+   "summary": "Teal shadows / orange highlights blockbuster grade."
+  },
+  {
+   "id": "grade_noir",
+   "category": "grade",
+   "summary": "High-contrast black and white."
+  },
+  {
+   "id": "grade_sepia",
+   "category": "grade",
+   "summary": "Warm sepia tone."
+  },
+  {
+   "id": "grade_vintage",
+   "category": "grade",
+   "summary": "Faded vintage film grade."
+  },
+  {
+   "id": "grade_cool",
+   "category": "grade",
+   "summary": "Cool blue tint."
+  },
+  {
+   "id": "grade_warm",
+   "category": "grade",
+   "summary": "Warm amber tint."
+  },
+  {
+   "id": "grade_bleach",
+   "category": "grade",
+   "summary": "Bleach-bypass: contrasty and desaturated."
+  },
+  {
+   "id": "grade_high_contrast",
+   "category": "grade",
+   "summary": "Punchy contrast."
+  },
+  {
+   "id": "grade_desaturate",
+   "category": "grade",
+   "summary": "Muted colour."
+  },
+  {
+   "id": "grade_vivid",
+   "category": "grade",
+   "summary": "Saturated, vivid colour."
+  },
+  {
+   "id": "grade_night",
+   "category": "grade",
+   "summary": "Blue-hour night look."
+  },
+  {
+   "id": "grade_golden_hour",
+   "category": "grade",
+   "summary": "Golden-hour warmth."
+  },
+  {
+   "id": "grade_dream",
+   "category": "grade",
+   "summary": "Soft dreamy pastel haze."
+  },
+  {
+   "id": "duotone",
+   "category": "grade",
+   "summary": "Two-colour gradient map (params: shadow, highlight)."
+  },
+  {
+   "id": "invert",
+   "category": "grade",
+   "summary": "Negative image."
+  },
+  {
+   "id": "night_vision",
+   "category": "grade",
+   "summary": "Green night-vision look with scanlines."
+  },
+  {
+   "id": "thermal",
+   "category": "grade",
+   "summary": "Thermal-camera palette."
+  },
+  {
+   "id": "x_ray",
+   "category": "grade",
+   "summary": "X-ray inverted look."
+  },
+  {
+   "id": "vhs",
+   "category": "grade",
+   "summary": "VHS tape: soft, chroma-offset, scanlines, noise."
+  },
+  {
+   "id": "crt",
+   "category": "grade",
+   "summary": "CRT monitor: scanlines, vignette, chroma."
+  },
+  {
+   "id": "vignette",
+   "category": "light",
+   "summary": "Darkened edges (strength)."
+  },
+  {
+   "id": "halation",
+   "category": "light",
+   "summary": "Red-orange glow bleeding from highlights."
+  },
+  {
+   "id": "bloom",
+   "category": "light",
+   "summary": "Soft glow on highlights."
+  },
+  {
+   "id": "glow",
+   "category": "light",
+   "summary": "Overall soft glow."
+  },
+  {
+   "id": "haze",
+   "category": "light",
+   "summary": "Atmospheric haze."
+  },
+  {
+   "id": "fog",
+   "category": "light",
+   "summary": "Low fog bank."
+  },
+  {
+   "id": "light_leak",
+   "category": "light",
+   "summary": "Animated warm light leaks."
+  },
+  {
+   "id": "lens_flare",
+   "category": "light",
+   "summary": "Drifting lens flare."
+  },
+  {
+   "id": "light_flash",
+   "category": "light",
+   "summary": "Single flash at a time (at, duration)."
+  },
+  {
+   "id": "light_sweep",
+   "category": "light",
+   "summary": "Diagonal specular sweep."
+  },
+  {
+   "id": "spotlight",
+   "category": "light",
+   "summary": "Dark surround with a lit focus area (x, y, radius)."
+  },
+  {
+   "id": "hard_light",
+   "category": "light",
+   "summary": "Hard directional contrast."
+  },
+  {
+   "id": "silhouette",
+   "category": "light",
+   "summary": "Crush shadows toward silhouettes."
+  },
+  {
+   "id": "dust",
+   "category": "light",
+   "summary": "Floating dust motes."
+  },
+  {
+   "id": "film_grain",
+   "category": "texture",
+   "summary": "Animated film grain (intensity)."
+  },
+  {
+   "id": "scanlines",
+   "category": "texture",
+   "summary": "Horizontal scanlines."
+  },
+  {
+   "id": "noise",
+   "category": "texture",
+   "summary": "Digital noise."
+  },
+  {
+   "id": "dirty_lens",
+   "category": "texture",
+   "summary": "Smudges and specks on the lens."
+  },
+  {
+   "id": "chromatic_aberration",
+   "category": "lens",
+   "summary": "RGB channel fringing (amount)."
+  },
+  {
+   "id": "glitch",
+   "category": "lens",
+   "summary": "Digital glitch bursts."
+  },
+  {
+   "id": "rgb_split",
+   "category": "lens",
+   "summary": "Static RGB split."
+  },
+  {
+   "id": "distortion_wave",
+   "category": "lens",
+   "summary": "Heat-haze / wave distortion."
+  },
+  {
+   "id": "blur",
+   "category": "lens",
+   "summary": "Gaussian blur (px)."
+  },
+  {
+   "id": "motion_blur",
+   "category": "lens",
+   "summary": "Directional blur (x, y)."
+  },
+  {
+   "id": "rack_focus",
+   "category": "lens",
+   "summary": "Blur animates in/out (from, to)."
+  },
+  {
+   "id": "focal_shift",
+   "category": "lens",
+   "summary": "Foreground sharp, background pulls in/out of focus."
+  },
+  {
+   "id": "tilt_shift",
+   "category": "lens",
+   "summary": "Miniature effect with blur bands."
+  },
+  {
+   "id": "depth_blur",
+   "category": "lens",
+   "summary": "Radial depth-of-field blur."
+  },
+  {
+   "id": "mirror",
+   "category": "lens",
+   "summary": "Mirrored split (axis)."
+  },
+  {
+   "id": "kaleidoscope",
+   "category": "lens",
+   "summary": "Four-way mirrored kaleidoscope."
+  },
+  {
+   "id": "echo",
+   "category": "lens",
+   "summary": "Ghost trail of previous frames."
+  },
+  {
+   "id": "double_exposure",
+   "category": "lens",
+   "summary": "Second image blended over the first (see double_exposure scene)."
+  },
+  {
+   "id": "letterbox",
+   "category": "frame",
+   "summary": "Cinematic bars (ratio, default 2.39)."
+  },
+  {
+   "id": "pillarbox",
+   "category": "frame",
+   "summary": "Side bars."
+  },
+  {
+   "id": "ratio_switch",
+   "category": "frame",
+   "summary": "Animated change of aspect bars."
+  },
+  {
+   "id": "frame_border",
+   "category": "frame",
+   "summary": "Thin frame border."
+  },
+  {
+   "id": "rounded_frame",
+   "category": "frame",
+   "summary": "Rounded-corner frame."
+  },
+  {
+   "id": "freeze",
+   "category": "time",
+   "summary": "Camera freezes at a fraction (at)."
+  },
+  {
+   "id": "stutter",
+   "category": "time",
+   "summary": "Stepped frame-hold feel."
+  }
+ ]
+}

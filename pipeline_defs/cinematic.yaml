@@ -48,6 +48,7 @@ required_skills:
   - meta/reviewer
   - meta/checkpoint-protocol
   - meta/animation-runtime-selector
+  - meta/youtube-policy-gate
   - meta/technical-qc-gate
   - core/loudness-mastering
   - creative/editing-craft
@@ -55,6 +56,8 @@ required_skills:
   - meta/shot-list-storyboard
   - creative/cinematography
   - creative/audio-post-cinema
+  - meta/guionista-core
+  - meta/guionista-ficcion-animada
 
 compatible_playbooks:
   recommended:

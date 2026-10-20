@@ -61,7 +61,41 @@
             "type": "string",
             "description": "Backing color used behind this cut by composition runtimes"
           },
-          "reason": { "type": "string" }
+          "reason": { "type": "string" },
+          "camera": {
+            "description": "Camera move: id from remotion-composer/src/lib/motion-catalog.json (e.g. dolly_in, whip_pan_left) or a custom spec {move, intensity, origin, from, to, ease, parallax, shake, delay, hold, reverse}.",
+            "oneOf": [{ "type": "string" }, { "type": "object" }]
+          },
+          "fx": {
+            "type": "array",
+            "description": "Effects stack: strings or {type, ...params}. See motion-catalog.json fx.",
+            "items": { "oneOf": [{ "type": "string" }, { "type": "object", "required": ["type"], "properties": { "type": { "type": "string" } } }] }
+          },
+          "type": { "type": "string", "description": "Remotion scene type (text_card, stat_card, kinetic_text, split_screen, collage, double_exposure, ...). See remotion-composer/SCENE_TYPES.md." },
+          "text": { "type": "string" },
+          "stat": { "type": "string" },
+          "subtitle": { "type": "string" },
+          "backgroundImage": { "type": "string" },
+          "backgroundVideo": { "type": "string" },
+          "backgroundOverlay": { "type": "number" },
+          "accentColor": { "type": "string" },
+          "imageB": { "type": "string" },
+          "textMode": { "type": "string" },
+          "highlight": { "type": "array", "items": { "type": "string" } },
+          "uppercase": { "type": "boolean" },
+          "panels": { "type": "array", "items": { "type": "object" } },
+          "layout": { "type": "string" },
+          "gap": { "type": "number" },
+          "items": { "type": "array", "items": { "type": "object" } },
+          "backgroundMotion": { "type": "object", "description": "Legacy camera move; prefer camera." },
+          "scale": { "type": "object", "description": "scale_comparison: ScaleWorld props (items, viewFrom, viewTo, leftFromM, leftToM, groundY, bands, marks)." },
+          "label": { "type": "string" },
+          "sublabel": { "type": "string" },
+          "fontSize": { "type": "number" },
+          "color": { "type": "string" },
+          "title": { "type": "string" },
+          "heroSubtitle": { "type": "string" },
+          "callout_type": { "type": "string" }
         },
         "additionalProperties": false
       }
@@ -193,6 +227,17 @@
         "required": ["type", "at_seconds", "duration_seconds"]
       }
     },
+    "fx": {
+      "type": "array",
+      "description": "Effects applied to every scene (film_grain, vignette, letterbox, ...).",
+      "items": { "oneOf": [{ "type": "string" }, { "type": "object" }] }
+    },
+    "autoCamera": {
+      "description": "true, or a list of move ids: background scenes without a camera get a rotating default move.",
+      "oneOf": [{ "type": "boolean" }, { "type": "array", "items": { "type": "string" } }]
+    },
+    "defaultTransition": { "type": "string", "description": "Default transition style between cuts (see motion-catalog.json transitions)." },
+    "defaultTransitionSeconds": { "type": "number" },
     "renderer_family": {
       "type": "string",
       "enum": ["explainer-data", "explainer-teacher", "cinematic-trailer", "documentary-montage", "product-reveal", "screen-demo", "presenter", "animation-first"],

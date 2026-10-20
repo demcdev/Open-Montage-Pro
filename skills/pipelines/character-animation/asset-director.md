@@ -56,6 +56,11 @@ projects/<project-name>/assets/backgrounds/
 All parts referenced by `rig_plan` must exist before compose. Missing parts are a
 blocker unless the action timeline removes the action requiring them.
 
+<!-- youtube-policy-gate -->
+## YouTube Policy Gate
+
+Apply the **assets** row of `skills/meta/youtube-policy-gate.md`: record `license` and `source_tool` for every asset; music only from the YouTube Audio Library, our own music, or a source licensed for monetizing on YouTube (keep the evidence); no realistic AI imagery presented as real; no real-person likeness.
+
 ---
 
 ## Gate Reminder (Binding)

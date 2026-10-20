@@ -99,6 +99,7 @@ Key capability families to look for in the output:
 | Skill | File | Trigger | Agent Skills (Layer 3) |
 |-------|------|---------|----------------------|
 | Video Editing | `creative/video-editing.md` | Cut decisions, pacing, rhythm | `ffmpeg`, `video-toolkit` |
+| Camera & Motion Library | `creative/camera-motion-library.md` | Remotion camera moves, transitions, fx, kinetic text, split screen — anything that would otherwise sit still. Index: `docs/MOTION_CATALOG.md` | `remotion-best-practices`, `framer-motion` |
 | Enhancement Strategy | `creative/enhancement-strategy.md` | Overlay placement and density | `ffmpeg` |
 | Data Visualization | `creative/data-visualization.md` | Chart type selection, animation, label placement | `d3-viz`, `remotion-best-practices` |
 | Video Stitching | `creative/video-stitching.md` | Multi-clip assembly, AI clip chaining, spatial composition | `ffmpeg`, `video-toolkit` |
@@ -297,6 +298,10 @@ Cross-cutting skills that apply to all pipelines:
 | Animation Runtime Selector | `meta/animation-runtime-selector.md` | Choose render runtime + animation library per scene |
 | Taste Direction | `meta/taste-direction.md` | Convert a brief into taste dials, anti-patterns, and reference strategy for proposal/playbook/atelier work |
 | Bespoke Composition (Atelier) | `meta/bespoke-composition.md` | Hand-author a composition from scratch (hero work) — no stock scene-types; routes art-direction → motion principles → engine mechanics → atelier render |
+| YouTube Policy Gate | `meta/youtube-policy-gate.md` | Binding policy gate at proposal, script, assets and publish: made-for-kids call, originality, AI disclosure, music licensing, health claims, no burned-in subtitles |
+| Guionista Core | `meta/guionista-core.md` | Any script | Shared rules: priority order, hook, open-loop ledger, humor, single CTA, words per minute by format, localization/dubbing, delivery as `script` artifact plus production table |
+| Guionista Ficción Animada | `meta/guionista-ficcion-animada.md` | `script` (fiction) | Series bible, desire/need/flaw/lie, rule book, setup/payoff, dramatic irony, chapter structure for YouTube, flash-cut inserts, animation production limits |
+| Guionista Documental | `meta/guionista-documental.md` | `script` (non-fiction) | Truth first, claims register with sources, ethics (real people, victims), documentary structures, licenses |
 | Production Bible | `meta/production-bible.md` | Visual/sound contract per project or series: character sheets, wardrobe states, locations, light map, reference injection per model, continuity check |
 | Shot List & Storyboard | `meta/shot-list-storyboard.md` | One `scene_plan` entry per shot, one keyframe per shot, approval ladder one frame → board → 30 s before producing |
 | Technical QC Gate | `meta/technical-qc-gate.md` | Binding technical gate with `technical_qc`: black, freeze, silence, loudness, true peak, conformity, licenses → pass / warn / block |
