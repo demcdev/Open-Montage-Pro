@@ -104,3 +104,6 @@ venv/
 
 # Local Wan / diffusers GPU environment
 .venv-wan/
+
+# Playwright MCP debug logs and page snapshots (regenerable, local only)
+.playwright-mcp/
