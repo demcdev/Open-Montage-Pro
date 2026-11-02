@@ -17,6 +17,12 @@ for local 2D character animation.
 - Store constraints on moving parts to prevent impossible rotations.
 - Keep layer order explicit; do not rely on SVG source order after generation.
 - Start with one view and add views only when the shot list requires them.
+- Split long limbs into two segments (upper/lower) with an elbow or knee pivot
+  when the actions include sitting, running, fanning or reaching. Draw each
+  segment as rim + outline + fill, then repaint the end of the parent's fill after
+  the child group so the child's outline does not leave a seam across the joint.
+- Fake a profile on a one-view rig by turning the head a little and hiding one
+  eye; it reads as a wink, so check it in a test frame before relying on it.
 
 ## Rig Package
 

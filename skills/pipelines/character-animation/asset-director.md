@@ -51,6 +51,32 @@ projects/<project-name>/assets/backgrounds/
 4. Record prompts, seeds, providers, and model names.
 5. Build a small preview before full asset expansion.
 
+## Lessons From Production (2026-10)
+
+- **`character_rig_renderer` only draws a generic placeholder body** (round head,
+  simple limbs). Use it for quick rig smoke tests, never as the character in a
+  delivered video. For an approved or existing character, build the SVG by parts
+  from its source artwork (one `<g>` per joint with an explicit `data-pivot`) and
+  drive it with the poses in `pose_library`. Say so in the asset notes.
+- **Two-segment limbs show a seam at the elbow/knee** (the child's outline is drawn
+  over the parent's fill). Repaint the last ~35 % of the parent fill after the
+  child group. See `.agents/skills/character-rigging/SKILL.md`.
+- **Write the rotation sign convention down.** If pose data uses mirrored
+  "anatomical" values (raise = positive on both sides), store the per-joint sign
+  table next to the renderer and in `pose_library.metadata`; one wrong sign turns a
+  selfie arm into an arm across the head.
+- **Props follow the bone they hang from.** Draw hand props along the forearm
+  direction in rest pose, not in the pose where they were first drawn.
+- **Look for music in more than one place.** Users drop tracks in `music_library/`
+  or straight into `projects/<id>/assets/music/`. Check both before saying a track
+  is missing, and record its license in `assets/music/LICENSES.md`.
+- **Keep the generators with the project.** Hand-authored (atelier) compositions
+  are produced by scripts; save them in `projects/<id>/scripts/`, never only in a
+  temporary scratchpad, or the video cannot be regenerated or edited later.
+  `projects/` is gitignored: back it up with the rest of the production history.
+- **Climb the ladder:** risky-pose sheet → one test frame per risky scene → 30 s
+  validation → remaining scenes. Each rung is a human review.
+
 ## Quality Bar
 
 All parts referenced by `rig_plan` must exist before compose. Missing parts are a
