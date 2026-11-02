@@ -726,6 +726,7 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | What tools exist for a vendor? | `registry.provider_catalog()` |
 | How does a tool actually work? | the tool's `usage_location` from the registry |
 | How should this pipeline stage behave? | `skills/pipelines/<pipeline>/...` |
+| Which skills apply at this phase of the production, and which ones does nothing load yet? | `skills/MAPA_POR_FASE.md` |
 | Which camera move / transition / effect should this scene use? | `skills/creative/camera-motion-library.md` and `docs/MOTION_CATALOG.md` |
 | Is this video safe to publish on YouTube (policies, kids flag, music, AI disclosure)? | `skills/meta/youtube-policy-gate.md` and `docs/youtube-policy-reference.md` |
 | What must be decided before writing a script (logline, stakes, transformation, narrator)? | `skills/meta/creative-intake.md` (mandatory `brief_creativo`) |

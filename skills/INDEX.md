@@ -4,6 +4,8 @@
 
 This file lists all available Layer 2 skills and documents the 3-layer knowledge architecture.
 
+For *when* each skill is read during a production (input → concept → script → audiovisual direction → production → finishing) and which ones nothing loads today, see [`MAPA_POR_FASE.md`](MAPA_POR_FASE.md).
+
 ## Knowledge Architecture
 
 ```
