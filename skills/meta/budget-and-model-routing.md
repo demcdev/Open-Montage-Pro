@@ -16,7 +16,7 @@ No sustituye a los selectores (`video_selector`, `image_selector`, `tts_selector
 
 | Nivel | Qué planos | Ruta de modelo | Ejemplos |
 |---|---|---|---|
-| **0 — Gratis/local** | Animación vectorial, cartones, diagramas, fondos fijos con movimiento de cámara | HyperFrames/Remotion, `piper_tts`, imágenes locales (`local_diffusion`, `comfyui_image`) si hay GPU | La mayor parte de una serie animada en vectores |
+| **0 — Gratis/local** | Animación vectorial, cartones, diagramas, fondos fijos con movimiento de cámara | HyperFrames/Remotion, `kokoro_tts` / `edge_tts` / `piper_tts`, imágenes locales (`local_diffusion`, `comfyui_image`) si hay GPU | La mayor parte de una serie animada en vectores |
 | **1 — Borrador** | Animática, previsualización, pruebas de prompt, planos de relleno muy cortos | El proveedor más barato disponible o local (`ltx_video_local`, `wan_video`, `cogvideo_video`, `hunyuan_video` con GPU); imágenes fijas animadas en vez de video | Aprobación del plano en `skills/meta/shot-list-storyboard.md` |
 | **2 — Estándar** | Planos de narrativa normal, B-roll, transiciones | Proveedor de gama media que pase la QA en la muestra | La mayoría de planos generados |
 | **3 — Héroe** | `scene_plan.scenes[].hero_moment = true`, apertura, revelaciones, el plano de la miniatura, primeros planos de rostro | El mejor modelo disponible para ese tipo de plano (`video_selector` con `operation: "rank"`) e imagen-a-video desde un fotograma aprobado | 2–5 planos por capítulo |

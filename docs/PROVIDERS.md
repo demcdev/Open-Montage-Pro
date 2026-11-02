@@ -1230,6 +1230,50 @@ piper --download-dir ~/.piper/models --model en_US-lessac-medium
 
 ---
 
+### Edge TTS — Free Online Neural Voices
+
+> **Free, no API key, no GPU.** Microsoft Edge's read-aloud neural voices (100+ languages, very good Spanish). Needs network.
+
+**Tool:** `edge_tts`
+**Runtime:** Online (unofficial Microsoft endpoint)
+**Env var:** None
+
+#### Setup
+
+```bash
+pip install edge-tts
+edge-tts --list-voices   # e.g. es-MX-JorgeNeural, es-ES-AlvaroNeural
+```
+
+**Output:** MP3 (24 kHz). Pass `timestamps: true` to get word timestamps in `data.word_timestamps` (`[{word, start, end}]`, seconds). Controls: `voice`, `language_code` (picks a default voice), `speed`, `pitch`, `volume`.
+
+**Caveats:** The endpoint is unofficial and can change or break without notice; no SSML, no voice cloning, no emotion direction. Fine for drafts and personal/zero-budget work; do not build a commercial service on it. Fallback: `kokoro_tts`.
+
+---
+
+### Kokoro TTS — Free Offline Neural Voices (CPU)
+
+> **Free, offline, no GPU.** Kokoro-82M (Apache 2.0) through `kokoro-onnx`; runs in real time on a laptop CPU. Spanish voices: `ef_dora`, `em_alex`.
+
+**Tool:** `kokoro_tts`
+**Runtime:** CPU (no GPU needed)
+**Env var:** `KOKORO_MODEL_DIR` (optional; default `~/.cache/kokoro`)
+
+#### Setup
+
+```bash
+pip install kokoro-onnx
+# Download into ~/.cache/kokoro (or $KOKORO_MODEL_DIR): ~325 MB + ~28 MB
+# https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx
+# https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
+```
+
+The tool reports `unavailable` until both files exist. Output is mono 24 kHz WAV. Controls: `voice`, `language_code`, `speed` (0.5–2.0), `sentence_pause`.
+
+**Caveats:** No voice cloning, no emotion control, and **no word timestamps** — chain `transcriber` afterwards when captions need them. Fallback: `piper_tts`.
+
+---
+
 ### ComfyUI Video — Local Workflows and Hosted Partner Nodes
 
 **Tool:** `comfyui_video`
@@ -1441,6 +1485,8 @@ These tools require only FFmpeg or Python packages — no GPU, no API key.
 | **Pexels** | `PEXELS_API_KEY` | `pexels_image`, `pexels_video` | Free |
 | **Pixabay** | `PIXABAY_API_KEY` | `pixabay_image`, `pixabay_video` | Free |
 | **Piper** | — (install only) | `piper_tts` | Free |
+| **Kokoro** | — (`pip install kokoro-onnx` + model files) | `kokoro_tts` | Free |
+| **Edge TTS** | — (`pip install edge-tts`) | `edge_tts` | Free |
 | **Azure AI Speech** | `AZURE_SPEECH_KEY` + `AZURE_SPEECH_REGION` | `azure_stt`, `azure_tts` | Free tier + paid |
 | **Amazon Polly** | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` (+ `AWS_DEFAULT_REGION`), `pip install boto3` | `polly_tts` (Long-Form, e.g. es-ES `Raul`) | Free 500k chars/month for 12 months, then ~$100 per 1M chars |
 | **Google** | `GOOGLE_API_KEY` (or `GEMINI_API_KEY`) | `google_tts`, `google_imagen`, `google_music`, `gemini_omni_video`, `veo_video` | Free tier (TTS) + paid |
