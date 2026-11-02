@@ -42,17 +42,17 @@ Si el guion y la verdad chocan, gana la verdad. Un gancho no promete lo que el v
 - **Investigación / misterio:** pregunta central → pistas en orden de impacto → falso culpable o falsa respuesta → revelación → qué cambia.
 - **Perfil / biografía:** un momento decisivo adelantado → origen → ascenso → crisis → legado.
 - **Ensayo / tesis:** afirmación audaz → tres argumentos de menor a mayor → objeción más fuerte → síntesis.
-- **Explicativo (cómo funciona):** resultado asombroso → mecanismo en capas (de lo simple a lo complejo) → error común → aplicación.
+- **Explicativo (cómo funciona):** resultado asombroso → mecanismo en capas (de lo simple a lo complejo) → error común → aplicación. Para los tiempos de cada tramo y las pausas de consolidación, ver `skills/creative/storytelling.md`.
 - **Cronología / historia:** gancho de un hecho extremo → cuerpo cronológico en bloques de 1–3 min con *open loops* → consecuencia actual.
 
 ## 7. Arquitecturas por duración
 
 **Formato largo (ensayos, documentales):**
 1. Gancho (0–10 s): problema urgente, contradicción o resultado adelantado.
-2. Puente (10–30 s): promesa de valor y misterio, sin sobreexplicar.
+2. Puente (10–30 s): promesa de valor y misterio, sin sobreexplicar. Deja claro **lo que está en juego para el espectador** (el `en_juego` del brief creativo: qué gana o arriesga al entender esto), con una persona o una consecuencia concreta, no con una abstracción.
 3. Cuerpo modular (bloques de 1–3 min) conectado con *open loops*.
 4. Interrupciones tonales cada 60–90 s (alivio cómico donde proceda, ironía visual, cambio de música, silencio).
-5. Clímax y cierre (últimos 30–60 s): síntesis con tono sublime y **una sola CTA**.
+5. Clímax y cierre (últimos 30–60 s): síntesis con tono sublime que nombra **qué cambia en lo que el espectador entiende** (la `transformacion` del brief: de la idea con la que llegó a la que se lleva), y **una sola CTA**.
 
 **Formato corto (Shorts / Reels):**
 1. Gancho de asombro o negativo veraz (0–3 s).
@@ -78,7 +78,9 @@ Al final incluye siempre: **registro de afirmaciones**, 3 variantes de gancho, r
 
 ## 10. Comprobación antes de entregar
 
-- [ ] ¿Pasa la comprobación del núcleo (`guionista-core.md` §7)?
+- [ ] ¿Pasa la comprobación del núcleo (`guionista-core.md` §8)?
+- [ ] ¿El puente deja claro lo que está en juego para el espectador, con una persona o consecuencia concreta?
+- [ ] ¿El cierre nombra qué cambia en lo que el espectador entiende?
 - [ ] ¿Todas las afirmaciones del guion están en el registro con fuente y confianza?
 - [ ] ¿No hay cifras inventadas ni datos «pendientes» presentados como ciertos?
 - [ ] ¿El gancho se cumple y coincide con el título y la miniatura?

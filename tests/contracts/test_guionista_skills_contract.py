@@ -64,6 +64,35 @@ def test_guionista_skills_exist_with_required_sections():
     assert "lo gigante" in fiction.lower() and "lo cotidiano" in fiction.lower(), "the collision pillar must name the giant-versus-everyday clash"
 
 
+def test_guionista_skills_carry_the_professional_foundations():
+    core = _read(META / f"{CORE}.md").lower()
+    for needle in (
+        "brief_creativo",
+        "escaleta",
+        "disciplina de escena",
+        "entra tarde y sal temprano",
+        "una emoción dominante por escena",
+        "especificidad",
+        "reescritura",
+        "creative-intake.md",
+        "storytelling.md",
+    ):
+        assert needle in core, f"core is missing: {needle}"
+    fiction = _read(META / f"{FICTION}.md").lower()
+    for needle in ("empatía rápida", "peor momento", "prueba de voz", "en_juego"):
+        assert needle in fiction, f"fiction skill is missing: {needle}"
+    doc = _read(META / f"{DOC}.md").lower()
+    for needle in ("lo que está en juego para el espectador", "qué cambia en lo que el espectador entiende", "storytelling.md"):
+        assert needle in doc, f"documentary skill is missing: {needle}"
+
+
+def test_type_skills_point_at_the_current_core_checklist():
+    core = _read(META / f"{CORE}.md")
+    assert "## 8. Comprobación antes de entregar" in core, "core checklist moved: update the type skills"
+    for name in (FICTION, DOC):
+        assert "`guionista-core.md` §8" in _read(META / f"{name}.md"), f"{name} points at a stale core section"
+
+
 def test_guionista_skills_are_discoverable():
     index = _read(ROOT / "skills" / "INDEX.md")
     guide = _read(ROOT / "AGENT_GUIDE.md")

@@ -14,6 +14,14 @@ Reglas que valen para **todo** guion, sea de ficción, documental o de otro tipo
 
 Guionista senior y estratega de retención. Escribes para el oído y para el ojo a la vez: cada línea indica qué se oye, qué se ve y con qué tono se dice. No rellenas, no explicas lo que la imagen ya muestra.
 
+## 1b. Antes de escribir: brief y escaleta
+
+1. **Lee el brief creativo** aprobado (`metadata.brief_creativo` del `proposal_packet` o del `brief`; ver `skills/meta/creative-intake.md`). Si falta, o le faltan `logline`, `en_juego` o `transformacion`, para y complétalo con el usuario: no se escribe guion sobre un concepto sin historia.
+2. **Escaleta (beat sheet) antes del guion.** Una lista numerada de beats, una línea cada uno: qué pasa, qué cambia y tiempo estimado. Marca el gancho, el incidente o pregunta inicial, el punto medio, el peor momento (ficción) o la objeción más fuerte (no ficción), el clímax y el cierre. Muéstrala al usuario y redacta solo cuando dé el visto bueno (anótalo en el `decision_log`); si pidió no parar, entrégala junto al guion. Corregir 15 líneas cuesta menos que reescribir 12 minutos. Un Short necesita 5 beats.
+3. **La escaleta cumple el brief:** el primer minuto deja claro lo que está en juego y el último beat muestra la `transformacion`.
+4. **Si hay video de referencia**, lee `replication_guidance.narrative_dna` del `video_analysis_brief` (lo produce `skills/meta/video-reference-analyst.md`) y úsalo como **patrón estructural**: tipo de gancho, estructura y tiempos de los beats, número de bucles abiertos, cadencia de interrupciones, tipo de narrador, ritmo de voz, tipo de humor y de cierre. Respeta su `what_to_keep` y su `what_to_change`. Copiar el patrón está bien; copiar texto, personajes, nombres o vestuario distintivo, no.
+5. Para el arco de un explicativo, apóyate en `skills/creative/storytelling.md`; cuando el guion indique un plano, usa el vocabulario de `skills/creative/cinematography.md`.
+
 ## 2. Reglas universales de redacción y ritmo
 
 1. **Cero rodeos iniciales.** Prohibidos el saludo, la intro animada, la pantalla estática y la mención al canal en el arranque.
@@ -26,6 +34,9 @@ Guionista senior y estratega de retención. Escribes para el oído y para el ojo
 8. **Una sola llamada a la acción (CTA)** al final. Si el proyecto añade pregunta para comentarios o fuentes, el orden es: pregunta → fuentes → CTA. En serie, la insignia del siguiente capítulo cuenta como CTA.
 9. **Coherencia con el título y la miniatura:** el gancho los confirma en pocos segundos.
 10. **Prueba sin audio:** los primeros 10 s deben entenderse con solo la imagen (no se incrustan subtítulos en ningún video; los subtítulos van como SRT/VTT en YouTube).
+11. **Disciplina de escena.** Cada escena o bloque mueve la historia o revela un personaje o una idea; si no hace ninguna de las dos, se corta. Entra tarde y sal temprano: empieza lo más cerca posible del momento que importa y corta en cuanto se resuelve.
+12. **Una emoción dominante por escena.** Anótala en la tabla de producción; dos escenas seguidas con la misma emoción y la misma intensidad son una señal de ritmo plano.
+13. **Especificidad.** Cambia lo genérico por un detalle concreto que solo pertenezca a esta historia («un tinto recalentado en una olleta abollada», no «un café»). El detalle específico vale más que el adjetivo.
 
 ## 3. Ritmo de locución
 
@@ -68,8 +79,22 @@ Habla a velocidad **estable**: YouTube salta el doblaje automático cuando el ha
    - **Tabla `promesa → minuto`** y **cuaderno de bucles abiertos**.
    - **Nota de políticas** (para `metadata.policy_notes`): ficción inventada o fuentes citadas, tratamiento de temas sensibles, declaración de IA pendiente, licencias de música y de archivo.
 
-## 7. Comprobación antes de entregar
+## 7. Reescritura (segunda pasada obligatoria)
 
+El primer borrador es para ti. Antes de entregar, haz una pasada completa con estas preguntas y corrige lo que falle:
+
+1. ¿El guion cuenta el `logline` del brief, o se desvió?
+2. ¿Lo que está en juego se entiende en el primer minuto?
+3. ¿El final muestra la `transformacion`?
+4. ¿Sobra alguna escena (no mueve la historia ni revela nada)? Córtala.
+5. ¿Qué frases son genéricas? Cámbialas por un detalle específico.
+6. ¿Se lee en voz alta sin trabarse? Léelo y cronométralo con la velocidad del §3.
+
+## 8. Comprobación antes de entregar
+
+- [ ] ¿Hay brief creativo aprobado con `logline`, `en_juego` y `transformacion`, y la escaleta se aprobó (o se entrega junto al guion porque el usuario pidió no parar)?
+- [ ] ¿Cada escena mueve la historia o revela algo, con una emoción dominante anotada?
+- [ ] ¿Se hizo la pasada de reescritura (§7)?
 - [ ] ¿Pasa el YouTube Policy Gate (guion)?
 - [ ] ¿Arranca sin saludo y con gancho de 0–10 s que se entiende sin audio?
 - [ ] ¿Hay al menos tres bucles abiertos desde el final del puente (con el cuaderno calculado) y están cerrados al final o prometidos para el siguiente capítulo?
