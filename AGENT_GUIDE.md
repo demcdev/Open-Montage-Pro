@@ -567,7 +567,9 @@ Every video can end up on YouTube, so every production passes the **YouTube Poli
 - **How to apply it:** `scene-director` plans every scene without text assets; `asset-director` rejects any generated image that contains words (regenerate or mask); `edit-director` and `compose-director` must not add `text_card`, `section_title`, `hero_title` or caption overlays with words (`stat_card`, `bar_chart`, `kpi_grid`, `progress_bar` are fine when their labels are numbers); the reviewer checks it at every stage.
 - **Exception:** only when the user explicitly asks for text in one specific video. Log it as a `decision_log` entry (`category: "no_text_exception"`).
 
+## Research Dossier (Binding, every project)
 
+The research stage of every pipeline is done with the **research dossier prompt**, not with ad-hoc searching. Read `skills/meta/research-dossier.md` and run it through the agent `research-dossier` (`.claude/agents/research-dossier.md`), which is pinned to **Opus with high effort**. The skill fills the prompt's variables from the project and **asks the user for every missing one** with selectable buttons; it never runs with empty variables. The dossier is saved to `projects/<project-id>/artifacts/research_dossier.md` and feeds the `research_brief`. Set by the user on 2026-11-01.
 
 ## Pipeline Asset Expectations
 

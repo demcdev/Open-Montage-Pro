@@ -288,3 +288,9 @@ Validate against `schemas/artifacts/research_brief.schema.json` before submittin
 - **Only searching topic, not visualization**: If the topic is "Fourier transforms," you must search both "Fourier transforms" AND "Fourier transform visualization/animation." The technique research is half the value.
 - **Treating all animation as one category**: Manim, Remotion, AI video, and motion graphics are fundamentally different tools with different strengths. Research should inform which mode fits the topic.
 - **Recording vague visual references**: "A nice animation" is not useful. "Progressive circle-to-wave morph showing sine decomposition (3Blue1Brown style, Manim)" is useful.
+
+---
+
+## Research Dossier (Binding)
+
+Before any searching in this stage, read `skills/meta/research-dossier.md` and run the research with the agent `research-dossier` (Opus, high effort). Fill the prompt's variables from the project and ask the user, with selectable buttons, for every one that is missing; never start with empty variables. Save the result as `projects/<project-id>/artifacts/research_dossier.md` and map it into the `research_brief` below. Everything in this director that conflicts with the dossier's honesty rules (open every source, no links from memory, mark unverified facts) yields to the dossier. Keep the No-Text Rule from `AGENT_GUIDE.md` in mind for any visual suggestion: numbers, symbols, flags and icons only.

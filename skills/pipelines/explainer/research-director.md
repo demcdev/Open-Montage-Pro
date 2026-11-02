@@ -341,3 +341,9 @@ Before submitting your research_brief, verify:
 - Audience: "Top Reddit question: 'Why does DNS take so long sometimes?' (r/networking, 847 upvotes). Misconception: people think DNS is a single lookup, not a recursive chain."
 - Trending: "Cloudflare just launched DNS-over-QUIC support (March 2026). DoH vs DoT debate is active on HN."
 - Angles: "The 200ms Journey Your Browser Takes Before Loading Anything" (data_driven, grounded in recursive resolution timing data), "Why Your ISP Knows Every Website You Visit — And How to Stop It" (contrarian, grounded in DNS privacy research + DoH trending signal), "DNS is a 40-Year-Old Phone Book Running the Modern Internet" (narrative/analogy, grounded in audience knowledge gap about DNS age + simplicity)
+
+---
+
+## Research Dossier (Binding)
+
+Before any searching in this stage, read `skills/meta/research-dossier.md` and run the research with the agent `research-dossier` (Opus, high effort). Fill the prompt's variables from the project and ask the user, with selectable buttons, for every one that is missing; never start with empty variables. Save the result as `projects/<project-id>/artifacts/research_dossier.md` and map it into the `research_brief` below. Everything in this director that conflicts with the dossier's honesty rules (open every source, no links from memory, mark unverified facts) yields to the dossier. Keep the No-Text Rule from `AGENT_GUIDE.md` in mind for any visual suggestion: numbers, symbols, flags and icons only.

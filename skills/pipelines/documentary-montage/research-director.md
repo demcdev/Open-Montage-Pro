@@ -119,3 +119,9 @@ This stage does not gate on human approval by default (`human_approval_default: 
 Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
 
 - `skills/meta/budget-and-model-routing.md` — confirm that the footage plan stays retrieval-first (tier 0–1 cost); any paid source or generated clip is a budget decision for the user.
+
+---
+
+## Research Dossier (Binding)
+
+Before any searching in this stage, read `skills/meta/research-dossier.md` and run the research with the agent `research-dossier` (Opus, high effort). Fill the prompt's variables from the project and ask the user, with selectable buttons, for every one that is missing; never start with empty variables. Save the result as `projects/<project-id>/artifacts/research_dossier.md` and map it into the `research_brief` below. Everything in this director that conflicts with the dossier's honesty rules (open every source, no links from memory, mark unverified facts) yields to the dossier. Keep the No-Text Rule from `AGENT_GUIDE.md` in mind for any visual suggestion: numbers, symbols, flags and icons only.
