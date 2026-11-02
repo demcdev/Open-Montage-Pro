@@ -746,6 +746,15 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | How do I design thumbnails, titles, credits and a next-episode teaser? | `skills/creative/title-thumbnail-trailer.md` |
 | Which model should each shot use, and how do I keep spending under a cap? | `skills/meta/budget-and-model-routing.md` (`tools/cost_tracker.py`, `video_selector.estimate_cost`) |
 
+## Code Graph (codebase-memory-mcp)
+
+The `codebase-memory-mcp` server is available in this workspace. Its tools are deferred: load them with `ToolSearch` before use. Validated on 2026-10-23 against `grep` and the real files (exact symbol outlines and source snippets, correct callers/callees, index refreshes within about a minute of a file change).
+
+- **Projects:** the project id of the repo is derived from its absolute path and differs per machine (e.g. `C-Users-<user>-Desktop-...-OpenMontage`): run `list_projects` to get the exact id before calling `trace_path` or `search_graph`. The repo index auto-refreshes. `OpenMontage-projects` (the gitignored `projects/` folder) does **not** auto-refresh: re-run `index_repository` on `projects/` with `name: OpenMontage-projects`.
+- **Use it for:** finding symbols (`search_graph`), reading one function (`get_code_snippet`), outlining a file (`get_file_outline`), and callers/callees (`trace_path`). It saves reading whole files.
+- **Do not trust it alone for "nothing else calls this" or "this does not exist".** In the validation it missed two caller files (module-level calls and a multi-line import). Confirm exhaustive claims with `grep`.
+- **Blind spots:** `.claude/` is not indexed (the same skills exist under `.agents/`), tests are hidden from `trace_path` by default (`include_tests: true`), and 4 HTML/Makefile files parse only partially.
+
 ## What Not To Do
 
 - **Do not bypass the pipeline.** Never write ad-hoc scripts to call tools directly. All production goes through pipeline stages with director skills. See Rule Zero.
