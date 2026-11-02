@@ -57,8 +57,9 @@ This video uses [AI-generated video clips / still images with pan-zoom / a mix].
 - Spatial Framing: [shot size; subject position; depth; height-relative; how it changes]
 - Camera: [playback speed; lens; height; angle; focus/DoF; steadiness; movement]
 
-**What makes it work:** [2-3 specific things — the hook technique, the pacing,
-the visual transitions, the narration style]
+**Narrative DNA:** [hook type and second it lands, beat count, open loops, interruption cadence, narrator type, words per minute, humor, ending — see "Narrative DNA" below]
+
+**What makes it work:** [2-3 specific things, each tied to a Narrative DNA field or a 5-aspect field]
 
 Now let me check what I can do with your current setup..."
 ```
@@ -107,6 +108,33 @@ The analyst's report MUST break down the reference video into the **five aspects
 > **Mark any aspect explicitly as N/A** if it doesn't apply (e.g., "Subject: N/A — pure scenery shot," or "Scene overlays: N/A — no graphics"). **Silent omission is the most common analyst failure** and produces ambiguous downstream prompts.
 
 See `skills/creative/video-gen-prompting.md` for primitive definitions and the canonical vocabulary used at every aspect.
+
+### Narrative DNA (MANDATORY)
+
+The 5 aspects capture how the reference *looks*. The **Narrative DNA** captures why it *retains*: the mechanics a scriptwriter needs. Without it, "make me one like this" copies the style and loses the structure. Fill it for every reference, in the vocabulary of `skills/meta/guionista-core.md`, and store it in `replication_guidance.narrative_dna` of the VideoAnalysisBrief (the schema allows extra fields there).
+
+**Measure, do not guess.** Take times from `structure_analysis.scenes` and `narration_transcript.segments`; compute words per minute from `narration_transcript.word_count` and the spoken time. If the video has no narration or no transcript, write `N/A` and say why. Mark any field you could only infer from the frames as `inferred`.
+
+| Field | What to record | How to measure |
+|---|---|---|
+| `hook` | Type (`contradiction`, `result_first`, `impossible_question`, `broken_rule`, `bold_claim`, `impossible_image`, `negative`), the line or image, and the second it lands | First 10 s of the transcript and first keyframes |
+| `bridge` | What it promises and why it matters, 10–30 s | Transcript 10–30 s |
+| `stakes` | What the viewer or protagonist stands to gain or lose, and when it is made clear | First minute |
+| `structure` | Name (`three_act`, `heros_journey`, `explainer_layers`, `investigation`, `listicle`, `other`) and the second each act or block starts | Scene list plus transcript |
+| `beats` | List of `{t, beat, function}`: hook, inciting question, midpoint, worst moment or strongest objection, climax, close | Marks where the story changes direction |
+| `open_loops` | List of `{opens_at, closes_at, question}`; note how many are open at once after the bridge | Questions asked in the transcript and when they are answered |
+| `interruption_cadence_s` | Median and maximum seconds between pattern interrupts (cut, tone change, joke, music or silence) | Scene changes plus audio changes |
+| `narrator` | Type (`single_narrator`, `character_dialogue`, `narrator_plus_characters`, `no_voice`), person (first, second, third) and register | Transcript |
+| `pace` | Words per minute while speaking, share of time with voice, longest silence | `word_count` and segment times |
+| `humor` | Type (`collision`, `understatement`, `callback`, `visual_irony`, `none`), count, minimum gap between jokes, whether it comes before or after the turn | Transcript plus keyframes |
+| `ending` | Type (`cliffhanger`, `synthesis`, `callback`, `question`), the closing line, and the call to action (one or several) | Last 60 s |
+| `payoffs` | Setups planted early that pay off later: `{planted_at, paid_at}` | Transcript |
+| `transformation` | What changes between the start and the end (the character, the situation or what the viewer understands) | Compare hook and ending |
+| `what_to_keep` / `what_to_change` | Which fields above carry into our version unchanged and which we replace | Decision for the proposal |
+
+**Output format:** include a short table in the summary to the user and the full object in `replication_guidance.narrative_dna`. Keep the labels; downstream stages lift the fields directly.
+
+**Pattern, not copy.** Structure, cadence and technique can be reused; the specific text, characters, names and distinctive costumes cannot (see the YouTube Policy Gate on originality). `what_to_keep` lists patterns only.
 
 ### Step 2: Capability Audit
 
@@ -177,6 +205,8 @@ Before proposing, gather what the VideoAnalysisBrief doesn't tell you:
 Do NOT ask all at once. Lead with the most important gap. If the user's initial
 message already answers some of these, skip those.
 
+**The reference fills part of the creative brief.** Pre-fill `brief_creativo` (see `skills/meta/creative-intake.md`) from the Narrative DNA and mark each pre-filled field `inferred` so the user confirms it: `tono` from the style and humor, `narrador` from `narrator`, `duracion_objetivo_s` from the reference length, `plataforma_formato` from the source, `en_juego` and `transformacion` from the same-named DNA fields. What the reference cannot give you — the topic of the user's own version, its `logline` and its audience — you still ask.
+
 ### Step 3b: Lightweight Research
 
 **This step is mandatory.** Even with a clear reference video and user direction,
@@ -222,7 +252,7 @@ Use this structure for each variant:
 ```
 ## Option [A/B/C]: "[Title]"
 
-**Inspired by:** [what it keeps from the reference — pacing, structure, tone]
+**Inspired by:** [what it keeps from the reference — pacing, structure, tone; name the Narrative DNA fields it keeps (hook type, structure, open-loop count, interruption cadence, narrator, humor, ending)]
 **Creative twist:** [what it changes — angle, subject, visual treatment, hook]
 
 **Visual plan:**
@@ -384,7 +414,7 @@ artifact dependencies, and review checkpoints. Skipping them is a governance
 violation.
 
 **Context to carry into the pipeline:**
-- VideoAnalysisBrief as grounding context in the research/proposal stage
+- VideoAnalysisBrief as grounding context in the research/proposal stage, **including `replication_guidance.narrative_dna`**: the script stage reads it as the structural pattern to follow (`skills/meta/guionista-core.md` §1b), never as text to copy
 - User's chosen variant as the approved direction
 - Sample feedback incorporated into the brief
 - All creative differentiation decisions recorded in the decision_log
