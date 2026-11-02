@@ -554,8 +554,20 @@ Every video can end up on YouTube, so every production passes the **YouTube Poli
 - **Proposal:** every concept gets a policy review (made for kids, originality, AI disclosure, music plan, sensitive topics, health claims) recorded in `proposal_packet.metadata.youtube_policy_review`. A concept with a `blocker` is not presented.
 - **Script and assets:** sources for every factual claim, a license for every asset, music only from the YouTube Audio Library, our own music, or a source licensed for YouTube monetization.
 - **Publish:** the Publish Checklist goes in `publish_log.metadata.youtube_policy_checklist` and is shown at the gate. Upload as private or unlisted first.
-- **Channel standards (user-set):** **no burned-in subtitles in any video** (`edit_decisions.subtitles.enabled = false`; export `.srt` / `.vtt` per language for YouTube) and **English + Spanish audio** for now, so on-screen text stays almost language-neutral. These standards override any stage director that enables, requires or burns subtitles.
+- **Channel standards (user-set):** **no burned-in subtitles in any video** (`edit_decisions.subtitles.enabled = false`; export `.srt` / `.vtt` per language for YouTube) and **no words on screen** (see "No-Text Rule" below), because the audio is dubbed into other languages. These standards override any stage director that enables, requires or burns subtitles or on-screen text.
 - If a request clashes with the gate, warn before executing and propose a compliant alternative.
+
+## No-Text Rule (Binding, all pipelines, all projects)
+
+**No video may show words.** The audio is dubbed to other languages (YouTube automatic dubbing or own tracks), so any text burned into the picture would be unreadable for part of the audience. Set by the user on 2026-11-01.
+
+- **Allowed on screen:** numbers, percentages, units (ºC, %, t, kg, km, years), chemical and mathematical symbols (Li, Cu, ≈, >, ×), flags, icons, arrows, maps without place names, and charts whose labels are numbers only. Write thousands with a thin space (56 000), not with `.` or `,`, so the number reads the same in every language; avoid decimals when a unit can avoid them.
+- **Not allowed:** titles, lower thirds, captions, subtitles, chapter names, word labels on maps or charts, speech bubbles, text in generated images, and text inside thumbnails' video frames. Acronyms count as symbols only when they are the same in every target language (e.g. APT, LED).
+- **Where the words go instead:** the narration, the video description, chapters, and `.srt` / `.vtt` files configured in YouTube.
+- **How to apply it:** `scene-director` plans every scene without text assets; `asset-director` rejects any generated image that contains words (regenerate or mask); `edit-director` and `compose-director` must not add `text_card`, `section_title`, `hero_title` or caption overlays with words (`stat_card`, `bar_chart`, `kpi_grid`, `progress_bar` are fine when their labels are numbers); the reviewer checks it at every stage.
+- **Exception:** only when the user explicitly asks for text in one specific video. Log it as a `decision_log` entry (`category: "no_text_exception"`).
+
+
 
 ## Pipeline Asset Expectations
 

@@ -56,7 +56,8 @@ Write the answers to `publish_log.metadata.youtube_policy_checklist` and show th
 ## Channel Standards (set by the user)
 
 - **No burned-in subtitles in any video.** Captions are configured in YouTube from `.srt` / `.vtt` files. (Rule set 2026-10-19.) Several pipeline directors still say subtitles are mandatory or burned in; this standard overrides them (each edit and compose director carries an override note). The only exception is a specific video for which the user explicitly asks for burned-in captions.
-- **Audio languages for now: English and Spanish.** One video with two audio tracks, so on-screen text must be almost language-neutral: numbers, icons, symbols, acronyms.
+- **No words on screen in any video (No-Text Rule, set 2026-11-01).** Only numbers, units, symbols, flags, icons and arrows; the full rule and exception are in `AGENT_GUIDE.md` → "No-Text Rule". It replaces the earlier "almost language-neutral text" standard. Check it at `scene_plan`, `assets` (no generated image may contain words), `edit` and `compose`; a violation is a **Warning** in review and a **Blocker** at publish.
+- **Audio languages:** the user records in Spanish; YouTube dubs automatically into English, Portuguese and Arabic. One video, several audio tracks, which is why the picture carries no words.
 - Health and food-safety facts are checked against the authority of the audience's country, not only the US.
 
 ## When a Request Conflicts
