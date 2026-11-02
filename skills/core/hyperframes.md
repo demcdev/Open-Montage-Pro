@@ -416,6 +416,48 @@ when loaded via Google Fonts. Check the compiler's warning output or
 the `deterministicFonts.ts` mapping table. Safe bets: `Outfit`,
 `Montserrat`, `Inter`, `JetBrains Mono`, `Poppins`, `Playfair Display`.
 
+### Three.js worlds: lighting, fog and sky bodies
+
+Measured on the turista-sistema-solar project (10 planetary surfaces, 2026-10):
+
+- **Use `MeshLambertMaterial` for terrain, rocks and hills when the sun is low.**
+  `MeshStandardMaterial` keeps a Fresnel specular term even at `roughness: 1`;
+  with a grazing light in front of the camera it paints the ground mid-grey even
+  at albedo 0. Sampling pixels with albedo forced to 0 is the quick test.
+- **Vertex colors are linear.** An albedo of 0.025 shows up as ~27 % grey on
+  screen after tone mapping; near-black surfaces need ~0.003–0.012.
+- **Sun disc and halo sprites need `fog: false`.** The sun sits far beyond the
+  fog range, so with `scene.fog` the disc renders in the fog color and looks like
+  a dark hole inside its own halo. Keep the halo `renderOrder` below the disc
+  (otherwise a crescent artifact appears).
+- **Sky bodies far away need a little emissive** (`emissiveMap` = the color map,
+  `emissiveIntensity` 0.4–0.55), or they read as dark discs next to the HUD.
+- **Keep one consistent sky scale.** Pick one exaggeration factor for apparent
+  sizes (e.g. ×7) and keep real ratios between sun, planets and moons; note the
+  factor in the scene plan so the numbers in the HUD stay honest.
+- In inline module scripts `-x ** 2` is a syntax error (write `-(x ** 2)`) and it
+  leaves the canvas black with no warning in the snapshot.
+
+### Renders can come out one frame long
+
+`hyperframes render` sometimes produces one extra frame (e.g. 9.70 s for a
+9.6667 s composition). Over a dozen scenes that drifts the audio by several
+frames. When you concatenate scene renders, write an `outpoint <exact duration>`
+line after each `file` in the FFmpeg concat list so every clip is trimmed to the
+planned length.
+
+### Long holds read as frozen in QC
+
+A character that only blinks for 3+ s while a narrator talks is flagged as a
+frozen picture by `technical_qc`, and it also looks dead on screen. Add a small
+deterministic idle (neck ±2°, shoulders ±2°, torso ±1° on slow sines) or a slow
+camera push; do not raise `freeze_min_seconds` to hide it.
+
+### Snapshots and Gemini
+
+`npx hyperframes snapshot` calls Gemini to describe frames when `GEMINI_API_KEY`
+is set, which costs money. Pass `--describe false` for routine visual checks.
+
 ## Anti-patterns
 
 - ❌ Forking playbook data for HyperFrames when the current schema already

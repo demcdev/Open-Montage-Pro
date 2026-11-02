@@ -48,6 +48,8 @@ Regla: **todo lo que se entrega pasa por `audio_master`**. En la mezcla final, u
 3. **Versiones por idioma:** cada idioma (EN, ES) se masteriza aparte con el mismo preset. Las voces de cada idioma tienen otra densidad y duración.
 4. **No subir el volumen para "competir".** −14 es el techo útil en YouTube; más alto solo se aplasta.
 5. **Silencios intencionales:** declararlos en `edit_decisions.metadata.intentional_ranges` para que el QC no los marque.
+6. **Muchas pistas: mezclar por escena.** Con unas 100 entradas en un solo comando, FFmpeg se cae en Windows con un código de salida sin mensaje. Mezcla voz y efectos por escena (pistas de igual duración que la escena), une las pistas con concat y haz el ducking de la música sobre la voz unida. Así cada comando tiene ~10 entradas.
+7. **Margen para el AAC:** la codificación a AAC sube el true peak unas décimas (−1,0 → −0,9 dBTP medido). Masteriza con `true_peak: -1.5` para que el MP4 final quede bajo −1,0.
 
 ## Integración
 

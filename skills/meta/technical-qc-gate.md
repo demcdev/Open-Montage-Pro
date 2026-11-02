@@ -43,12 +43,16 @@ Bloquea siempre: video completamente negro, sin pista de video, loudness a más 
 - **Animación con poses sostenidas:** la animación vectorial tiene planos quietos a propósito. Sube `freeze_min_seconds` a 4–6 s para animación y deja 2 s para video generado o metraje real. Un congelado de 2 s en video IA casi siempre es un error del modelo.
 - **Fundidos al inicio y al final:** el negro o el silencio que toca los bordes dentro de `edge_grace_seconds` (1,5 s) se reporta como `info`.
 - **Silencios dramáticos y cortes a negro planeados:** se declaran en `edit_decisions.metadata.intentional_ranges` y se pasan tal cual a la herramienta. Si no estaban planeados, son errores.
+- **Escenas de espacio:** un cielo negro con estrellas y poco más se mide como negro. Si es parte del chiste o del mapa, va en `intentional_ranges`; si es un plano de gancho, el aviso tiene razón: añade contenido (en el turista se resolvió con un mapa del viaje).
+- **No uses un rango intencional para tapar una toma quieta durante la voz.** Si el personaje solo parpadea 3 s o más, dale movimiento (ver «Congelado en animación» abajo).
 
 ## Arreglos típicos
 
 | Hallazgo | Causa probable | Arreglo |
 |---|---|---|
 | Negro corto entre partes | Concat con duraciones desalineadas o un clip que no cargó | Re-unir con duraciones exactas; revisar el clip faltante |
+| Audio que se adelanta al final | Un render de escena salió un fotograma más largo | `outpoint <duración exacta>` por clip en la lista de concat (ver `skills/core/hyperframes.md`) |
+| Congelado en animación vectorial durante la voz | Pose sostenida sin movimiento secundario | Reposo leve (cuello, hombros, torso) o un acercamiento lento de cámara; no subir el umbral para ocultarlo |
 | Congelado en video generado | El modelo se quedó quieto o se extendió un clip | Regenerar el plano o recortarlo |
 | Silencio no planeado | Pista de voz que no empezó a tiempo o capa ambiental cortada | Revisar `start_seconds` de las pistas en el mix |
 | Loudness fuera de objetivo | Mezcla sin masterizar | Correr `audio_master` (ver `skills/core/loudness-mastering.md`) y volver a pasar el QC |
