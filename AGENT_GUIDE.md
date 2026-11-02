@@ -714,6 +714,7 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | How should this pipeline stage behave? | `skills/pipelines/<pipeline>/...` |
 | Which camera move / transition / effect should this scene use? | `skills/creative/camera-motion-library.md` and `docs/MOTION_CATALOG.md` |
 | Is this video safe to publish on YouTube (policies, kids flag, music, AI disclosure)? | `skills/meta/youtube-policy-gate.md` and `docs/youtube-policy-reference.md` |
+| What must be decided before writing a script (logline, stakes, transformation, narrator)? | `skills/meta/creative-intake.md` (mandatory `brief_creativo`) |
 | How do I write or rewrite a script (fiction series, documentary, essay)? | `skills/meta/guionista-core.md` plus `skills/meta/guionista-ficcion-animada.md` (fiction) or `skills/meta/guionista-documental.md` (non-fiction) |
 | What is the checkpoint/review policy? | `skills/meta/` |
 | Is this render technically fit to ship (black frames, silences, loudness, specs, licenses)? | `skills/meta/technical-qc-gate.md` (tool `technical_qc`) |

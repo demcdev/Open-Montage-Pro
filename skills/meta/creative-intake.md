@@ -1,84 +1,111 @@
-# Creative Intake
+# Creative Intake y Brief creativo (Meta Skill)
 
-Before the research stage, gather user intent through targeted questions.
-Do NOT start production on a vague brief.
+Cubre las fases 0 y 1 del mapa (`skills/MAPA_POR_FASE.md`): entender qué quiere el usuario y fijar **qué historia se cuenta, para quién y por qué importa** antes de escribir una línea de guion. Es **obligatorio** en los pipelines narrativos (animated-explainer, animation, character-animation, cinematic, avatar-spokesperson, documentary-montage, hybrid). Idioma de trabajo con el usuario: **español**.
 
-## Required Questions (ask conversationally, not as a survey)
+No arranques producción sobre un brief vago, y no escribas guion sin **brief creativo** aprobado (§5).
 
-1. **Purpose**: What is this video FOR? (educate, sell, inspire, document, entertain)
-2. **Audience**: Who will watch it? (age, expertise, context — "my team" vs "YouTube public")
-3. **Platform**: Where will it live? (YouTube, internal Slack, social media, presentation, website)
-4. **Tone**: What should it FEEL like? (serious, playful, cinematic, raw, warm, provocative)
-5. **References**: Any videos you admire or want this to feel like?
-6. **Outcome**: What should the viewer DO or FEEL after watching?
-7. **Constraints**: Budget ceiling? Timeline? Must-include content?
+## 1. Preguntas (en conversación, no como encuesta)
 
-## How to Ask
+1. **Propósito:** ¿para qué es el video? (educar, vender, inspirar, documentar, entretener)
+2. **Audiencia:** ¿quién lo verá? (edad, conocimiento previo, contexto: «mi equipo» frente a «público de YouTube»)
+3. **Plataforma:** ¿dónde vivirá? (YouTube, Shorts, redes, presentación, web)
+4. **Tono:** ¿cómo se debe sentir? (serio, juguetón, cinematográfico, crudo, cálido, provocador)
+5. **Referencias:** ¿algún video que admire o al que se quiera parecer?
+6. **Resultado:** ¿qué debe **sentir** o **hacer** el espectador al terminar?
+7. **Restricciones:** ¿presupuesto, plazo, contenido obligatorio?
 
-Don't dump all 7 questions at once. Start with purpose and audience,
-then let the conversation flow. Fill in gaps naturally.
+## 2. Cómo preguntar
 
-If the user gives a detailed brief, skip questions they've already answered.
+- No sueltes las siete a la vez. Empieza por propósito y audiencia y deja que la conversación fluya.
+- Si el usuario ya respondió algo, no lo repitas. «Quiero un film de marca cinematográfico para Instagram» ya trae propósito, plataforma y tono: pregunta lo que falta.
+- **Brief vago** («hazme un video sobre X»): reconoce el tema, haz la pregunta más importante que falte (casi siempre propósito o audiencia), luego la siguiente, y para cuando tengas suficiente para investigar. La investigación completa el detalle.
+- **Brief detallado** (varios párrafos o un documento): resume en 1–2 frases lo que entendiste, señala los huecos («tengo claros audiencia y tono, ¿qué resultado esperas?») y confirma plataforma y restricciones.
 
-Identify what the user has already told you. If they said "I want a
-cinematic brand film for Instagram," you already have purpose (inspire/sell),
-platform (Instagram), and tone (cinematic). Ask what's missing.
+## 3. Si la entrada es un video de referencia
 
-## Handling Vague Briefs
+1. Lee `skills/meta/video-reference-analyst.md` y sigue su protocolo en lugar de esta entrevista.
+2. El `video_analysis_brief` responde casi todas las preguntas: tono, estructura, ritmo, señales de audiencia y estilo.
+3. Quedan por preguntar: tema de **tu** versión (si cambia), duración, si lleva narración y presupuesto.
+4. No preguntes «¿cómo se debe sentir?»: la referencia es la respuesta. Sácalo del análisis.
 
-When the user says something like "make me a video about X":
+## 4. Salida de la fase 0: `intake_brief`
 
-1. Acknowledge the topic — show you understood.
-2. Ask the single most important missing question first (usually purpose or audience).
-3. Based on their answer, ask the next most important gap.
-4. Stop asking when you have enough to start research. You don't need perfect answers — research will fill in details.
+Notas informales (sin schema) que recibe la etapa de investigación o idea como contexto:
 
-## Handling Detailed Briefs
+- Citas textuales del usuario donde su forma de decirlo revela intención.
+- Respuesta a cada una de las siete preguntas, marcando **dicha** o **inferida**.
+- Videos o imágenes de referencia mencionados.
+- Restricciones que hay que respetar.
 
-When the user provides a multi-paragraph brief or a document:
+Existe para que la investigación no invente una intención que el usuario nunca expresó.
 
-1. Summarize what you understood (1-2 sentences).
-2. Call out any gaps: "I have a clear picture of the audience and tone, but I'd love to know — is there a specific outcome you're hoping for?"
-3. Confirm the platform and constraints if not stated.
+## 5. Salida de la fase 1: brief creativo (obligatorio)
 
-## Output
+El **brief creativo** junta en un solo bloque las decisiones de concepto que el guion necesita. Se arma para el concepto elegido y se aprueba **en la misma puerta** que la propuesta o la idea (no añade otra parada).
 
-Produce an `intake_brief` (informal, not schema-validated) that the
-research stage uses as its starting context. Include:
+**Dónde vive** (sin tocar los schemas):
 
-- Direct quotes from the user where their language reveals intent
-- Explicit answers to each of the 7 questions (mark any that were inferred vs stated)
-- Any reference videos/images the user mentioned
-- Constraints that must be honored (budget, timeline, must-include)
+| Pipeline | Etapa | Campo |
+|---|---|---|
+| animated-explainer, animation, character-animation, cinematic | `proposal` | `proposal_packet.metadata.brief_creativo` |
+| avatar-spokesperson, documentary-montage, hybrid | `idea` | `brief.metadata.brief_creativo` |
 
-The intake_brief is passed as context to the research-director, not as a
-formal artifact. It exists to prevent the research stage from inventing
-intent that the user never expressed.
+**Campos:**
 
-## Handling Reference Video Input
+| Campo | Qué responde | Regla |
+|---|---|---|
+| `logline` | La historia en una frase | Ficción: **personaje + deseo + obstáculo + lo que está en juego**. No ficción: **pregunta o sujeto + por qué importa + qué se descubre**. Si no cabe en una frase, el concepto no está listo |
+| `tipo` | `ficcion`, `documental`, `explicativo`, `ensayo` u `otro` | Decide qué skill de guion se lee en la fase 2 |
+| `audiencia` | Para quién es | Concreta («curiosos de 16+ sin formación científica»), nunca «todo el mundo» |
+| `objetivo_emocional` | `{ "sentir": …, "hacer": … }` al terminar | Una emoción dominante, no una lista |
+| `en_juego` | Qué se gana o se pierde | En ficción, lo que pierde el personaje si falla; en no ficción, lo que el espectador gana o arriesga al entenderlo |
+| `conflicto` | Qué se opone | Personaje contra personaje, entorno o sí mismo; en no ficción, expectativa contra realidad |
+| `transformacion` | Qué cambia del inicio al final | El personaje, la situación o lo que el espectador entiende. Si nada cambia, no hay historia |
+| `tono` | Cómo se siente | Coherente con `taste_profile` si existe |
+| `plataforma_formato` | Destino y relación de aspecto | YouTube 16:9, Shorts 9:16… |
+| `duracion_objetivo_s` | Duración pedida | En segundos |
+| `narrador` | `single_narrator`, `character_dialogue`, `narrator_plus_characters` o `sin_voz` | Es la `audio_architecture`; se fija aquí, no en el guion |
+| `referencias` | Videos o imágenes de referencia | Con lo que se toma y lo que se cambia de cada una |
+| `restricciones` | Presupuesto, plazo, contenido obligatorio | |
+| `origen` | `{ campo: "dicho" \| "inferido" }` | Lo inferido se le muestra al usuario para que lo confirme |
 
-When the user provides a video URL or file as their starting point:
+**Ejemplo** («quiero un video para hablar sobre el universo»):
 
-1. **Read the video-reference-analyst skill** (`skills/meta/video-reference-analyst.md`)
-   and follow its protocol. Do not proceed with standard creative intake.
+```json
+"brief_creativo": {
+  "logline": "Eres un turista que viaja de la Tierra al borde del universo observable y en cada parada descubre que lo que creía grande es diminuto.",
+  "tipo": "explicativo",
+  "audiencia": "público general curioso, 16+, sin formación científica",
+  "objetivo_emocional": {"sentir": "asombro que termina en aprecio por la Tierra", "hacer": "comentar qué escala le voló la cabeza"},
+  "en_juego": "la idea que el espectador tiene de su propio lugar en el cosmos",
+  "conflicto": "expectativa (la Tierra es enorme) contra realidad (es un punto)",
+  "transformacion": "de 'la Tierra es enorme' a 'la Tierra es un punto, y aun así es única'",
+  "tono": "asombro con humor seco",
+  "plataforma_formato": "YouTube 16:9",
+  "duracion_objetivo_s": 600,
+  "narrador": "single_narrator",
+  "referencias": [],
+  "restricciones": "sin video generado salvo 2–3 planos héroe",
+  "origen": {"audiencia": "inferido", "duracion_objetivo_s": "dicho"}
+}
+```
 
-2. The VideoAnalysisBrief replaces the need for most intake questions — it provides
-   tone, structure, pacing, audience signals, and style information directly from the
-   reference.
+**Al presentar la propuesta o la idea**, muestra al usuario como mínimo `logline`, `en_juego` y `transformacion` junto al concepto. Su aprobación de la puerta aprueba el brief.
 
-3. The remaining intake questions are:
-   - What topic/subject for YOUR version? (if different from reference)
-   - How long?
-   - Narration yes/no?
-   - Budget ceiling?
+## 6. Qué no hacer
 
-4. Do NOT ask "what should it feel like?" — the reference video IS the answer to that
-   question. Extract tone from the VideoAnalysisBrief instead.
+- No presentes una encuesta numerada: es una conversación.
+- No preguntes lo que el usuario ya dijo.
+- No retrases la producción sin necesidad: si el brief está claro, avanza.
+- No inventes respuestas: lo que el usuario no dijo va como **inferido** o **no especificado**.
+- No asumas que quiere un explicativo: muchos quieren cine, animación o trabajo sobre material propio. Escucha las señales.
+- No dejes `en_juego` ni `transformacion` en vacío «para resolverlo en el guion»: es justo lo que el guion necesita para empezar.
 
-## What NOT To Do
+## 7. Comprobación antes de cerrar la fase 1
 
-- Do not present a numbered survey. This is a conversation, not a form.
-- Do not ask questions the user already answered in their initial message.
-- Do not delay production unnecessarily — if the brief is clear, move on.
-- Do not invent answers for questions the user didn't address. Mark them as "not specified" and let the research stage handle ambiguity.
-- Do not assume the user wants an explainer. Many users want cinematic, animation, or source-led work. Listen for signals.
+- [ ] ¿El `logline` cabe en una frase y sigue la fórmula de su tipo?
+- [ ] ¿`en_juego`, `conflicto` y `transformacion` están escritos y son concretos?
+- [ ] ¿Hay una sola emoción dominante en `objetivo_emocional`?
+- [ ] ¿`narrador` está fijado?
+- [ ] ¿Lo inferido está marcado y se le mostró al usuario?
+- [ ] ¿El brief está en `metadata.brief_creativo` del artefacto de la etapa y se aprobó en su puerta?

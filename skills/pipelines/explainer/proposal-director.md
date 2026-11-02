@@ -569,3 +569,10 @@ Approval is per-gate — an earlier "go ahead" does not cover this gate.
 Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
 
 - `skills/meta/budget-and-model-routing.md` — classify shots by tier (premium models only on hero shots), estimate with real `estimate_cost`, fill `cost_estimate` and agree the cap; run paid calls through `cost_tracker` (estimate → reserve → reconcile).
+
+---
+
+<!-- brief-creativo -->
+## Creative Brief (Binding)
+
+Before closing this stage, read `skills/meta/creative-intake.md` and fill `proposal_packet.metadata.brief_creativo` for the selected concept: logline, type, audience, emotional goal, what is at stake, conflict, transformation, tone, format, target duration, narrator, references, constraints and which answers were inferred. Show at least the logline, what is at stake and the transformation with the concept; the approval of this stage's gate approves the brief. The script stage does not start without it.

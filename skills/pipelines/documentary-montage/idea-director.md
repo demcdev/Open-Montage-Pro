@@ -228,3 +228,10 @@ This stage gates on human approval (`human_approval_default: true`). After revie
 checkpoint with `status="awaiting_human"`, present the summary (the Backlot board renders
 the artifact), and **END YOUR TURN**. Do not start the next stage in the same response.
 Approval is per-gate — an earlier "go ahead" does not cover this gate.
+
+---
+
+<!-- brief-creativo -->
+## Creative Brief (Binding)
+
+Before closing this stage, read `skills/meta/creative-intake.md` and fill `brief.metadata.brief_creativo` for the selected concept: logline, type, audience, emotional goal, what is at stake, conflict, transformation, tone, format, target duration, narrator, references, constraints and which answers were inferred. Show at least the logline, what is at stake and the transformation with the concept; the approval of this stage's gate approves the brief. The script stage does not start without it.

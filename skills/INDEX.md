@@ -320,6 +320,7 @@ Cross-cutting skills that apply to all pipelines:
 | Guionista Core | `meta/guionista-core.md` | Any script | Shared rules: priority order, hook, open-loop ledger, humor, single CTA, words per minute by format, localization/dubbing, delivery as `script` artifact plus production table |
 | Guionista Ficción Animada | `meta/guionista-ficcion-animada.md` | `script` (fiction) | Series bible, desire/need/flaw/lie, rule book, setup/payoff, dramatic irony, chapter structure for YouTube, flash-cut inserts, animation production limits |
 | Guionista Documental | `meta/guionista-documental.md` | `script` (non-fiction) | Truth first, claims register with sources, ethics (real people, victims), documentary structures, licenses |
+| Creative Intake & Brief | `meta/creative-intake.md` | Phases 0–1: intake questions and the mandatory `brief_creativo` (logline, stakes, conflict, transformation, narrator) in `proposal_packet.metadata` or `brief.metadata`; approved at the same gate, required before any script |
 | Production Bible | `meta/production-bible.md` | Visual/sound contract per project or series: character sheets, wardrobe states, locations, light map, reference injection per model, continuity check |
 | Shot List & Storyboard | `meta/shot-list-storyboard.md` | One `scene_plan` entry per shot, one keyframe per shot, approval ladder one frame → board → 30 s before producing |
 | Technical QC Gate | `meta/technical-qc-gate.md` | Binding technical gate with `technical_qc`: black, freeze, silence, loudness, true peak, conformity, licenses → pass / warn / block |
