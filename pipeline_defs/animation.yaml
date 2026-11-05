@@ -50,6 +50,7 @@ required_skills:
   - creative/cinematography
   - creative/audio-post-cinema
   - meta/creative-intake
+  - meta/technique-selector
   - meta/guionista-core
   - meta/guionista-ficcion-animada
   - meta/guionista-documental
@@ -124,6 +125,7 @@ stages:
       - cost_estimate has itemized line_items with per-tool costs
       - cost_estimate includes provider_comparison table with at least 2 provider options
       - approval.status is "approved" or "approved_with_changes" before proceeding
+      - proposal_packet.production_plan.technique_stack gives a purpose for every technique, with a technique_selection decision logged
     sub_stages:
       - name: sample
         description: "10-15 second animation preview for reference-driven productions"

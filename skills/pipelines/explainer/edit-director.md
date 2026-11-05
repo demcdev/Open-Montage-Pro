@@ -182,3 +182,10 @@ Validate the edit_decisions artifact against the schema and persist via checkpoi
 Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
 
 - `skills/creative/editing-craft.md` — cut types (J/L, on action, match, reaction), rhythm, humor cuts; use `cut` for every straight cut (other strings render as fades).
+
+---
+
+<!-- technique-stack -->
+## Technique Stack (Binding)
+
+Build `edit_decisions` from the approved `proposal_packet.production_plan.technique_stack`: cuts, transitions, camera and sound follow it, and an `accent` technique appears only where the stack places it. If a tool fails, apply that technique's `fallback`; any other change needs a new `technique_selection` decision.

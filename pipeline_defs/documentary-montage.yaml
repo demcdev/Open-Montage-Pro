@@ -49,6 +49,7 @@ required_skills:
   - creative/cinematography
   - creative/audio-post-cinema
   - meta/creative-intake
+  - meta/technique-selector
   - meta/guionista-core
   - meta/guionista-documental
   - core/delivery-specs
@@ -64,6 +65,7 @@ stages:
     skill: pipelines/documentary-montage/idea-director
     produces:
       - brief
+      - decision_log
     tools_available: []
     checkpoint_required: true
     human_approval_default: true
@@ -79,6 +81,7 @@ stages:
       - thematic_question present in metadata
       - music_plan present in metadata (source may be `none` ONLY with explicit user opt-out note)
       - end_tag_plan present in metadata (text, palette, duration, mode — may be `null` ONLY with explicit user opt-out note)
+      - brief.metadata.technique_stack gives a purpose for every technique, with a technique_selection decision logged
 
   - name: research
     skill: pipelines/documentary-montage/research-director

@@ -165,6 +165,7 @@
           "description": "Required when composition_mode='atelier'. Short note (or path to art-direction.md) committing to a fresh visual language for THIS piece — palette, type, motion, signature device. Per skills/meta/bespoke-composition.md step 1, written down BEFORE authoring scenes."
         },
         "taste_profile": { "$ref": "#/$defs/taste_profile" },
+        "technique_stack": { "$ref": "#/$defs/technique_stack" },
         "music_source": {
           "type": "object",
           "description": "Resolved music plan from the proposal stage",
@@ -370,6 +371,53 @@
           "type": "array",
           "items": { "type": "string" }
         }
+      },
+      "additionalProperties": false
+    },
+    "technique_stack": {
+      "type": "object",
+      "description": "Techniques chosen for this piece, each with its reason. Same shape in brief.metadata.technique_stack. See skills/meta/technique-selector.md.",
+      "required": ["goal", "techniques", "decision_id"],
+      "properties": {
+        "goal": {
+          "type": "string",
+          "enum": ["explainer", "documentary", "product_ad", "short_vertical", "tutorial", "fiction", "music_video", "presenter", "other"]
+        },
+        "techniques": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "required": ["technique_id", "role", "purpose", "execution"],
+            "properties": {
+              "technique_id": {
+                "type": "string",
+                "pattern": "^(src|cut|cam|mot|fin|snd|post)_[a-z0-9_]+$",
+                "description": "ID from skills/creative/technique-catalog.md"
+              },
+              "role": { "type": "string", "enum": ["primary", "supporting", "accent"] },
+              "purpose": { "type": "string", "description": "What the viewer feels or understands because of this technique" },
+              "execution": { "type": "string", "description": "How it runs here: tool, scene type, camera move or stage" },
+              "applies_to": { "type": "string", "description": "Where it goes. Expected for accent techniques." },
+              "fallback": { "type": "string", "description": "What replaces it if the tool fails or is unavailable" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "rejected": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["technique_id", "reason"],
+            "properties": {
+              "technique_id": { "type": "string" },
+              "reason": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "decision_id": { "type": "string", "description": "decision_log entry with category technique_selection" }
       },
       "additionalProperties": false
     }

@@ -235,3 +235,10 @@ Approval is per-gate — an earlier "go ahead" does not cover this gate.
 ## Creative Brief (Binding)
 
 Before closing this stage, read `skills/meta/creative-intake.md` and fill `brief.metadata.brief_creativo` for the selected concept: logline, type, audience, emotional goal, what is at stake, conflict, transformation, tone, format, target duration, narrator, references, constraints and which answers were inferred. Show at least the logline, what is at stake and the transformation with the concept; the approval of this stage's gate approves the brief. The script stage does not start without it.
+
+---
+
+<!-- technique-selector -->
+## Technique Selection (Binding)
+
+Once the concept is chosen, and before locking the composition mode or the render runtime, read `skills/meta/technique-selector.md` and fill `brief.metadata.technique_stack`: the techniques from `skills/creative/technique-catalog.md` this piece will use, each with its purpose, how it runs here and its fallback. Show the stack with the production plan and log a `technique_selection` decision with the options you discarded. The approval of this stage's gate approves the stack.

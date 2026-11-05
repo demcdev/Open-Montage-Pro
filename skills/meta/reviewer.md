@@ -256,6 +256,11 @@ Run at **scene_plan** and **edit** stages. Prevents the "every video looks the s
    - If only one runtime was available, `options_considered` must still list the unavailable one with `rejected_because: "runtime not available on this machine"` — otherwise the audit trail loses the fact that the choice was constrained, not discretionary.
    - Per AGENT_GUIDE.md > "Present Both Composition Runtimes (HARD RULE)": the pipeline's suggested "default" runtime is NOT a license to skip the conversation with the user.
 
+7. **Technique stack** (proposal or idea stage, and edit stage, in narrative pipelines):
+   - `proposal_packet.production_plan.technique_stack` or `brief.metadata.technique_stack` must exist, with a `purpose` for every technique and a matching `technique_selection` decision in `decision_log`. If missing → **CRITICAL**
+   - Every `technique_id` must exist in `skills/creative/technique-catalog.md`, and a technique that needs a tool this machine lacks must have an executable `fallback`.
+   - At edit, a `primary` or `accent` technique that never appears, or a technique outside the stack with no logged decision → **CRITICAL**
+
 ## Delivery Promise Review
 
 Run at **edit** and **compose** stages. Uses `lib/delivery_promise.py`.

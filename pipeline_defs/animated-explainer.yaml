@@ -49,6 +49,7 @@ required_skills:
   - meta/shot-list-storyboard
   - creative/cinematography
   - meta/creative-intake
+  - meta/technique-selector
   - meta/guionista-core
   - meta/guionista-documental
   - core/delivery-specs
@@ -117,6 +118,7 @@ stages:
       - selected_concept references a valid concept_id
       - cost_estimate has itemized line_items with per-tool costs
       - approval.status is "approved" or "approved_with_changes" before proceeding
+      - proposal_packet.production_plan.technique_stack gives a purpose for every technique, with a technique_selection decision logged
     sub_stages:
       - name: sample
         description: "10-15 second preview clip for reference-driven productions"

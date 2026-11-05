@@ -50,6 +50,7 @@ required_skills:
   - creative/cinematography
   - creative/audio-post-cinema
   - meta/creative-intake
+  - meta/technique-selector
   - meta/guionista-core
   - meta/guionista-ficcion-animada
   - core/delivery-specs
@@ -109,6 +110,7 @@ stages:
       - Schema-valid proposal_packet
       - Selected concept includes character_count, rig_complexity, reuse_strategy, and render_runtime
       - User approval is recorded before character assets are generated
+      - proposal_packet.production_plan.technique_stack gives a purpose for every technique, with a technique_selection decision logged
     sub_stages:
       - name: sample
         description: "10-15 second character-animation proof before full production"

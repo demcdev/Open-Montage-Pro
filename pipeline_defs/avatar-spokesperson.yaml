@@ -42,6 +42,7 @@ required_skills:
   - meta/shot-list-storyboard
   - creative/cinematography
   - meta/creative-intake
+  - meta/technique-selector
   - meta/guionista-core
   - meta/guionista-documental
   - core/delivery-specs
@@ -73,6 +74,7 @@ stages:
     success_criteria:
       - Schema-valid brief artifact
       - Brief records avatar path, narration source, and output shape
+      - brief.metadata.technique_stack gives a purpose for every technique, with a technique_selection decision logged
 
   - name: script
     skill: pipelines/avatar-spokesperson/script-director

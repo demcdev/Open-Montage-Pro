@@ -373,3 +373,10 @@ Read these before working in this stage. They are shared across pipelines; this 
 
 - `skills/meta/shot-list-storyboard.md` — one entry per shot with `shot_language` filled, one keyframe per shot, and the one-frame → board → 30 s approval ladder before producing.
 - `skills/creative/cinematography.md` — scene coverage, 180° rule and eyelines, lens and light decisions; the speaking character is on screen.
+
+---
+
+<!-- technique-stack -->
+## Technique Stack (Binding)
+
+Plan from the approved `brief.metadata.technique_stack`. Every `primary` and `accent` technique lands in a named scene of `scene_plan`. A technique outside the stack needs a new `technique_selection` decision first; if it changes what the user approved, ask them.

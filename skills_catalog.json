@@ -7,8 +7,8 @@
       "Capa 2 (skills/): Habilidades directivas, convenciones, reglas de calidad y gobernanza de OpenMontage.",
       "Capa 3 (.agents/skills/): Habilidades técnicas de proveedores, modelos de IA y librerías instaladas en el repositorio."
     ],
-    "total_skills": 267,
-    "total_layer_2_skills": 177,
+    "total_skills": 269,
+    "total_layer_2_skills": 179,
     "total_layer_3_skills": 90
   },
   "layer_2_openmontage_skills": {
@@ -164,6 +164,12 @@
         "file": "technical-qc-gate.md",
         "path": "skills/meta/technical-qc-gate.md",
         "description": "Puerta técnica obligatoria con technical_qc: negros, congelados, silencios, loudness, true peak, conformidad y licencias. Veredicto pass / warn / block."
+      },
+      {
+        "name": "technique-selector",
+        "file": "technique-selector.md",
+        "path": "skills/meta/technique-selector.md",
+        "description": "Elige las técnicas de una pieza con su motivo, herramienta y alternativa sin GPU, antes de fijar el motor; deja technique_stack en la propuesta o el brief."
       },
       {
         "name": "video-reference-analyst",
@@ -394,6 +400,12 @@
         "file": "talking-head-gen-usage.md",
         "path": "skills/creative/talking-head-gen-usage.md",
         "description": "Generación y animación de personajes parlantes a partir de fotos o avatares."
+      },
+      {
+        "name": "technique-catalog",
+        "file": "technique-catalog.md",
+        "path": "skills/creative/technique-catalog.md",
+        "description": "Técnicas de video por familias: cuándo usarlas, cuándo no, con qué se ejecutan aquí y qué las sustituye sin GPU."
       },
       {
         "name": "title-thumbnail-trailer",

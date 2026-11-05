@@ -7,6 +7,9 @@ Meta-skill that answers two questions:
 
 Read this before authoring any animated component or composition, and whenever you're choosing `render_runtime` at proposal time. It routes you to the right Layer 3 skill so you don't waste time hand-rolling what a plugin already solves.
 
+> **Technique comes before all of this.** The approved `technique_stack` (`skills/meta/technique-selector.md`) says what the piece needs; this skill says which
+> engine delivers it. Do not choose a runtime first and fit the techniques to it.
+
 > **Authoring mode comes first.** Before runtime or library, decide *how* the composition is
 > built: **templated** (assemble stock `cut.type` scenes) vs **atelier** (hand-author from
 > scratch). Default to atelier for hero work and follow `skills/meta/bespoke-composition.md`.

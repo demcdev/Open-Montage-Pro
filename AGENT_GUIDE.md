@@ -714,6 +714,7 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | **Media editing** | `video-edit`, `video-download`, `video-understand`, `video-toolkit`, `visual-style` |
 
 **When in doubt, read the category's meta routing file first:**
+- Picking video techniques? → `skills/meta/technique-selector.md` chooses them from `skills/creative/technique-catalog.md`, before any runtime.
 - Picking an animation runtime? → `skills/meta/animation-runtime-selector.md` routes between Remotion primitives, GSAP plugins, framer-motion, Lottie, Manim, D3.
 - Picking a screen-recording mode (real capture vs synthetic terminal)? → `pipeline_defs/screen-demo.yaml` + `skills/pipelines/screen-demo/idea-director.md`.
 
@@ -730,6 +731,7 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | Which camera move / transition / effect should this scene use? | `skills/creative/camera-motion-library.md` and `docs/MOTION_CATALOG.md` |
 | Is this video safe to publish on YouTube (policies, kids flag, music, AI disclosure)? | `skills/meta/youtube-policy-gate.md` and `docs/youtube-policy-reference.md` |
 | What must be decided before writing a script (logline, stakes, transformation, narrator)? | `skills/meta/creative-intake.md` (mandatory `brief_creativo`) |
+| Which technique fits this goal, when to use it and when not? | `skills/meta/technique-selector.md` (mandatory `technique_stack`) and `skills/creative/technique-catalog.md` |
 | How do I write or rewrite a script (fiction series, documentary, essay)? | `skills/meta/guionista-core.md` plus `skills/meta/guionista-ficcion-animada.md` (fiction) or `skills/meta/guionista-documental.md` (non-fiction) |
 | What is the checkpoint/review policy? | `skills/meta/` |
 | Is this render technically fit to ship (black frames, silences, loudness, specs, licenses)? | `skills/meta/technical-qc-gate.md` (tool `technical_qc`) |

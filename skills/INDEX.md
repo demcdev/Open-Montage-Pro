@@ -115,6 +115,7 @@ Key capability families to look for in the output:
 | â†³ HunyuanVideo Prompting | `creative/prompting/hunyuan-prompting.md` | HunyuanVideo formula, I2V best practices | â€" |
 | Storytelling | `creative/storytelling.md` | Narrative structure, hooks, pacing, Mayer's principles | â€" |
 | Sound Design | `creative/sound-design.md` | Audio ducking, LUFS targets, SFX timing, AI TTS mixing | `elevenlabs` |
+| Technique Catalog | `creative/technique-catalog.md` | Video techniques by family: when to use them, when not, what runs them here and what replaces them without a GPU | — |
 | Typography | `creative/typography.md` | Font selection, text sizing, safe zones, caption styling | â€" |
 | ManimCE Usage | `creative/manim-usage.md` | Scene composition, animation timing, color usage | `manimce-best-practices` |
 | Image Gen Usage | `creative/image-gen-usage.md` | Prompt consistency, hero reference, batch strategy | `flux-best-practices`, `bfl-api` |
@@ -326,6 +327,7 @@ Cross-cutting skills that apply to all pipelines:
 | Creative Intake & Brief | `meta/creative-intake.md` | Phases 0–1: intake questions and the mandatory `brief_creativo` (logline, stakes, conflict, transformation, narrator) in `proposal_packet.metadata` or `brief.metadata`; approved at the same gate, required before any script |
 | Production Bible | `meta/production-bible.md` | Visual/sound contract per project or series: character sheets, wardrobe states, locations, light map, reference injection per model, continuity check |
 | Shot List & Storyboard | `meta/shot-list-storyboard.md` | One `scene_plan` entry per shot, one keyframe per shot, approval ladder one frame → board → 30 s before producing |
+| Technique Selector | `meta/technique-selector.md` | Proposal or idea stage of narrative pipelines: goal → 3–8 justified techniques → tools → no-GPU fallback, in `technique_stack`, before locking the runtime |
 | Technical QC Gate | `meta/technical-qc-gate.md` | Binding technical gate with `technical_qc`: black, freeze, silence, loudness, true peak, conformity, licenses → pass / warn / block |
 | AI Shot QA | `meta/ai-shot-qa.md` | Frame-by-frame review of every generated clip (hands, morphing, flicker, face drift) with `frame_sampler` + `video_understand`; accept / trim / regenerate threshold and rejection log |
 | Budget & Model Routing | `meta/budget-and-model-routing.md` | Shot tiers (premium models only on hero shots), real `estimate_cost` estimates into `proposal_packet.cost_estimate`, spend control with `cost_tracker` (estimate → reserve → reconcile) |

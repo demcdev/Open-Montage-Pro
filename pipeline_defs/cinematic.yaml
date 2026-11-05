@@ -57,6 +57,7 @@ required_skills:
   - creative/cinematography
   - creative/audio-post-cinema
   - meta/creative-intake
+  - meta/technique-selector
   - meta/guionista-core
   - meta/guionista-ficcion-animada
   - core/delivery-specs
@@ -118,6 +119,7 @@ stages:
       - At least 3 concept options with different emotional arcs
       - Delivery promise present with motion_required flag
       - Cost estimate includes per-item breakdown
+      - proposal_packet.production_plan.technique_stack gives a purpose for every technique, with a technique_selection decision logged
     sub_stages:
       - name: sample
         description: "10-15 second cinematic preview for reference-driven productions"

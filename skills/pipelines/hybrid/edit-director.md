@@ -66,3 +66,10 @@ Read these before working in this stage. They are shared across pipelines; this 
 
 - `skills/creative/editing-craft.md` — cut types (J/L, on action, match, reaction), rhythm, humor cuts; use `cut` for every straight cut (other strings render as fades).
 - `skills/creative/audio-post-cinema.md` — five sound layers, per-scene sound map in `edit_decisions.metadata.sound_map`, licensed sources only.
+
+---
+
+<!-- technique-stack -->
+## Technique Stack (Binding)
+
+Build `edit_decisions` from the approved `brief.metadata.technique_stack`: cuts, transitions, camera and sound follow it, and an `accent` technique appears only where the stack places it. If a tool fails, apply that technique's `fallback`; any other change needs a new `technique_selection` decision.

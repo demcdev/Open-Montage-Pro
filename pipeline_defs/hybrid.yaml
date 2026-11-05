@@ -43,6 +43,7 @@ required_skills:
   - creative/cinematography
   - creative/audio-post-cinema
   - meta/creative-intake
+  - meta/technique-selector
   - meta/guionista-core
   - meta/guionista-documental
   - core/delivery-specs
@@ -78,6 +79,7 @@ stages:
     success_criteria:
       - Schema-valid brief artifact
       - Brief distinguishes source-led and support-led elements
+      - brief.metadata.technique_stack gives a purpose for every technique, with a technique_selection decision logged
 
   - name: script
     skill: pipelines/hybrid/script-director

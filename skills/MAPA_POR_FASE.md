@@ -56,11 +56,15 @@ Etapas: `research` + `proposal` (ae, anim, char, cine) o `idea` (los demás; doc
 
 Sale: `proposal_packet` (o el brief de la etapa `idea`) con el **brief creativo** en `metadata.brief_creativo`, aprobado en la misma puerta. Sin él no arranca el guion.
 
+En los pipelines narrativos también sale `technique_stack`: las técnicas de la pieza, con su motivo. Se elige antes de fijar el motor.
+
 | Skill | Para qué | Estado |
 |---|---|---|
 | `meta/creative-intake.md` | Brief creativo (ver fase 0) | ✅ ae, anim, avatar, char, cine, doc, hyb |
 | `meta/research-dossier.md` | Dossier de investigación con prompt de variables dinámicas, agente `research-dossier` (Opus, esfuerzo alto) y fuentes verificadas por niveles | 🔗 guía y `research-director` de ae, anim, char, cine y doc |
 | `meta/taste-direction.md` | Diales de gusto, antipatrones y estrategia de referencias | 🔗 guía y 2 directores |
+| `meta/technique-selector.md` | Elegir técnicas con motivo y dejar `technique_stack` antes de fijar el motor | ✅ ae, anim, avatar, char, cine, doc, hyb |
+| `creative/technique-catalog.md` | Menú de técnicas por familias: cuándo usarlas, cuándo no, con qué se hacen y qué las sustituye sin GPU | 🔗 `technique-selector` |
 | `creative/storytelling.md` | Arco de explicativo: gancho, tensión, conceptos en capas | 🔗 `idea-director` de anim (obsoleto), avatar, cine y hyb, y `script-director` de avatar y loc; **ningún director de explainer lo cita** |
 | `meta/budget-and-model-routing.md` | Costo real y modelos premium solo en planos héroe | ✅ ae, anim, avatar, char, cine, hyb |
 
@@ -189,6 +193,7 @@ Sale: máster EN/ES, SRT/VTT, miniaturas y metadatos.
 - **Resuelto: brief creativo único.** `creative-intake` ya es obligatorio en los siete pipelines narrativos y deja `metadata.brief_creativo` aprobado antes del guion. Los pipelines de material fuente (clip-factory, localization-dub, podcast-repurpose, screen-demo, talking-head) no lo exigen: parten de un material que ya existe.
 - **`storytelling.md` no llega al pipeline explainer**, para el que fue escrito.
 - **Resuelto: el análisis de referencia ya extrae el ADN narrativo** (gancho, beats, bucles, cadencia, narrador, ritmo, humor, cierre), medido y no adivinado, y `guionista-core` lo lee como patrón estructural.
+- **Resuelto: las técnicas se eligen con motivo.** `technique-selector` deja `technique_stack` aprobado en los siete pipelines narrativos, y escena y montaje trabajan desde él.
 - **Solapes por confirmar:** `sound-design` ↔ `audio-post-cinema` y `storytelling` ↔ `guionista-core`. `video-editing` y `enhancement-strategy` **no** son duplicados: son específicos de talking-head.
 
 Mantén este mapa al día: si añades, mueves o borras un skill de `core/`, `creative/` o `meta/`, actualiza su fila. `tests/contracts/test_skill_phase_map_contract.py` falla si falta alguno.
