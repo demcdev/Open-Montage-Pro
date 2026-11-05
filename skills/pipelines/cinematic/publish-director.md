@@ -55,6 +55,11 @@ Store in `publish_log.metadata`:
 - Writing generic metadata that ignores the mood.
 - Treating all cutdowns as interchangeable.
 
+<!-- export-bundle-gate -->
+## Export Bundle Gate (Binding)
+
+Package every shipped master with `export_bundle`, after its last `technical_qc` run; never hand-write the export folder or the `publish_log` entry. The tool reads `<master>.qc.json` (or `qc_report_path`) and refuses a master with no report, a report of different bytes, or a `block` verdict. A `warn` verdict ships only with `qc_exception` (`reason` plus the `decision_id` of the `qc_exception` entry in `decision_log`). Any change to the master after the check, `audio_master` included, voids the report: run `technical_qc` again. One `export_bundle` call per master.
+
 <!-- youtube-policy-gate -->
 ## YouTube Policy Gate
 

@@ -244,10 +244,10 @@ stages:
     required_tools:
       - video_compose
       - audio_mixer
-    optional_tools:
-      - film_look
       - audio_master
       - technical_qc
+    optional_tools:
+      - film_look
       - video_stitch
     tools_available:
       - film_look
@@ -268,6 +268,8 @@ stages:
     success_criteria:
       - Schema-valid render_report with output paths
       - Output file exists and passes ffprobe validation
+      - Every output with audio went through audio_master, and technical_qc ran on the mastered file
+      - render_report.outputs[].qc records verdict and report path, and no output has verdict block
 
   - name: publish
     skill: pipelines/explainer/publish-director
@@ -278,6 +280,9 @@ stages:
       - proposal_packet
     produces:
       - publish_log
+    required_tools:
+      - technical_qc
+      - export_bundle
     tools_available: [export_bundle, technical_qc]
     checkpoint_required: true
     human_approval_default: true
@@ -288,3 +293,4 @@ stages:
     success_criteria:
       - Schema-valid publish_log
       - Export directory contains video, metadata, and thumbnail concept
+      - Every shipped master was packaged by export_bundle against a current technical_qc report

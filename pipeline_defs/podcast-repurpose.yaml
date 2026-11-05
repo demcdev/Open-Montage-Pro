@@ -179,9 +179,9 @@ stages:
     required_tools:
       - video_compose
       - audio_mixer
-    optional_tools:
       - audio_master
       - technical_qc
+    optional_tools:
       - video_trimmer
       - audio_enhance
     tools_available:
@@ -200,6 +200,8 @@ stages:
     success_criteria:
       - Schema-valid render_report artifact
       - All output files exist and pass ffprobe validation
+      - Every output with audio went through audio_master, and technical_qc ran on the mastered file
+      - render_report.outputs[].qc records verdict and report path, and no output has verdict block
 
   - name: publish
     skill: pipelines/podcast-repurpose/publish-director
@@ -210,7 +212,10 @@ stages:
       - brief
     produces:
       - publish_log
-    tools_available: [technical_qc]
+    required_tools:
+      - technical_qc
+      - export_bundle
+    tools_available: [export_bundle, technical_qc]
     checkpoint_required: true
     human_approval_default: true
     review_focus:
@@ -220,3 +225,4 @@ stages:
     success_criteria:
       - Schema-valid publish_log artifact
       - Export directory contains all deliverables with metadata
+      - Every shipped master was packaged by export_bundle against a current technical_qc report

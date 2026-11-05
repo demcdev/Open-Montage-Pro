@@ -54,5 +54,5 @@ Regla: **todo lo que se entrega pasa por `audio_master`**. En la mezcla final, u
 ## Integración
 
 - **edit-director:** fija `edit_decisions.metadata.loudnorm_target` y `mastering_preset`.
-- **compose-director:** corre `audio_master` después del render final y antes de `technical_qc`.
+- **compose-director:** corre `audio_master` después del render final y antes de `technical_qc`, y guarda el resultado en `render_report.outputs[].mastering` (`preset`, `verification_passed`, `linear_mode`). Solo se omite si la salida no tiene pista de audio.
 - **audio-post-cinema** (`skills/creative/audio-post-cinema.md`): define las capas; esta skill solo fija el nivel final.

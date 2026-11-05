@@ -20,6 +20,27 @@
           "visibility": { "type": "string", "enum": ["public", "private", "unlisted"] },
           "export_path": { "type": "string" },
           "timestamp": { "type": "string", "format": "date-time" },
+          "qc": {
+            "type": "object",
+            "description": "technical_qc result that cleared this master for export.",
+            "required": ["verdict", "report_path"],
+            "properties": {
+              "verdict": { "type": "string", "enum": ["pass", "warn"] },
+              "profile": { "type": "string" },
+              "report_path": { "type": "string" },
+              "exception": {
+                "type": "object",
+                "description": "Acceptance of a warn verdict, tied to its decision_log entry.",
+                "required": ["reason", "decision_id"],
+                "properties": {
+                  "reason": { "type": "string" },
+                  "decision_id": { "type": "string" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
           "metadata_used": {
             "type": "object",
             "properties": {

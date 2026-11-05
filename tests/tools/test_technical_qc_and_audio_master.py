@@ -18,7 +18,12 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.analysis.technical_qc import TechnicalQC, parse_analysis, verdict_for  # noqa: E402
+from tools.analysis.technical_qc import (  # noqa: E402
+    TechnicalQC,
+    file_sha256,
+    parse_analysis,
+    verdict_for,
+)
 from tools.audio.audio_master import (  # noqa: E402
     AudioMaster,
     build_second_pass,
@@ -52,6 +57,23 @@ STDERR = """
 
 PROBE = {"duration": 12.0, "has_video": True, "has_audio": True, "width": 1920,
          "height": 1080, "fps": 24.0, "video_codec": "h264", "pixel_format": "yuv420p"}
+
+
+def test_report_records_the_fingerprint_of_the_checked_file(tmp_path, monkeypatch):
+    video = tmp_path / "final.mp4"
+    video.write_bytes(b"master bytes")
+    tool = TechnicalQC()
+    monkeypatch.setattr(tool, "_probe", lambda path: dict(PROBE))
+    monkeypatch.setattr(tool, "_analyze", lambda path, probe, inputs: STDERR)
+
+    result = tool.execute({"input_path": str(video)})
+
+    assert result.success is True
+    assert result.data["input_sha256"] == file_sha256(video)
+    report = json.loads(video.with_suffix(".qc.json").read_text(encoding="utf-8"))
+    assert report["input_sha256"] == file_sha256(video)
+    video.write_bytes(b"remastered bytes")
+    assert report["input_sha256"] != file_sha256(video)
 
 
 def test_parse_analysis_reads_every_detector():

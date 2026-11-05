@@ -16,6 +16,7 @@ decides when to run this and how to act on the verdict lives in
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import time
@@ -46,9 +47,18 @@ SEVERITY_RANK = {"info": 0, "warn": 1, "block": 2}
 VERDICT_EXIT = {"pass": 0, "warn": 10, "block": 1}
 
 
+def file_sha256(path: str | Path) -> str:
+    """Fingerprint of a file, so a report can be tied to the exact bytes it checked."""
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 class TechnicalQC(BaseTool):
     name = "technical_qc"
-    version = "0.1.0"
+    version = "0.2.0"
     tier = ToolTier.CORE
     capability = "analysis"
     provider = "ffmpeg"
@@ -172,6 +182,7 @@ class TechnicalQC(BaseTool):
         verdict = verdict_for(findings)
         report = {
             "input": input_path,
+            "input_sha256": file_sha256(input_path),
             "profile": inputs.get("profile", "youtube"),
             "verdict": verdict,
             "exit_code": VERDICT_EXIT[verdict],

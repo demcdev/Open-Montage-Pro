@@ -182,10 +182,10 @@ stages:
     required_tools:
       - video_compose    # rendering
       - audio_mixer      # audio layering + segmented music
-    optional_tools:
-      - film_look
       - audio_master
       - technical_qc
+    optional_tools:
+      - film_look
       - face_enhance     # face enhancement
       - eye_enhance      # eye brightening, dark circle removal
       - color_grade      # color correction
@@ -225,6 +225,8 @@ stages:
     success_criteria:
       - Schema-valid render_report artifact
       - Output video file exists and is playable
+      - Every output with audio went through audio_master, and technical_qc ran on the mastered file
+      - render_report.outputs[].qc records verdict and report path, and no output has verdict block
 
   - name: publish
     skill: pipelines/talking-head/publish-director
@@ -233,7 +235,10 @@ stages:
       - final_review
     produces:
       - publish_log
-    tools_available: [technical_qc]
+    required_tools:
+      - technical_qc
+      - export_bundle
+    tools_available: [export_bundle, technical_qc]
     checkpoint_required: true
     human_approval_default: true
     review_focus:
@@ -242,3 +247,4 @@ stages:
     success_criteria:
       - Schema-valid publish_log artifact
       - Export package or publish URLs are present
+      - Every shipped master was packaged by export_bundle against a current technical_qc report

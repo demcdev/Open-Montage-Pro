@@ -21,7 +21,31 @@
           "fps": { "type": "number" },
           "duration_seconds": { "type": "number", "minimum": 0 },
           "file_size_bytes": { "type": "integer" },
-          "platform_target": { "type": "string" }
+          "platform_target": { "type": "string" },
+          "mastering": {
+            "type": "object",
+            "description": "audio_master result for this output. Omit only when the output has no audio track.",
+            "required": ["preset", "verification_passed"],
+            "properties": {
+              "preset": { "type": "string" },
+              "verification_passed": { "type": "boolean" },
+              "linear_mode": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          },
+          "qc": {
+            "type": "object",
+            "description": "technical_qc result for this output, measured after mastering.",
+            "required": ["verdict", "report_path"],
+            "properties": {
+              "verdict": { "type": "string", "enum": ["pass", "warn", "block"] },
+              "profile": { "type": "string" },
+              "report_path": { "type": "string" },
+              "integrated_lufs": { "type": "number" },
+              "true_peak_dbtp": { "type": "number" }
+            },
+            "additionalProperties": false
+          }
         },
         "additionalProperties": false
       },

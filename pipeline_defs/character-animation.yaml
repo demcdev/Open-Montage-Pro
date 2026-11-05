@@ -277,6 +277,9 @@ stages:
       - render_report
       - final_review
       - character_qa_report
+    required_tools:
+      - audio_master
+      - technical_qc
     tools_available:
       - film_look
       - audio_master
@@ -297,6 +300,8 @@ stages:
       - Schema-valid final_review
       - Schema-valid character_qa_report
       - Output exists and passes technical validation
+      - Every output with audio went through audio_master, and technical_qc ran on the mastered file
+      - render_report.outputs[].qc records verdict and report path, and no output has verdict block
 
   - name: publish
     skill: pipelines/character-animation/publish-director
@@ -309,7 +314,10 @@ stages:
       - script
     produces:
       - publish_log
-    tools_available: [technical_qc]
+    required_tools:
+      - technical_qc
+      - export_bundle
+    tools_available: [export_bundle, technical_qc]
     checkpoint_required: true
     human_approval_default: true
     review_focus:
@@ -318,3 +326,4 @@ stages:
       - Any limitations are surfaced in delivery notes
     success_criteria:
       - Schema-valid publish_log
+      - Every shipped master was packaged by export_bundle against a current technical_qc report

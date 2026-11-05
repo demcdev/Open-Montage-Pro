@@ -11,6 +11,12 @@ metadata the publish-director skill prepares and writes a self-contained export
 bundle a creator can hand to any platform, returning a validated `publish_log`
 entry with `status: "exported"`.
 
+It is also the delivery gate: a master only ships with a `technical_qc` report
+of those exact bytes. No report, a report of another file, or a `block` verdict
+refuses the export. A `warn` verdict needs a `qc_exception` that names the
+decision_log entry accepting it. The policy lives in
+`skills/meta/technical-qc-gate.md`.
+
 A networked publisher (e.g. a YouTube uploader) can be added later as a separate
 `provider` under the same `publish` capability.
 """
@@ -23,6 +29,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+from tools.analysis.technical_qc import file_sha256
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -38,7 +45,7 @@ from tools.base_tool import (
 
 class ExportBundle(BaseTool):
     name = "export_bundle"
-    version = "0.1.0"
+    version = "0.2.0"
     tier = ToolTier.PUBLISH
     capability = "publish"
     provider = "local"
@@ -52,7 +59,7 @@ class ExportBundle(BaseTool):
 
     agent_skills = []
 
-    capabilities = ["package_export", "write_publish_log"]
+    capabilities = ["package_export", "write_publish_log", "enforce_technical_qc"]
     supports = {
         "local_offline": True,
         "free": True,
@@ -106,6 +113,25 @@ class ExportBundle(BaseTool):
                 "description": "Target platform label for the publish_log entry. Defaults to 'local'.",
             },
             "visibility": {"type": "string", "enum": ["public", "private", "unlisted"]},
+            "qc_report_path": {
+                "type": "string",
+                "description": "technical_qc report of this master. Defaults to <video>.qc.json.",
+            },
+            "qc_exception": {
+                "type": "object",
+                "description": (
+                    "Required to ship a master whose verdict is warn. Cannot override "
+                    "block, a missing report, or a report of another file."
+                ),
+                "required": ["reason", "decision_id"],
+                "properties": {
+                    "reason": {"type": "string", "description": "Why the warnings are acceptable."},
+                    "decision_id": {
+                        "type": "string",
+                        "description": "decision_log entry (category qc_exception) that accepted them.",
+                    },
+                },
+            },
             "timestamp": {
                 "type": "string",
                 "description": "Override the ISO-8601 timestamp (mainly for deterministic tests).",
@@ -153,12 +179,68 @@ class ExportBundle(BaseTool):
             lines.append(f"{ts} - {label}".rstrip(" -"))
         return lines
 
+    @staticmethod
+    def _qc_gate(video_path: Path, inputs: dict[str, Any]) -> tuple[Optional[str], dict[str, Any]]:
+        """Return (error, publish_log qc entry) for this master as it stands now."""
+        report_path = Path(
+            inputs.get("qc_report_path") or video_path.with_suffix(".qc.json")
+        ).expanduser()
+        if not report_path.is_file():
+            return f"No technical_qc report at {report_path}. Run technical_qc on this master.", {}
+        try:
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            return f"Unreadable technical_qc report {report_path}: {exc}", {}
+        if not isinstance(report, dict):
+            return f"Unreadable technical_qc report {report_path}: not a JSON object", {}
+
+        # The last check must describe these bytes; mastering or re-rendering voids it.
+        if report.get("input_sha256") != file_sha256(video_path):
+            return (
+                f"technical_qc report {report_path} does not match {video_path.name}: "
+                "the master changed after the check. Run technical_qc again.",
+                {},
+            )
+
+        verdict = report.get("verdict")
+        flagged = [
+            f.get("message", "") for f in report.get("findings") or []
+            if f.get("severity") == verdict
+        ]
+        if verdict == "block":
+            return f"technical_qc verdict is block: {'; '.join(flagged)}", {}
+        if verdict not in ("pass", "warn"):
+            return f"technical_qc report {report_path} has no valid verdict: {verdict!r}", {}
+
+        entry: dict[str, Any] = {
+            "verdict": verdict,
+            "profile": report.get("profile", ""),
+            "report_path": str(report_path),
+        }
+        if verdict == "warn":
+            exception = inputs.get("qc_exception") or {}
+            reason = str(exception.get("reason") or "").strip()
+            decision_id = str(exception.get("decision_id") or "").strip()
+            if not (reason and decision_id):
+                return (
+                    f"technical_qc verdict is warn: {'; '.join(flagged)}. Fix them, declare "
+                    "them in intentional_ranges and re-run, or pass qc_exception with "
+                    "reason and decision_id.",
+                    {},
+                )
+            entry["exception"] = {"reason": reason, "decision_id": decision_id}
+        return None, entry
+
     # ---- Execution ----
 
     def execute(self, inputs: dict[str, Any]) -> ToolResult:
         video_path = Path(inputs["video_path"]).expanduser()
         if not video_path.is_file():
             return ToolResult(success=False, error=f"video_path not found: {video_path}")
+
+        qc_error, qc_entry = self._qc_gate(video_path, inputs)
+        if qc_error:
+            return ToolResult(success=False, error=qc_error)
 
         title = inputs["title"]
         project_name = inputs.get("project_name") or self._infer_project_name(video_path)
@@ -216,6 +298,11 @@ class ExportBundle(BaseTool):
         meta_json.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         files_written.append(str(meta_json))
 
+        # QC report travels with the master it certifies
+        qc_copy = meta_dir / "qc_report.json"
+        shutil.copy2(qc_entry["report_path"], qc_copy)
+        files_written.append(str(qc_copy))
+
         # description.txt (description + chapters appended, ready to paste)
         desc_parts = [description] if description else []
         if chapter_lines:
@@ -254,6 +341,7 @@ class ExportBundle(BaseTool):
             "status": "exported",
             "export_path": str(export_root),
             "timestamp": timestamp,
+            "qc": qc_entry,
             "metadata_used": {
                 "title": title,
                 "description": description,

@@ -210,10 +210,10 @@ stages:
       - render_report
     required_tools:
       - video_compose
-    optional_tools:
-      - film_look
       - audio_master
       - technical_qc
+    optional_tools:
+      - film_look
       - audio_mixer
       - color_grade
       - video_trimmer
@@ -244,6 +244,8 @@ stages:
       - render_report.end_tag_rendered = true (or explicit opt-out)
       - render_report.end_tag_mode = "overlay" or "concat"
       - render_report.music_mixed = true (or explicit opt-out)
+      - Every output with audio went through audio_master, and technical_qc ran on the mastered file
+      - render_report.outputs[].qc records verdict and report path, and no output has verdict block
 
   - name: publish
     skill: pipelines/documentary-montage/publish-director
@@ -258,8 +260,8 @@ stages:
       - publish_log
     required_tools:
       - export_bundle
-    optional_tools:
       - technical_qc
+    optional_tools:
       - subtitle_gen
     tools_available:
       - technical_qc
@@ -275,3 +277,4 @@ stages:
     success_criteria:
       - Schema-valid publish_log artifact
       - Export package contains video, metadata and thumbnail per language
+      - Every shipped master was packaged by export_bundle against a current technical_qc report

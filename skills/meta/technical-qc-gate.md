@@ -9,7 +9,7 @@ Puerta técnica obligatoria antes de entregar o publicar cualquier render. Revis
 | Después de cada render de **parte o escena** que se va a mostrar al usuario | `technical_qc` con el perfil de destino | El usuario no debe descubrir un frame negro o un silencio que una máquina detecta en segundos |
 | Después de **unir partes** (concat con FFmpeg) | `technical_qc` sobre el archivo unido | Las uniones son donde aparecen huecos, saltos de volumen y frames negros |
 | En el **compose-director**, antes del checkpoint `compose` | `technical_qc` + `asset_manifest_path` | El checkpoint no se marca `completed` con veredicto `block` |
-| En el **publish-director**, antes de `export_bundle` | Último `technical_qc` sobre el máster final | Es el archivo que se sube; nada de lo anterior cuenta si este cambió |
+| En el **publish-director**, antes de `export_bundle` | Último `technical_qc` sobre el máster final | Es el archivo que se sube; nada de lo anterior cuenta si este cambió. `export_bundle` lo exige |
 
 ## Herramienta
 
@@ -38,6 +38,21 @@ Perfiles: `youtube` y `social` (−14 LUFS, −1 dBTP), `podcast` (−16), `broa
 
 Bloquea siempre: video completamente negro, sin pista de video, loudness a más de 3 LU del objetivo, true peak por encima de −0,1 dBTP (recorte), resolución, fps o códec distintos al pedido, y cualquier asset sin licencia en el `asset_manifest`.
 
+## La puerta en la entrega
+
+`technical_qc` guarda la huella SHA-256 del archivo en `input_sha256`, y `export_bundle` la comprueba. Esto no depende de que el agente recuerde la regla:
+
+| Situación al exportar | Resultado |
+|---|---|
+| `pass` sobre este mismo archivo | Se exporta; el informe se copia a `metadata/qc_report.json` y queda en `publish_log.entries[].qc` |
+| `warn` con `qc_exception` (`reason` y `decision_id`) | Se exporta y la excepción queda en el `publish_log` |
+| `warn` sin `qc_exception` | Rechazado |
+| `block` | Rechazado, sin excepción posible |
+| Sin informe | Rechazado, sin excepción posible |
+| El archivo cambió después del QC, incluso por `audio_master` | Rechazado: hay que correr `technical_qc` otra vez |
+
+El orden es siempre: render → `audio_master` → `technical_qc` → `export_bundle`.
+
 ## Cómo evitar falsos positivos (sin ocultar problemas)
 
 - **Animación con poses sostenidas:** la animación vectorial tiene planos quietos a propósito. Sube `freeze_min_seconds` a 4–6 s para animación y deja 2 s para video generado o metraje real. Un congelado de 2 s en video IA casi siempre es un error del modelo.
@@ -63,5 +78,6 @@ Bloquea siempre: video completamente negro, sin pista de video, loudness a más 
 
 - **Reviewer:** el reporte de QC se adjunta a la revisión del stage `compose`. El reviewer no repite estas medidas; se concentra en lo creativo.
 - **Checkpoint:** incluir en el resumen `verdict`, conteo de `block/warn/info` y la ruta del reporte.
-- **Decision log:** si se acepta una advertencia como intencional, registrar la decisión (categoría `qc_exception`).
+- **Decision log:** si se acepta una advertencia como intencional, registrar la decisión (categoría `qc_exception`) y pasar su id a `export_bundle` en `qc_exception.decision_id`.
+- **Render report:** guardar el resultado de cada máster en `render_report.outputs[].qc` (`verdict`, `profile`, `report_path`, `integrated_lufs`, `true_peak_dbtp`).
 - **Política de YouTube:** `youtube-policy-gate` decide qué se puede publicar; esta skill comprueba que el archivo cumple técnicamente.

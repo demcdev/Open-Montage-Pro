@@ -1,7 +1,8 @@
 """Tests for the export_bundle publisher tool.
 
 Covers the tool contract, registry discovery, the export bundle layout, a
-schema-valid publish_log, chapter formatting, and the missing-video error path.
+schema-valid publish_log, chapter formatting, the missing-video error path, and
+the technical_qc delivery gate.
 """
 
 import json
@@ -13,15 +14,34 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from tools.analysis.technical_qc import file_sha256
 from tools.publishers.export_bundle import ExportBundle
 from tools.base_tool import ToolStatus, ToolTier
 from tools.tool_registry import ToolRegistry
 from schemas.artifacts import validate_artifact
 
 
+def _write_qc(video: Path, verdict: str = "pass", findings: list | None = None) -> Path:
+    report = video.with_suffix(".qc.json")
+    report.write_text(
+        json.dumps(
+            {
+                "input": str(video),
+                "input_sha256": file_sha256(video),
+                "profile": "youtube",
+                "verdict": verdict,
+                "findings": findings or [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return report
+
+
 def _make_video(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(b"\x00\x00\x00\x18ftypmp42fakevideo")
+    _write_qc(path)
 
 
 def test_contract_metadata():
@@ -146,6 +166,117 @@ def test_default_export_dir_inside_project_workspace(tmp_path):
     result = ExportBundle().execute({"video_path": str(video), "title": "T"})
     assert result.success is True
     assert Path(result.data["export_path"]) == (tmp_path / "projects" / "demo" / "exports").resolve()
+
+
+def _export(video: Path, tmp_path: Path, **extra):
+    return ExportBundle().execute(
+        {"video_path": str(video), "title": "T", "export_dir": str(tmp_path / "out"), **extra}
+    )
+
+
+WARNING = [{"check": "freeze", "severity": "warn", "message": "Frozen picture 2.50s"}]
+BLOCK = [{"check": "loudness", "severity": "block", "message": "Integrated -30.0 LUFS"}]
+
+
+def test_pass_verdict_is_recorded_and_travels_with_the_master(tmp_path):
+    video = tmp_path / "p" / "renders" / "final.mp4"
+    _make_video(video)
+    result = _export(video, tmp_path)
+    assert result.success is True
+    plog = result.data["publish_log"]
+    validate_artifact("publish_log", plog)
+    qc = plog["entries"][0]["qc"]
+    assert qc["verdict"] == "pass"
+    assert qc["profile"] == "youtube"
+    assert qc["report_path"] == str(video.with_suffix(".qc.json"))
+    assert (tmp_path / "out" / "metadata" / "qc_report.json").is_file()
+
+
+def test_export_refused_without_qc_report(tmp_path):
+    video = tmp_path / "p" / "renders" / "final.mp4"
+    _make_video(video)
+    video.with_suffix(".qc.json").unlink()
+    result = _export(video, tmp_path)
+    assert result.success is False
+    assert "technical_qc" in (result.error or "")
+    assert not (tmp_path / "out").exists()
+
+
+def test_export_refused_when_master_changed_after_qc(tmp_path):
+    video = tmp_path / "p" / "renders" / "final.mp4"
+    _make_video(video)
+    video.write_bytes(video.read_bytes() + b"remastered")
+    result = _export(video, tmp_path)
+    assert result.success is False
+    assert "changed" in (result.error or "")
+    assert not (tmp_path / "out").exists()
+
+
+def test_export_refused_for_report_of_another_file(tmp_path):
+    video = tmp_path / "p" / "renders" / "final.mp4"
+    other = tmp_path / "p" / "renders" / "other.mp4"
+    _make_video(video)
+    other.parent.mkdir(parents=True, exist_ok=True)
+    other.write_bytes(b"different master")
+    result = _export(video, tmp_path, qc_report_path=str(_write_qc(other)))
+    assert result.success is False
+
+
+def test_block_verdict_cannot_be_excepted(tmp_path):
+    video = tmp_path / "p" / "renders" / "final.mp4"
+    _make_video(video)
+    _write_qc(video, "block", BLOCK)
+    result = _export(video, tmp_path, qc_exception={"reason": "ship it", "decision_id": "d-1"})
+    assert result.success is False
+    assert "-30.0 LUFS" in (result.error or "")
+    assert not (tmp_path / "out").exists()
+
+
+@pytest.mark.parametrize(
+    "exception",
+    [None, {}, {"reason": "fine"}, {"decision_id": "d-1"}, {"reason": " ", "decision_id": "d-1"}],
+)
+def test_warn_verdict_needs_a_complete_exception(tmp_path, exception):
+    video = tmp_path / "p" / "renders" / "final.mp4"
+    _make_video(video)
+    _write_qc(video, "warn", WARNING)
+    extra = {} if exception is None else {"qc_exception": exception}
+    result = _export(video, tmp_path, **extra)
+    assert result.success is False
+    assert "Frozen picture" in (result.error or "")
+
+
+def test_warn_verdict_ships_with_recorded_exception(tmp_path):
+    video = tmp_path / "p" / "renders" / "final.mp4"
+    _make_video(video)
+    _write_qc(video, "warn", WARNING)
+    exception = {"reason": "Planned hold on the title card", "decision_id": "d-7"}
+    result = _export(video, tmp_path, qc_exception=exception)
+    assert result.success is True
+    plog = result.data["publish_log"]
+    validate_artifact("publish_log", plog)
+    assert plog["entries"][0]["qc"]["verdict"] == "warn"
+    assert plog["entries"][0]["qc"]["exception"] == exception
+
+
+@pytest.mark.parametrize("content", ["not json", "[]", '{"verdict": "great"}'])
+def test_unusable_report_is_refused(tmp_path, content):
+    video = tmp_path / "p" / "renders" / "final.mp4"
+    _make_video(video)
+    video.with_suffix(".qc.json").write_text(content, encoding="utf-8")
+    assert _export(video, tmp_path).success is False
+
+
+def test_report_without_verdict_is_refused(tmp_path):
+    video = tmp_path / "p" / "renders" / "final.mp4"
+    _make_video(video)
+    report = video.with_suffix(".qc.json")
+    report.write_text(
+        json.dumps({"input_sha256": file_sha256(video), "verdict": "great"}), encoding="utf-8"
+    )
+    result = _export(video, tmp_path)
+    assert result.success is False
+    assert "verdict" in (result.error or "")
 
 
 def test_registry_discovers_export_bundle():
