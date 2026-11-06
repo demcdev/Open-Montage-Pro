@@ -128,10 +128,10 @@ Read `asset_manifest` for the music asset and load its duration.
 Documentary montages earn their emotional weight from cuts landing
 on musical events. Three sync moves:
 
-- **Downbeat cuts.** If you have bars and beats metadata (from a
-  provided track) or can hear them, place hero cuts on downbeats.
-  If not, evenly-spaced cuts on 4s intervals for a 60bpm bed are a
-  safe default.
+- **Downbeat cuts.** Run `beat_grid` on the music track, per
+  `skills/core/beat-sync.md`, and place hero cuts on `downbeats`, or on
+  `beats` when `downbeats_reliable` is false. With `usable: false` the
+  bed has no clear pulse: cut by musical phrases, never to a forced grid.
 - **One held silence.** Drop the music out for ~2s at the piece's
   emotional center. Silence is a tool. Use it once. Use it hard.
 - **Tail fade.** Music fades under the last 3-5s so the final image

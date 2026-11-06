@@ -77,7 +77,7 @@ Detalle en `skills/creative/editing-craft.md`.
 | `cut_dissolve` | Encadenado | Paso de tiempo, pocas veces | Se usa para disimular un mal corte | `transition:dissolve` | `local` |
 | `cut_dip` | Fundido a negro | Fin de bloque o capítulo | Dentro de una misma idea | `transition:dip_black` | `local` |
 | `cut_whip` | Barrido rápido | Energía, comedia, salto de lugar | Pieza contemplativa | `transition:whip_pan_left`, `transition:whip_pan_right` | `local` |
-| `cut_beat` | Corte al pulso | Videoclip o tramo donde la música manda. **Parcial:** solo por HyperFrames con `music-to-video`; la herramienta propia `beat_grid` es de la Fase 5 | Música sin pulso claro: se corta por frases | `skill:core/hyperframes.md` | `local` |
+| `cut_beat` | Corte al pulso | Videoclip o tramo donde la música manda | Música sin pulso claro (`usable: false`): se corta por frases | `tool:beat_grid`, `skill:core/beat-sync.md` | `local` |
 | `cut_escalation` | Escalada de tráiler | Avances y tráileres: planos cada vez más cortos | Contenido que necesita explicarse | `skill:creative/title-thumbnail-trailer.md`, `skill:creative/editing-craft.md` | `local` |
 
 ## 3. Cámara y puesta en escena

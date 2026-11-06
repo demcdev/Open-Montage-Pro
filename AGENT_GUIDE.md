@@ -736,6 +736,7 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | How do I write or rewrite a script (fiction series, documentary, essay)? | `skills/meta/guionista-core.md` plus `skills/meta/guionista-ficcion-animada.md` (fiction) or `skills/meta/guionista-documental.md` (non-fiction) |
 | What is the checkpoint/review policy? | `skills/meta/` |
 | Is this render technically fit to ship (black frames, silences, loudness, specs, licenses)? | `skills/meta/technical-qc-gate.md` (tool `technical_qc`) |
+| How do I cut on the beat? | `skills/core/beat-sync.md` (tool `beat_grid`) |
 | Does the narration stay in the script's language? | `skills/meta/narration-qc.md` (tool `narration_qc`) |
 | Are graphics or text off screen, overlapping or covered? | `skills/meta/layout-audit.md` (tool `layout_audit`, automatic before each render) |
 | Would a first-time viewer accept this master? | `skills/meta/cold-review.md` (tool `cold_review`, agent `cold-viewer`) |

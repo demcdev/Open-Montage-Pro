@@ -40,7 +40,7 @@ Ambience, impacts, dropouts, and music changes should help create momentum betwe
 
 Recommended metadata keys:
 
-- `beat_timing`
+- `beat_timing`: run `beat_grid` on the music track per `skills/core/beat-sync.md` where music leads a passage
 - `audio_turns`
 - `title_card_windows`
 - `reframe_notes`
