@@ -458,7 +458,7 @@ Validate the render_report against the schema and persist via checkpoint.
 <!-- cold-review-gate -->
 ## Cold Review Gate (Binding)
 
-After `audio_master` and `technical_qc`, run `skills/meta/cold-review.md` on the final master: `cold_review` `prepare`, the `cold-viewer` agent with only the packet path, then `cold_review` `record`. `revise` means fix and review once more; `escalate` means stop and let the user decide. Any change to the master voids the review.
+After `audio_master` and `technical_qc`, run `skills/meta/cold-review.md` on the final master: `cold_review` `prepare`, the `cold-viewer` agent with only the packet path, then `cold_review` `record`. `revise` means fix and review again, up to three rounds; `escalate` means stop and let the user decide. Any change to the master voids the review.
 
 <!-- transversal-skills-2026-10 -->
 ## Transversal Skills (Binding)

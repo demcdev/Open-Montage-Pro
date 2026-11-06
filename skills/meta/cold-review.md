@@ -58,8 +58,8 @@ La herramienta limita `voice` y `layout` a 1 si falta el informe medido o está 
 | Veredicto | Cuándo | Qué hacer |
 |---|---|---|
 | `pass` | Ningún criterio falla | Seguir a `publish` |
-| `revise` | Falla algo en la ronda 1 | Corregir lo señalado, renderizar, volver a medir y revisar en la ronda 2 |
-| `escalate` | Sigue fallando en la ronda 2 | Parar y mostrárselo al usuario. Decide el usuario |
+| `revise` | Falla algo en la ronda 1 o 2 | Corregir lo señalado, renderizar, volver a medir y revisar en la ronda siguiente |
+| `escalate` | Sigue fallando en la ronda 3 | Parar y mostrárselo al usuario. Decide el usuario |
 
 A diferencia de `reviewer.md`, aquí nada pasa solo. Si el usuario acepta entregar con `escalate`, registra una decisión `cold_exception` y pasa `cold_exception` a `export_bundle` con `reason` y `decision_id`.
 
@@ -67,4 +67,4 @@ A diferencia de `reviewer.md`, aquí nada pasa solo. Si el usuario acepta entreg
 
 - No ve el movimiento entre fotogramas ni oye el audio.
 - No sustituye la revisión del usuario: es un filtro antes de que el video le llegue.
-- Dos rondas son el máximo, para que el ciclo no se alargue sin fin.
+- Tres rondas son el máximo, para que el ciclo no se alargue sin fin.

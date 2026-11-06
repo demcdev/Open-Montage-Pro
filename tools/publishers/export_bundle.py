@@ -29,7 +29,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
-from tools.analysis.cold_review import NARRATIVE_PIPELINES, cold_path, read_report
+from tools.analysis.cold_review import MAX_ROUNDS, NARRATIVE_PIPELINES, cold_path, read_report
 from tools.analysis.technical_qc import file_sha256
 from tools.base_tool import (
     BaseTool,
@@ -144,8 +144,8 @@ class ExportBundle(BaseTool):
             "cold_exception": {
                 "type": "object",
                 "description": (
-                    "Required to ship a master whose cold review escalated after two "
-                    "rounds. Cannot override a missing report or one of another file."
+                    "Required to ship a master whose cold review escalated after its last "
+                    "round. Cannot override a missing report or one of another file."
                 ),
                 "required": ["reason", "decision_id"],
                 "properties": {
@@ -285,7 +285,7 @@ class ExportBundle(BaseTool):
             decision_id = str(exception.get("decision_id") or "").strip()
             if not (reason and decision_id):
                 return (
-                    f"Cold review still fails after two rounds: {failed}. The user decides: "
+                    f"Cold review still fails after {MAX_ROUNDS} rounds: {failed}. The user decides: "
                     "pass cold_exception with reason and decision_id to ship it anyway.",
                     {},
                 )

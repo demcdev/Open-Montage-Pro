@@ -40,7 +40,7 @@ NARRATIVE_PIPELINES = {
 }
 CRITERIA = ("hook", "pacing", "legibility", "continuity", "audio", "promise", "voice", "layout")
 MIN_SCORE = 3
-MAX_ROUNDS = 2
+MAX_ROUNDS = 3
 MAX_FRAMES = 40
 FRAME_WIDTH = 960
 SCENE_MOMENTS = (0.35, 0.75)

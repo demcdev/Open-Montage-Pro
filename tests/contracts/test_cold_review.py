@@ -42,8 +42,9 @@ def test_a_failed_criterion_asks_for_a_second_round():
     assert (verdict, failed) == ("revise", ["hook"])
 
 
-def test_after_two_rounds_the_user_decides():
-    assert evaluate(scores(hook=2), CLEAN, 2)[0] == "escalate"
+def test_after_three_rounds_the_user_decides():
+    assert evaluate(scores(hook=2), CLEAN, 2)[0] == "revise"
+    assert evaluate(scores(hook=2), CLEAN, 3)[0] == "escalate"
 
 
 def test_three_is_enough():
@@ -136,8 +137,8 @@ def test_record_needs_a_packet(video):
     assert not ColdReview().execute({"operation": "record", "video_path": str(video), "scores": scores()}).success
 
 
-def test_there_is_no_third_round(prepared):
-    result = ColdReview().execute({"operation": "record", "video_path": str(prepared), "scores": scores(), "round": 3})
+def test_there_is_no_fourth_round(prepared):
+    result = ColdReview().execute({"operation": "record", "video_path": str(prepared), "scores": scores(), "round": 4})
     assert not result.success and "round" in result.error
 
 
