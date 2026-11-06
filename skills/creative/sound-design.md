@@ -58,6 +58,16 @@ TARGET LUFS:    -14 LUFS (YouTube/TikTok/IG) | -16 LUFS (podcasts)
 - Choose dynamically **even** tracks — avoid dramatic crescendos or beat drops
 - Match energy to the learning context: upbeat for "exciting new concept," gentle for serious topics
 
+## Stems
+
+Stems are the voice, the music and the effects as separate files. They allow a dub, a music swap after a claim, or a level change without touching the rest.
+
+Pass `stems_dir` to `audio_mixer` `full_mix`, and to `export_bundle` so they travel with the master. You get `dialogue.wav`, `music.wav` and `sfx.wav`, with the same length and aligned, in 32-bit float. A role with no tracks has no file.
+
+- Music keeps its ducking: it dips where the original voice speaks. A dub with very different timing should remix from the source track.
+- Stems stop before loudness normalization, so they add up to the mix before `loudnorm`, not to the master. After remixing, run `audio_master` again.
+- When Remotion mixes the audio, call `full_mix` with the same tracks only for the stems. Its ducking is not Remotion's, so the sum will not match that render exactly.
+
 ## Sound Effects (SFX) Placement
 
 ### SFX Categories for Explainer Videos

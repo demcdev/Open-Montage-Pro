@@ -104,6 +104,10 @@ class ExportBundle(BaseTool):
                 },
             },
             "subtitles_path": {"type": "string"},
+            "stems_dir": {
+                "type": "string",
+                "description": "Folder with the audio stems from audio_mixer, copied to stems/.",
+            },
             "thumbnail_path": {"type": "string"},
             "thumbnail_concept": {
                 "type": "object",
@@ -311,6 +315,9 @@ class ExportBundle(BaseTool):
             val = inputs.get(key)
             if val and not Path(val).expanduser().is_file():
                 return ToolResult(success=False, error=f"{key} provided but not found: {val}")
+        stems_dir = inputs.get("stems_dir")
+        if stems_dir and not Path(stems_dir).expanduser().is_dir():
+            return ToolResult(success=False, error=f"stems_dir provided but not found: {stems_dir}")
 
         export_root = (
             Path(inputs["export_dir"]).expanduser()
@@ -330,6 +337,13 @@ class ExportBundle(BaseTool):
         out_video = video_dir / f"output{video_path.suffix or '.mp4'}"
         shutil.copy2(video_path, out_video)
         files_written.append(str(out_video))
+
+        if stems_dir:
+            stems_out = export_root / "stems"
+            stems_out.mkdir(parents=True, exist_ok=True)
+            for stem in sorted(Path(stems_dir).expanduser().glob("*.wav")):
+                shutil.copy2(stem, stems_out / stem.name)
+                files_written.append(str(stems_out / stem.name))
 
         # Subtitles (optional)
         subs_in = inputs.get("subtitles_path")

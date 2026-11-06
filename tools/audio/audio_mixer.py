@@ -40,7 +40,7 @@ class AudioMixer(BaseTool):
     )
     agent_skills = ["ffmpeg", "video-toolkit"]
 
-    capabilities = ["mix", "duck", "fade", "normalize", "extract_audio", "segmented_music"]
+    capabilities = ["mix", "duck", "fade", "normalize", "extract_audio", "segmented_music", "export_stems"]
 
     input_schema = {
         "type": "object",
@@ -192,12 +192,20 @@ class AudioMixer(BaseTool):
                     "mix and trims a long mix so audio matches the composition."
                 ),
             },
+            "stems_dir": {
+                "type": "string",
+                "description": (
+                    "full_mix only. Also write dialogue.wav, music.wav and sfx.wav here: "
+                    "same length, aligned, with ducking and before loudness "
+                    "normalization, so they can be remixed or dubbed."
+                ),
+            },
         },
     }
 
     resource_profile = ResourceProfile(cpu_cores=2, ram_mb=1024, vram_mb=0, disk_mb=500)
     idempotency_key_fields = ["operation", "tracks", "ducking"]
-    side_effects = ["writes mixed audio file to output_path"]
+    side_effects = ["writes mixed audio file to output_path", "writes stems to stems_dir when given"]
     user_visible_verification = [
         "Listen to mixed output and verify speech clarity and music ducking",
     ]
@@ -256,6 +264,20 @@ class AudioMixer(BaseTool):
         if channels == 1:
             return "aresample=48000,pan=stereo|c0=c0|c1=c0"
         return "aresample=48000,aformat=channel_layouts=stereo"
+
+    @staticmethod
+    def _duck_filter(music_in: str, key: str, ducking: Any) -> str:
+        """Sidechain-compress ``music_in`` under ``key``, ending at [music_out]."""
+        params = ducking if isinstance(ducking, dict) else {}
+        attack = params.get("attack_ms", 200) / 1000
+        release = params.get("release_ms", 500) / 1000
+        music_vol = params.get("music_volume_during_speech", 0.15)
+        return (
+            f"{music_in}{key}sidechaincompress="
+            f"threshold=0.02:ratio=9:attack={attack}:release={release}:"
+            f"level_sc=1:mix=0.9[ducked_music];"
+            f"[ducked_music]volume={music_vol * 3}[music_out]"
+        )
 
     def _track_filters(self, track: dict[str, Any]) -> list[str]:
         """Build per-track filters on the source timeline before scheduling it.
@@ -584,13 +606,10 @@ class AudioMixer(BaseTool):
 
         for i, track in enumerate(all_tracks):
             input_args.extend(["-i", track["path"]])
-            filters = self._track_filters(track)
-
-            if filters:
-                filter_chain = ",".join(filters)
-                filter_parts.append(f"[{i}:a]{filter_chain}[a{i}]")
-            else:
-                filter_parts.append(f"[{i}:a]acopy[a{i}]")
+            # amix keeps the first input's format, and mono narration comes first:
+            # without this the music collapses to mono, as _mix explains.
+            filters = [self._stereo48(track["path"])] + self._track_filters(track)
+            filter_parts.append(f"[{i}:a]{','.join(filters)}[a{i}]")
 
         # If ducking is enabled and we have both speech and music, apply sidechain
         duck_enabled = ducking.get("enabled", True) if isinstance(ducking, dict) else bool(ducking)
@@ -639,17 +658,7 @@ class AudioMixer(BaseTool):
                 music_in = f"[a{music_indices[0]}]"
 
             # Apply sidechain ducking — music is compressed, [speech_key] is the key
-            duck_params = ducking if isinstance(ducking, dict) else {}
-            attack = duck_params.get("attack_ms", 200) / 1000
-            release = duck_params.get("release_ms", 500) / 1000
-            music_vol = duck_params.get("music_volume_during_speech", 0.15)
-
-            filter_parts.append(
-                f"{music_in}[speech_key]sidechaincompress="
-                f"threshold=0.02:ratio=9:attack={attack}:release={release}:"
-                f"level_sc=1:mix=0.9[ducked_music];"
-                f"[ducked_music]volume={music_vol * 3}[music_out]"
-            )
+            filter_parts.append(self._duck_filter(music_in, "[speech_key]", ducking))
 
             # Final mix: the other speech branch + ducked music
             mix_label = "[speech_out][music_out]amix=inputs=2:duration=longest:normalize=0[premix]"
@@ -703,6 +712,15 @@ class AudioMixer(BaseTool):
 
         self.run_command(cmd)
 
+        stems: dict[str, str] = {}
+        if inputs.get("stems_dir"):
+            stems = self._write_stems(
+                Path(inputs["stems_dir"]),
+                {"dialogue": speech_tracks, "music": music_tracks, "sfx": sfx_tracks},
+                ducking if duck_enabled and speech_tracks and music_tracks else None,
+                target,
+            )
+
         return ToolResult(
             success=True,
             data={
@@ -714,9 +732,69 @@ class AudioMixer(BaseTool):
                 "normalized": normalize,
                 "target_duration": target_duration,
                 "output": str(output_path),
+                "stems": stems,
             },
-            artifacts=[str(output_path)],
+            artifacts=[str(output_path), *stems.values()],
         )
+
+    def _timeline_end(self, tracks: list[dict[str, Any]]) -> float:
+        """Second of the timeline where the last track stops."""
+        end = 0.0
+        for track in tracks:
+            probe = self.run_command(
+                ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", track["path"]]
+            )
+            end = max(end, float(track.get("start_seconds", 0)) + float(probe.stdout.strip().split("\n")[0]))
+        return end
+
+    def _write_stems(
+        self,
+        out_dir: Path,
+        roles: dict[str, list[dict[str, Any]]],
+        ducking: Any,
+        target: float | None,
+    ) -> dict[str, str]:
+        """Write one aligned file per role, sharing the mix's levels and ducking.
+
+        A graph of its own keeps the mix untouched. Stems stop before loudnorm,
+        whose gain follows the whole mix and would not survive removing a role.
+        Float WAV keeps peaks above full scale, so nothing here needs a limiter.
+        """
+        out_dir.mkdir(parents=True, exist_ok=True)
+        tracks = [track for group in roles.values() for track in group]
+        duration = target if target is not None else self._timeline_end(tracks)
+        fit = f"apad=whole_dur={duration},atrim=duration={duration},asetpts=PTS-STARTPTS"
+
+        input_args: list[str] = []
+        parts: list[str] = []
+        index = 0
+        for role, group in roles.items():
+            labels = ""
+            for track in group:
+                input_args.extend(["-i", track["path"]])
+                chain = ",".join([self._stereo48(track["path"]), *self._track_filters(track)])
+                parts.append(f"[{index}:a]{chain}[t{index}]")
+                labels += f"[t{index}]"
+                index += 1
+            if group:
+                parts.append(f"{labels}amix=inputs={len(group)}:duration=longest:normalize=0,{fit}[{role}_bus]")
+
+        outputs = {role: f"[{role}_bus]" for role, group in roles.items() if group}
+        if ducking is not None:
+            parts.append("[dialogue_bus]asplit=2[dialogue_key][dialogue_out]")
+            parts.append(self._duck_filter("[music_bus]", "[dialogue_key]", ducking))
+            # The compressor drops its last partial block, a few ms short of the others.
+            parts.append(f"[music_out]{fit}[music_fit]")
+            outputs["dialogue"] = "[dialogue_out]"
+            outputs["music"] = "[music_fit]"
+
+        cmd = ["ffmpeg", "-y", *input_args, "-filter_complex", ";".join(parts)]
+        stems = {}
+        for role, label in outputs.items():
+            stems[role] = str(out_dir / f"{role}.wav")
+            cmd.extend(["-map", label, "-c:a", "pcm_f32le", stems[role]])
+        self.run_command(cmd)
+        return stems
 
     def _segmented_music(self, inputs: dict[str, Any]) -> ToolResult:
         """Mix background music into a video only during specified time segments.
