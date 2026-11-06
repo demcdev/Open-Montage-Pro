@@ -15,6 +15,7 @@ You are not just a processor. You are a creative director. Your job is to figure
 | Tools | `frame_sampler` (optional) | Extract representative frames |
 | Tools | `face_tracker` (optional) | Analyze speaker face position for reframing |
 | Tools | `silence_cutter` (optional) | Detect silence for jump cut planning |
+| Creative skill | `skills/creative/data-visualization.md` | Chart type, animation and label placement |
 
 ## Process
 

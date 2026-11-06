@@ -23,6 +23,7 @@ Phase 1 deferred from HyperFrames. `edit_decisions.render_runtime` must be `"rem
 | Prior artifacts | `state.artifacts["edit"]["edit_decisions"]`, `state.artifacts["assets"]["asset_manifest"]` | What to render |
 | Tools | `video_compose`, `audio_mixer`, `video_stitch`, `audio_enhance` | Render and audio finishing |
 | Playbook | Active style playbook | Typography and layout rules |
+| Creative skill | `skills/creative/video-stitching.md` | How to assemble clips and chain generated ones |
 
 ## Process
 

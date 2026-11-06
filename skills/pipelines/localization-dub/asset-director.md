@@ -12,6 +12,7 @@ This stage produces the localized asset kit: translated subtitle files, dubbed a
 | Prior artifacts | `state.artifacts["scene_plan"]["scene_plan"]`, `state.artifacts["script"]["script"]`, `state.artifacts["idea"]["brief"]` | Language plan and transcript package |
 | Tools | `tts_selector`, `subtitle_gen`, `lip_sync`, `audio_enhance` — `tts_selector` auto-discovers all available TTS providers from the registry | Dubbed audio, subtitle, and optional lip-sync production |
 | Playbook | Active style playbook | Subtitle and replacement-text rules |
+| Core skill | `skills/core/subtitle-sync.md` | Subtitle timing and readability |
 
 ## Process
 

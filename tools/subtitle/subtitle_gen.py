@@ -36,6 +36,7 @@ class SubtitleGen(BaseTool):
     dependencies = []  # pure Python
     install_instructions = "No external dependencies required."
     agent_skills = ["remotion-best-practices"]
+    usage_skills = ["core/subtitle-sync"]
 
     capabilities = ["generate_srt", "generate_vtt", "generate_caption_json"]
 

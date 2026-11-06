@@ -60,6 +60,7 @@ class GrokImage(BaseTool):
         "  Get one from the xAI developer console"
     )
     agent_skills = ["grok-media"]
+    usage_skills = ["creative/prompting/grok-prompting"]
 
     capabilities = [
         "generate_image",

@@ -48,6 +48,7 @@ class HiggsFieldVideo(BaseTool):
         "  Alternatively, set HIGGSFIELD_KEY as a combined key:secret value."
     )
     agent_skills = ["seedance-2-0", "ai-video-gen"]
+    usage_skills = ["creative/prompting/seedance-prompting"]
 
     capabilities = ["text_to_video", "image_to_video"]
     supports = {

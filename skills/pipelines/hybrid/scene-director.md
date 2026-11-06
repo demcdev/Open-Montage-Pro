@@ -12,6 +12,7 @@ You are translating the hybrid structure into a visual system that keeps the sou
 | Prior artifacts | `state.artifacts["script"]["script"]`, `state.artifacts["idea"]["brief"]` | Hybrid structure and source truth |
 | Tools | `frame_sampler`, `scene_detect` | Optional source inspection |
 | Playbook | Active style playbook | Layout consistency |
+| Creative skill | `skills/creative/data-visualization.md` | Chart type, animation and label placement |
 
 ## Process
 

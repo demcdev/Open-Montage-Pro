@@ -59,6 +59,7 @@ class HunyuanCloudVideo(BaseTool):
         "  Get it at https://console.cloud.tencent.com/tokenhub"
     )
     agent_skills = ["ai-video-gen"]
+    usage_skills = ["creative/prompting/hunyuan-prompting"]
 
     capabilities = ["text_to_video", "image_to_video"]
     supports = {

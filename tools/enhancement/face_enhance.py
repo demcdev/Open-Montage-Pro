@@ -80,6 +80,7 @@ class FaceEnhance(BaseTool):
     dependencies = ["cmd:ffmpeg"]
     install_instructions = "Install FFmpeg: https://ffmpeg.org/download.html"
     agent_skills = ["ffmpeg"]
+    usage_skills = ["creative/enhancement-strategy"]
 
     capabilities = [
         "skin_smoothing",

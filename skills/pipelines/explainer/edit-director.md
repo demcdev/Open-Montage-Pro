@@ -16,6 +16,7 @@ This is where raw assets become a coherent video. Good editing makes average ass
 | Schema | `schemas/artifacts/edit_decisions.schema.json` | Artifact validation |
 | Prior artifacts | `state.artifacts["assets"]["asset_manifest"]`, `state.artifacts["scene_plan"]["scene_plan"]`, `state.artifacts["script"]["script"]` | Assets, visual plan, timing |
 | Playbook | Active style playbook | Transitions, pacing rules, overlay styles |
+| Creative skill | `skills/creative/sound-design.md` | Ducking, music choice and SFX timing for voice-led pieces |
 
 ## Process
 

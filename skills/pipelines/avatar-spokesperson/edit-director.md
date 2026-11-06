@@ -64,3 +64,10 @@ Read these before working in this stage. They are shared across pipelines; this 
 ## Technique Stack (Binding)
 
 Build `edit_decisions` from the approved `brief.metadata.technique_stack`: cuts, transitions, camera and sound follow it, and an `accent` technique appears only where the stack places it. If a tool fails, apply that technique's `fallback`; any other change needs a new `technique_selection` decision.
+
+---
+
+<!-- reference-skills -->
+## Reference Skills
+
+- `skills/creative/sound-design.md` — Ducking, music choice and SFX timing for voice-led pieces

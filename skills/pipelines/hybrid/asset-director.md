@@ -12,6 +12,8 @@ This stage prepares the support kit around the anchor edit: subtitles, diagrams,
 | Prior artifacts | `state.artifacts["scene_plan"]["scene_plan"]`, `state.artifacts["script"]["script"]`, `state.artifacts["idea"]["brief"]` | Support needs and variant plan |
 | Tools | `subtitle_gen`, `tts_selector`, `image_selector`, `video_selector`, `diagram_gen`, `code_snippet`, `music_gen`, `audio_enhance` — selectors auto-discover all available providers from the registry | Optional support asset production |
 | Playbook | Active style playbook | Consistency rules |
+| Core skill | `skills/core/subtitle-sync.md` | Subtitle timing and readability |
+| Creative skill | `skills/creative/broll-planning.md` | When to use stock or generated footage, and how to search for it |
 
 ## Process
 

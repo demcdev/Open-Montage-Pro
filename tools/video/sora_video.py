@@ -49,6 +49,7 @@ class SoraVideo(BaseTool):
         "  pip install 'openai>=2.44.0'"
     )
     agent_skills = ["ai-video-gen"]
+    usage_skills = ["creative/prompting/sora-prompting"]
 
     capabilities = ["text_to_video", "image_to_video"]
     supports = {

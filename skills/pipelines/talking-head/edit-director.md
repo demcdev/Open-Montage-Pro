@@ -14,6 +14,7 @@ You have a scene plan and asset manifest. Your job is to assemble the edit decis
 | Schema | `schemas/artifacts/edit_decisions.schema.json` | Artifact validation |
 | Prior artifacts | Scene plan, Asset manifest, Script | Edit inputs |
 | Playbook | Active style playbook | Transition and pacing rules |
+| Creative skill | `skills/creative/sound-design.md` | Ducking, music choice and SFX timing for voice-led pieces |
 
 ## Process
 

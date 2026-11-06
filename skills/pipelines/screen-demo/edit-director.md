@@ -14,6 +14,7 @@ This stage turns the plan into a concrete, schema-valid edit: trims, speeds, ove
 | Schema | `schemas/artifacts/edit_decisions.schema.json` | Artifact validation |
 | Prior artifacts | `state.artifacts["assets"]["asset_manifest"]`, `state.artifacts["scene_plan"]["scene_plan"]`, `state.artifacts["script"]["script"]` | Assets, visual plan, timing |
 | Playbook | Active style playbook | Overlay and pacing rules |
+| Creative skill | `skills/creative/sound-design.md` | Ducking, music choice and SFX timing for voice-led pieces |
 
 ## Process
 

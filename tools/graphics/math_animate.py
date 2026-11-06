@@ -103,6 +103,7 @@ class MathAnimate(BaseTool):
         "  Linux: sudo apt install texlive-full ffmpeg"
     )
     agent_skills = ["manimce-best-practices", "manim-composer"]
+    usage_skills = ["creative/manim-usage"]
 
     capabilities = [
         "render_scene",

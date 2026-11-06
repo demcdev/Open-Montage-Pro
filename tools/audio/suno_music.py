@@ -45,6 +45,7 @@ class SunoMusic(BaseTool):
     )
 
     agent_skills = ["music"]
+    usage_skills = ["creative/music-gen-usage"]
 
     capabilities = [
         "generate_background_music",

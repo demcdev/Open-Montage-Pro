@@ -51,6 +51,7 @@ class VeoVideo(BaseTool):
         "    Get one at https://fal.ai/dashboard/keys"
     )
     agent_skills = ["ai-video-gen"]
+    usage_skills = ["creative/prompting/veo-prompting"]
 
     capabilities = [
         "text_to_video",

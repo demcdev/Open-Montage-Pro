@@ -11,6 +11,7 @@ class LTXAPIVideo(SchemaMedia):
     dependencies = ["env:LTX_API_KEY"]
     install_instructions = "Configure LTX_API_KEY from https://console.ltx.io."
     catalog_file = "ltx_refresh.json"
+    usage_skills = ["creative/prompting/ltx-prompting"]
     capabilities = ["text_to_video", "image_to_video", "audio_to_video"]
     supports = dict.fromkeys(capabilities + ["native_audio", "last_frame"], True)
     best_for = [

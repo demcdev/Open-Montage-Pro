@@ -68,6 +68,7 @@ class VideoCompose(BaseTool):
     dependencies = ["cmd:ffmpeg"]
     install_instructions = "Install FFmpeg: https://ffmpeg.org/download.html"
     agent_skills = ["remotion-best-practices", "remotion", "ffmpeg"]
+    usage_skills = ["core/ffmpeg"]
 
     capabilities = [
         "compose_cuts",

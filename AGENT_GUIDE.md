@@ -56,7 +56,7 @@ When the user asks to make, create, produce, or generate any video content — a
 2. **Read the pipeline manifest.** `pipeline_defs/<pipeline>.yaml` — know the stages, tools, and quality gates.
 3. **Run preflight.** Discover available tools via the registry. Present the capability menu.
 4. **Execute stage by stage.** For EACH stage, read the stage director skill (`skills/pipelines/<pipeline>/<stage>-director.md`) BEFORE doing any work in that stage.
-5. **Read Layer 3 skills before calling tools.** Before using any tool with an `agent_skills` field, read the referenced skill in `.agents/skills/`. These contain provider-specific prompting guidance, parameter optimization, and quality techniques that dramatically improve output.
+5. **Read Layer 3 skills before calling tools.** Before using any tool with an `agent_skills` field, read the referenced skill in `.agents/skills/`. These contain provider-specific prompting guidance, parameter optimization, and quality techniques that dramatically improve output. If the tool also lists `usage_skills`, read those too: they are the Layer 2 manuals for using it in this project, as paths under `skills/` without `.md`.
 
 **Do NOT:**
 - Write ad-hoc Python scripts to call tools directly
@@ -731,6 +731,7 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | Which camera move / transition / effect should this scene use? | `skills/creative/camera-motion-library.md` and `docs/MOTION_CATALOG.md` |
 | Is this video safe to publish on YouTube (policies, kids flag, music, AI disclosure)? | `skills/meta/youtube-policy-gate.md` and `docs/youtube-policy-reference.md` |
 | What must be decided before writing a script (logline, stakes, transformation, narrator)? | `skills/meta/creative-intake.md` (mandatory `brief_creativo`) |
+| No tool covers what this production needs? | `skills/meta/capability-extension.md` |
 | Which technique fits this goal, when to use it and when not? | `skills/meta/technique-selector.md` (mandatory `technique_stack`) and `skills/creative/technique-catalog.md` |
 | How do I write or rewrite a script (fiction series, documentary, essay)? | `skills/meta/guionista-core.md` plus `skills/meta/guionista-ficcion-animada.md` (fiction) or `skills/meta/guionista-documental.md` (non-fiction) |
 | What is the checkpoint/review policy? | `skills/meta/` |
@@ -760,7 +761,7 @@ The `codebase-memory-mcp` server is available in this workspace. Its tools are d
 ## What Not To Do
 
 - **Do not bypass the pipeline.** Never write ad-hoc scripts to call tools directly. All production goes through pipeline stages with director skills. See Rule Zero.
-- **Do not call generation tools without reading their Layer 3 skill.** Check the tool's `agent_skills` field, read the referenced skill, then craft your prompts using that guidance.
+- **Do not call generation tools without reading their Layer 3 skill.** Check the tool's `agent_skills` and `usage_skills` fields, read the referenced skills, then craft your prompts using that guidance.
 - **Do not skip stage director skills.** Before executing any pipeline stage, read its director skill. The skill contains the quality bar, the workflow, and the review criteria.
 - Do not use deleted legacy names such as `tts_cloud`, `tts_engine`, or `video_gen`.
 - Do not hardcode provider names, API key names, or setup URLs. Read them from the registry's `install_instructions` and `dependencies` fields.

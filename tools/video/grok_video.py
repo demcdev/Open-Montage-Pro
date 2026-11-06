@@ -63,6 +63,7 @@ class GrokVideo(BaseTool):
         "  Get one from the xAI developer console"
     )
     agent_skills = ["grok-media", "ai-video-gen"]
+    usage_skills = ["creative/prompting/grok-prompting"]
 
     capabilities = ["text_to_video", "image_to_video", "reference_to_video"]
     supports = {

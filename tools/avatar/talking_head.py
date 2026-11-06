@@ -45,6 +45,7 @@ class TalkingHead(BaseTool):
     )
 
     agent_skills = ["ffmpeg"]
+    usage_skills = ["creative/talking-head-gen-usage"]
     fallback = "lip_sync"
 
     capabilities = [

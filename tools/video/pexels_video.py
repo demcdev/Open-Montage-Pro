@@ -38,6 +38,7 @@ class PexelsVideo(BaseTool):
         "  Get one free at https://www.pexels.com/api/"
     )
     agent_skills = []
+    usage_skills = ["creative/stock-sourcing-usage"]
 
     capabilities = ["search_video", "download_video", "stock_video"]
     supports = {

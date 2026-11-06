@@ -52,6 +52,7 @@ class LipSync(BaseTool):
     )
 
     agent_skills = ["ffmpeg"]
+    usage_skills = ["creative/lip-sync-usage"]
 
     capabilities = [
         "lip_sync",

@@ -56,3 +56,10 @@ Recommended metadata keys:
 Read these before working in this stage. They are shared across pipelines; this file only says when they apply.
 
 - `skills/creative/editing-craft.md` — cut types (J/L, on action, match, reaction), rhythm, humor cuts; use `cut` for every straight cut (other strings render as fades).
+
+---
+
+<!-- reference-skills -->
+## Reference Skills
+
+- `skills/creative/sound-design.md` — Ducking, music choice and SFX timing for voice-led pieces

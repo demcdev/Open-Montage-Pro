@@ -44,6 +44,7 @@ class VideoTrimmer(BaseTool):
         "Linux: sudo apt install ffmpeg"
     )
     agent_skills = ["ffmpeg", "video-toolkit"]
+    usage_skills = ["core/ffmpeg"]
 
     capabilities = ["cut", "trim", "speed_adjust", "concat"]
 

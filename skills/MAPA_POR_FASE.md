@@ -15,7 +15,7 @@ Un skill solo se lee si algo lo carga. Hay cuatro vías:
 1. **`AGENT_GUIDE.md`** manda a un skill o a un pipeline.
 2. **El manifiesto** (`pipeline_defs/<pipeline>.yaml`) lo lista en `required_skills`.
 3. **Un director de etapa** (`pipelines/<pipeline>/<etapa>-director.md`) lo cita en su texto.
-4. **Una herramienta** lo nombra en `agent_skills[]`. Hoy esta vía solo apunta a la capa 3 (`.agents/skills/`), nunca a un skill de esta carpeta.
+4. **Una herramienta** lo nombra: `usage_skills[]` apunta a los manuales de esta carpeta y `agent_skills[]` a la capa 3 (`.agents/skills/`). Se lee al usar la herramienta, así que no carga contexto en cada pipeline.
 
 ## Leyenda
 
@@ -24,7 +24,8 @@ Un skill solo se lee si algo lo carga. Hay cuatro vías:
 | ✅ todos | En `required_skills` de los 12 pipelines de producción |
 | ✅ *lista* | En `required_skills` solo de esos pipelines |
 | 🔗 | No está en ningún manifiesto, pero la guía o un director lo cita: se lee si el agente sigue el enlace |
-| ⚪ | No lo carga nada (solo aparece en `INDEX.md` u otro skill). **Hoy el agente no lo lee** |
+| 🔧 | Lo nombra una herramienta en `usage_skills`: se lee al usarla |
+| ⚪ | No lo carga nada; solo se admite con el motivo entre paréntesis. Hoy no queda ninguno |
 
 Abreviaturas de pipelines: **ae** animated-explainer · **anim** animation · **avatar** avatar-spokesperson · **char** character-animation · **cine** cinematic · **doc** documentary-montage · **hyb** hybrid · **clip** clip-factory · **loc** localization-dub · **pod** podcast-repurpose · **screen** screen-demo · **th** talking-head. Los siete primeros son los **narrativos** (crean una historia); los cinco últimos trabajan sobre **material fuente**.
 
@@ -38,7 +39,7 @@ Abreviaturas de pipelines: **ae** animated-explainer · **anim** animation · **
 | `meta/checkpoint-protocol.md` | Cuándo parar y pedir aprobación humana | ✅ todos |
 | `meta/youtube-policy-gate.md` | Políticas de YouTube en propuesta, guion, assets y publicación | ✅ todos |
 | `meta/skill-creator.md` | Crear un skill nuevo durante una producción | ✅ ae |
-| `meta/capability-extension.md` | Extender el sistema cuando ninguna herramienta cubre la necesidad | ⚪ |
+| `meta/capability-extension.md` | Extender el sistema cuando ninguna herramienta cubre la necesidad | 🔗 guía |
 
 ## Fase 0 — Entrada: ¿qué quieres y en qué te inspiras?
 
@@ -65,7 +66,7 @@ En los pipelines narrativos también sale `technique_stack`: las técnicas de la
 | `meta/taste-direction.md` | Diales de gusto, antipatrones y estrategia de referencias | 🔗 guía y 2 directores |
 | `meta/technique-selector.md` | Elegir técnicas con motivo y dejar `technique_stack` antes de fijar el motor | ✅ ae, anim, avatar, char, cine, doc, hyb |
 | `creative/technique-catalog.md` | Menú de técnicas por familias: cuándo usarlas, cuándo no, con qué se hacen y qué las sustituye sin GPU | 🔗 `technique-selector` |
-| `creative/storytelling.md` | Arco de explicativo: gancho, tensión, conceptos en capas | 🔗 `idea-director` de anim (obsoleto), avatar, cine y hyb, y `script-director` de avatar y loc; **ningún director de explainer lo cita** |
+| `creative/storytelling.md` | Arco de explicativo: gancho, tensión, conceptos en capas | 🔗 `idea-director` de anim (obsoleto), avatar, cine y hyb, y `script-director` de ae, avatar y loc |
 | `meta/budget-and-model-routing.md` | Costo real y modelos premium solo en planos héroe | ✅ ae, anim, avatar, char, cine, hyb |
 
 ## Fase 2 — Guion: ¿cómo se cuenta, segundo a segundo?
@@ -109,16 +110,16 @@ Sale: `scene_plan`, biblia de producción y lista de planos.
 | `creative/cinematography.md` | Cobertura, regla de 180°, lente y luz; quien habla se ve | ✅ ae, anim, avatar, char, cine, doc, hyb |
 | `creative/camera-motion-library.md` | Movimientos de cámara, transiciones, texto cinético | 🔗 guía y 2 directores |
 | `creative/typography.md` | Fuentes, tamaños, zonas seguras | 🔗 1 director |
-| `creative/data-visualization.md` | Tipo de gráfico y su animación | ⚪ |
-| `creative/broll-planning.md` | Stock o generado, búsquedas, evaluar material | ⚪ |
+| `creative/data-visualization.md` | Tipo de gráfico y su animación | 🔗 3 directores |
+| `creative/broll-planning.md` | Stock o generado, búsquedas, evaluar material | 🔗 4 directores |
 
 **Voz y sonido**
 
 | Skill | Para qué | Estado |
 |---|---|---|
 | `meta/voice-performance-director.md` | Actuación de voz y casting | ✅ ae, anim |
-| `creative/audio-post-cinema.md` | Cinco capas de sonido y mapa sonoro por escena | ✅ anim, char, cine, doc, hyb |
-| `creative/sound-design.md` | Ducking, LUFS, tiempos de SFX, mezcla con TTS | ⚪ (se solapa con `audio-post-cinema`; falta comparar) |
+| `creative/audio-post-cinema.md` | Cinco capas de sonido y mapa sonoro en escenas con personajes y lugares | ✅ anim, char, cine, doc, hyb |
+| `creative/sound-design.md` | Ducking, elección de música y tiempos de SFX en piezas con locución | 🔗 7 directores |
 
 **Guías de formato** (repiten en parte lo que ya dicen los directores del pipeline)
 
@@ -139,31 +140,31 @@ Sale: assets por plano, revisados.
 | `meta/ai-shot-qa.md` | Revisar cada clip generado (manos, deformaciones, parpadeo) | ✅ ae, anim, avatar, cine, hyb |
 | `creative/clip-conform.md` | Ajustar fps, estabilizar, interpolar | ✅ cine, doc, hyb, screen, th |
 | `creative/video-gen-prompting.md` | Vocabulario universal de prompts de video (cinco aspectos) | 🔗 3 directores |
-| `creative/enhancement-strategy.md` | Mejoras y overlays de talking-head | ⚪ |
-| `core/whisperx.md` | Transcripción con tiempos por palabra | ⚪ |
+| `creative/enhancement-strategy.md` | Mejoras y overlays de talking-head | 🔧 `face_enhance` · 🔗 1 director |
+| `core/whisperx.md` | Transcripción con tiempos por palabra | 🔧 `transcriber` |
 
-**Manuales por herramienta.** Ninguno se carga solo al llamar la herramienta, porque su `agent_skills[]` apunta únicamente a la capa 3:
+**Manuales por herramienta.** Cada una los declara en `usage_skills`, y `image_selector` y `video_selector` pasan los del proveedor elegido en `required_usage_skills`:
 
 | Herramienta (`tools/`) | Skill de esta carpeta | Estado |
 |---|---|---|
-| `seedance_video`, `seedance_ark`, `seedance_replicate`, `higgsfield_video` | `creative/prompting/seedance-prompting.md` | ⚪ |
-| `veo_video` | `creative/prompting/veo-prompting.md` | ⚪ |
-| `sora_video` | `creative/prompting/sora-prompting.md` | ⚪ |
-| `ltx_video_local`, `ltx_video_modal` | `creative/prompting/ltx-prompting.md` | ⚪ |
-| `hunyuan_video`, `hunyuan_cloud_video` | `creative/prompting/hunyuan-prompting.md` | ⚪ |
-| `grok_video`, `grok_image` | `creative/prompting/grok-prompting.md` | ⚪ |
-| `image_selector`, `image_gen`, `flux_image` | `creative/image-gen-usage.md`, `creative/image-provider-usage.md` | ⚪ |
-| `pexels_video`, `pixabay_video`, `pexels_image`, `pixabay_image` | `creative/stock-sourcing-usage.md` | ⚪ |
-| `music_gen` y demás de `tools/audio/*music*` | `creative/music-gen-usage.md` | ⚪ |
-| `diagram_gen` | `creative/diagram-gen-usage.md` | ⚪ |
-| `math_animate` | `creative/manim-usage.md` | ⚪ |
-| `lip_sync` | `creative/lip-sync-usage.md` | ⚪ |
-| `talking_head` | `creative/talking-head-gen-usage.md` | ⚪ |
-| `bg_remove` | `creative/bg-remove-usage.md` | ⚪ |
-| `upscale` | `creative/upscale-usage.md` | ⚪ |
-| `face_restore` | `creative/face-restore-usage.md` | ⚪ |
-| `scene_detect` | `creative/scene-detect-usage.md` | ⚪ |
-| `video_understand` | `creative/video-understand-usage.md` | ⚪ |
+| `seedance_video`, `seedance_ark`, `seedance_replicate`, `higgsfield_video` | `creative/prompting/seedance-prompting.md` | 🔧 |
+| `veo_video` | `creative/prompting/veo-prompting.md` | 🔧 |
+| `sora_video` | `creative/prompting/sora-prompting.md` | 🔧 |
+| `ltx_video_local`, `ltx_video_modal`, `ltx_api_video` | `creative/prompting/ltx-prompting.md` | 🔧 |
+| `hunyuan_video`, `hunyuan_cloud_video` | `creative/prompting/hunyuan-prompting.md` | 🔧 |
+| `grok_video`, `grok_image` | `creative/prompting/grok-prompting.md` | 🔧 |
+| `image_selector`, `image_gen`, `flux_image` | `creative/image-gen-usage.md`, `creative/image-provider-usage.md` | 🔧 |
+| `pexels_video`, `pixabay_video`, `pexels_image`, `pixabay_image` | `creative/stock-sourcing-usage.md` | 🔧 |
+| `music_gen`, `fal_elevenlabs_music`, `suno_music`, `google_music`, `comfyui_music` | `creative/music-gen-usage.md` | 🔧 |
+| `diagram_gen` | `creative/diagram-gen-usage.md` | 🔧 |
+| `math_animate` | `creative/manim-usage.md` | 🔧 |
+| `lip_sync` | `creative/lip-sync-usage.md` | 🔧 |
+| `talking_head` | `creative/talking-head-gen-usage.md` | 🔧 |
+| `bg_remove` | `creative/bg-remove-usage.md` | 🔧 |
+| `upscale` | `creative/upscale-usage.md` | 🔧 |
+| `face_restore` | `creative/face-restore-usage.md` | 🔧 |
+| `scene_detect` | `creative/scene-detect-usage.md` | 🔧 |
+| `video_understand` | `creative/video-understand-usage.md` | 🔧 |
 
 ## Fase 5 — Acabado: ¿está listo para publicar?
 
@@ -175,11 +176,11 @@ Sale: máster EN/ES, SRT/VTT, miniaturas y metadatos.
 |---|---|---|
 | `creative/editing-craft.md` | Cortes J/L, corte en acción, ritmo, cortes relámpago | ✅ todos |
 | `creative/video-editing.md` | Decisiones de corte en talking-head | 🔗 3 directores |
-| `creative/video-stitching.md` | Unir varios clips y encadenar clips de IA | ⚪ |
+| `creative/video-stitching.md` | Unir varios clips y encadenar clips de IA | 🔧 `video_stitch` · 🔗 7 directores |
 | `creative/film-look-finishing.md` | Grano, halación, LUTs, igualar color entre modelos | ✅ ae, anim, avatar, char, cine, doc, hyb, th |
-| `core/color-grading.md` | Perfiles de color y LUTs en FFmpeg | ⚪ |
-| `core/ffmpeg.md` | Operaciones de video y audio | ⚪ |
-| `core/subtitle-sync.md` | Tiempos de subtítulos | ⚪ |
+| `core/color-grading.md` | Perfiles de color y LUTs en FFmpeg | 🔧 `color_grade` · 🔗 5 directores |
+| `core/ffmpeg.md` | Operaciones de video y audio | 🔧 `video_compose`, `video_trimmer`, `video_stitch` |
+| `core/subtitle-sync.md` | Tiempos de subtítulos | 🔧 `subtitle_gen` · 🔗 9 directores |
 | `core/loudness-mastering.md` | Volumen final por plataforma | ✅ todos |
 | `meta/technical-qc-gate.md` | Negros, congelados, silencios, picos, licencias | ✅ todos |
 | `core/delivery-specs.md` | Másteres por destino, SRT/VTT, capítulos | ✅ todos |
@@ -189,11 +190,12 @@ Sale: máster EN/ES, SRT/VTT, miniaturas y metadatos.
 
 ## Lo que el mapa deja a la vista
 
-- **29 skills con ⚪.** Existen, pero el agente no los lee: casi todos los manuales por herramienta, `data-visualization`, `broll-planning` y `sound-design`.
+- **Resuelto: ningún skill sin conectar.** Los manuales llegan por `usage_skills` al usar la herramienta, y el resto por sus directores o la guía. `tests/contracts/test_usage_skill_pointers.py` falla si reaparece un ⚪ sin motivo.
 - **Resuelto: brief creativo único.** `creative-intake` ya es obligatorio en los siete pipelines narrativos y deja `metadata.brief_creativo` aprobado antes del guion. Los pipelines de material fuente (clip-factory, localization-dub, podcast-repurpose, screen-demo, talking-head) no lo exigen: parten de un material que ya existe.
-- **`storytelling.md` no llega al pipeline explainer**, para el que fue escrito.
+- **Resuelto: `storytelling.md` ya llega al pipeline explainer**, por su `script-director`.
 - **Resuelto: el análisis de referencia ya extrae el ADN narrativo** (gancho, beats, bucles, cadencia, narrador, ritmo, humor, cierre), medido y no adivinado, y `guionista-core` lo lee como patrón estructural.
 - **Resuelto: las técnicas se eligen con motivo.** `technique-selector` deja `technique_stack` aprobado en los siete pipelines narrativos, y escena y montaje trabajan desde él.
-- **Solapes por confirmar:** `sound-design` ↔ `audio-post-cinema` y `storytelling` ↔ `guionista-core`. `video-editing` y `enhancement-strategy` **no** son duplicados: son específicos de talking-head.
+- **Resuelto: `sound-design` y `audio-post-cinema` no son duplicados.** El primero sirve a piezas con locución y el segundo a escenas con personajes y lugares; el nivel final lo fija `loudness-mastering`.
+- **Solape por confirmar:** `storytelling` ↔ `guionista-core`. `video-editing` y `enhancement-strategy` **no** son duplicados: son específicos de talking-head.
 
 Mantén este mapa al día: si añades, mueves o borras un skill de `core/`, `creative/` o `meta/`, actualiza su fila. `tests/contracts/test_skill_phase_map_contract.py` falla si falta alguno.

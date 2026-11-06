@@ -23,6 +23,7 @@ This pipeline is Phase 1 deferred from the HyperFrames adoption schedule. `edit_
 | Prior artifacts | `state.artifacts["edit"]["edit_decisions"]`, `state.artifacts["assets"]["asset_manifest"]` | Clip edits and assets |
 | Tools | `video_trimmer`, `video_compose`, `audio_mixer`, `color_grade` | Render pipeline |
 | Media profiles | `lib/media_profiles.py` | Platform targets |
+| Core skill | `skills/core/color-grading.md` | Color profiles, LUTs and contrast rules |
 
 ## Process
 

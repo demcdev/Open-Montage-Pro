@@ -12,6 +12,7 @@ This stage builds the shared visual and audio kit for the entire clip batch. The
 | Prior artifacts | `state.artifacts["scene_plan"]["scene_plan"]`, `state.artifacts["script"]["script"]`, `state.artifacts["idea"]["brief"]` | Clip plans and rankings |
 | Tools | `subtitle_gen`, `audio_enhance` | Batch-ready subtitles and audio cleanup |
 | Playbook | Active style playbook | Subtitle and overlay consistency |
+| Core skill | `skills/core/subtitle-sync.md` | Subtitle timing and readability |
 
 ## Process
 

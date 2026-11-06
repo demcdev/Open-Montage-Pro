@@ -41,6 +41,7 @@ class BgRemove(BaseTool):
         "pip install rembg[gpu]  # GPU mode (requires CUDA + onnxruntime-gpu)"
     )
     agent_skills = ["ffmpeg"]
+    usage_skills = ["creative/bg-remove-usage"]
 
     capabilities = [
         "background_removal",

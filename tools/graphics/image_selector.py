@@ -28,6 +28,7 @@ class ImageSelector(BaseTool):
     stability = ToolStability.BETA
     runtime = ToolRuntime.HYBRID
     agent_skills = ["flux-best-practices", "bfl-api", "atlas-cloud"]
+    usage_skills = ["creative/image-gen-usage", "creative/image-provider-usage"]
 
     capabilities = [
         "generate_image",
@@ -426,6 +427,7 @@ class ImageSelector(BaseTool):
         return {
             "selected_tool_agent_skills": info.get("agent_skills", []),
             "required_agent_skills": info.get("agent_skills", []),
+            "required_usage_skills": info.get("usage_skills", []),
             "selected_tool_usage_location": info.get("usage_location"),
             "selected_tool_best_for": info.get("best_for", []),
         }

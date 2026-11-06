@@ -43,6 +43,7 @@ class Transcriber(BaseTool):
         "pip install whisperx  # For diarization support"
     )
     agent_skills = ["speech-to-text"]
+    usage_skills = ["core/whisperx"]
 
     capabilities = [
         "transcribe",

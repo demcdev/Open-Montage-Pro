@@ -14,6 +14,7 @@ This stage turns the approved clips into independent mini-edits. Each clip must 
 | Schema | `schemas/artifacts/edit_decisions.schema.json` | Artifact validation |
 | Prior artifacts | `state.artifacts["assets"]["asset_manifest"]`, `state.artifacts["scene_plan"]["scene_plan"]`, `state.artifacts["script"]["script"]` | Assets, layouts, transcripts |
 | Playbook | Active style playbook | Transition and subtitle consistency |
+| Creative skill | `skills/creative/sound-design.md` | Ducking, music choice and SFX timing for voice-led pieces |
 
 ## Process
 

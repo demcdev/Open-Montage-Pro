@@ -42,6 +42,7 @@ class FaceRestore(BaseTool):
         "No CUDA build needed on macOS — uv pip install torch includes MPS support."
     )
     agent_skills = ["ffmpeg"]
+    usage_skills = ["creative/face-restore-usage"]
     fallback = None
 
     capabilities = [

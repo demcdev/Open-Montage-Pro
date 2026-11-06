@@ -38,6 +38,7 @@ class PexelsImage(BaseTool):
         "  Get one free at https://www.pexels.com/api/"
     )
     agent_skills = []
+    usage_skills = ["creative/stock-sourcing-usage"]
 
     capabilities = ["search_image", "download_image", "stock_image"]
     supports = {

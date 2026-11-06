@@ -12,6 +12,7 @@ This stage prepares the actual spokesperson ingredients: narration, avatar or li
 | Prior artifacts | `state.artifacts["scene_plan"]["scene_plan"]`, `state.artifacts["script"]["script"]`, `state.artifacts["idea"]["brief"]` | Presenter plan and narration needs |
 | Tools | `talking_head`, `lip_sync`, `tts_selector`, `subtitle_gen`, `image_selector`, `audio_enhance` — selectors auto-discover all available providers from the registry | Avatar, narration, and support asset options |
 | Playbook | Active style playbook | Background, type, and subtitle rules |
+| Core skill | `skills/core/subtitle-sync.md` | Subtitle timing and readability |
 
 ## Process
 

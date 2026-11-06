@@ -3,6 +3,8 @@
 > Sources: W3C accessibility standards, BBC audio guidelines, YouTube/TikTok platform specs,
 > Sweetwater mastering guides, ElevenLabs documentation, Boris FX, HookSounds, Artlist
 
+**Scope:** voice-led pieces such as explainers, tutorials and repurposed talks. For scenes with characters and places, use `skills/creative/audio-post-cinema.md`. Final loudness and true peak are set by `skills/core/loudness-mastering.md`; the targets below are orientation for the mix.
+
 ## Quick Reference Card
 
 ```

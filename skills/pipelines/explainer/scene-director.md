@@ -14,6 +14,7 @@ This is where words become visuals. A great script with a bad scene plan produce
 | Prior artifacts | `state.artifacts["script"]["script"]`, `state.artifacts["proposal"]["proposal_packet"]` | Script sections and proposal packet |
 | Playbook | Active style playbook | Visual language, transitions, motion rules |
 | Layer 3 | `.agents/skills/flux-best-practices/`, `.agents/skills/beautiful-mermaid/`, `.agents/skills/manim-composer/` | Image gen, diagram, animation knowledge |
+| Creative skill | `skills/creative/data-visualization.md` | Chart type, animation and label placement |
 
 ## Process
 

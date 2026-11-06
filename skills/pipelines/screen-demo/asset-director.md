@@ -29,6 +29,7 @@ For synthetic mode, the asset stage produces:
 | Prior artifacts | `state.artifacts["scene_plan"]["scene_plan"]`, `state.artifacts["script"]["script"]`, `state.artifacts["idea"]["brief"]` | What to produce |
 | Tools | `subtitle_gen`, `audio_enhance`, `tts_selector`, `image_selector`, `diagram_gen` — selectors auto-discover all available providers from the registry | Generation capabilities |
 | Playbook | Active style playbook | Typography and overlay styling |
+| Core skill | `skills/core/subtitle-sync.md` | Subtitle timing and readability |
 
 ## Process
 

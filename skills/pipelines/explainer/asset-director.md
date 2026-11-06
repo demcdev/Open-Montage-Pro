@@ -33,6 +33,7 @@ Quick routing for common explainer needs:
 | Playbook | Active style playbook | Image prompts, diagram style, audio preferences |
 | Tools | `tts_selector`, `image_selector`, `video_selector`, `diagram_gen`, `code_snippet`, `music_gen` — selectors auto-discover all available providers from the registry | Generation capabilities |
 | Cost tracker | `tools/cost_tracker.py` | Budget governance |
+| Creative skill | `skills/creative/broll-planning.md` | When to use stock or generated footage, and how to search for it |
 
 ## Process
 

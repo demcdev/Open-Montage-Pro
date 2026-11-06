@@ -16,6 +16,7 @@ The script is the backbone of the video. Every visual, every scene, every audio 
 | Playbook | Active style playbook from `proposal_packet.selected_concept.suggested_playbook` | Voice style, pacing rules |
 | Meta skill | `skills/meta/voice-performance-director.md` | Structured TTS delivery cues for natural, expressive narration |
 | Layer 3 | TTS provider skills (check `agent_skills` on the selected TTS tool) | TTS capabilities for speaker directions |
+| Creative skill | `skills/creative/storytelling.md` | Explainer arc: hook, tension, layered concepts, payoff |
 
 ## Process
 

@@ -38,7 +38,7 @@ Layer 2: skills/                    → "How OpenMontage uses them" (project con
 Layer 3: .agents/skills/            → "How the technology works" (generic API rules, skills.sh)
 ```
 
-Each tool's `agent_skills[]` field bridges Layer 1 → Layer 3. See `skills/INDEX.md` for the full mapping.
+Each tool's `agent_skills[]` field bridges Layer 1 → Layer 3, and `usage_skills[]` points at its Layer 2 manuals. See `skills/INDEX.md` for the full mapping.
 
 ## Key Patterns
 
@@ -118,7 +118,7 @@ Each tool's `agent_skills[]` field bridges Layer 1 → Layer 3. See `skills/INDE
 3. Prefer the selector-plus-provider pattern:
    - one capability router tool for agent convenience
    - one concrete tool per real provider/runtime path
-4. Set all contract fields (name, version, tier, capability, provider, supports, fallback_tools, agent_skills, etc.)
+4. Set all contract fields (name, version, tier, capability, provider, supports, fallback_tools, agent_skills, usage_skills, etc.)
 5. Implement `execute()` returning a `ToolResult`
 6. Let discovery happen through `tools/tool_registry.py`; do not depend on ad hoc imports
 7. Add a JSON schema in `schemas/tools/` if the tool has complex I/O

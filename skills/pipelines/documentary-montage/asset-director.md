@@ -58,6 +58,7 @@ clip with full provenance.
 | Tool (standard path) | `corpus_builder` | Populates the retrieval index with CLIP embeddings |
 | Tool (standard path) | `clip_search` | Ranks clips against slot descriptions |
 | Tool (optional) | `music_gen`, user's `music_library/` | Score bed |
+| Creative skill | `skills/creative/broll-planning.md` | When to use stock or generated footage, and how to search for it |
 
 ## Mental Model
 

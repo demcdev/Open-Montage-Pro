@@ -14,6 +14,7 @@ This stage creates the actual timeline logic for short clips and any optional fu
 | Schema | `schemas/artifacts/edit_decisions.schema.json` | Artifact validation |
 | Prior artifacts | `state.artifacts["assets"]["asset_manifest"]`, `state.artifacts["scene_plan"]["scene_plan"]`, `state.artifacts["script"]["script"]` | Assets, layouts, transcript timing |
 | Playbook | Active style playbook | Motion and subtitle rules |
+| Creative skill | `skills/creative/sound-design.md` | Ducking, music choice and SFX timing for voice-led pieces |
 
 ## Process
 

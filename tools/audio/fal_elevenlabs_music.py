@@ -46,6 +46,7 @@ class FalElevenLabsMusic(BaseTool):
     )
     fallback_tools = ["music_gen", "google_music"]
     agent_skills = ["music", "elevenlabs"]
+    usage_skills = ["creative/music-gen-usage"]
 
     capabilities = [
         "generate_background_music",

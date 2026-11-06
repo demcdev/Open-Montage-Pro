@@ -34,6 +34,7 @@ class HunyuanVideo(BaseTool):
     fallback = "wan_video"
     fallback_tools = ["wan_video", "ltx_video_local", "cogvideo_video", "image_selector"]
     agent_skills = ["ltx2"]
+    usage_skills = ["creative/prompting/hunyuan-prompting"]
 
     capabilities = ["text_to_video", "image_to_video"]
     supports = {

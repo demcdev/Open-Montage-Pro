@@ -142,6 +142,7 @@ class SeedanceArkVideo(BaseTool):
         "the 'Bearer ' prefix). Optional: ARK_SEEDANCE_MODEL and ARK_BASE_URL."
     )
     agent_skills = ["seedance-2-0", "seedance-2-5", "ai-video-gen"]
+    usage_skills = ["creative/prompting/seedance-prompting"]
 
     capabilities = [
         "text_to_video",

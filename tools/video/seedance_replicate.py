@@ -47,6 +47,7 @@ class SeedanceReplicate(BaseTool):
         "  Get one at https://replicate.com/account/api-tokens"
     )
     agent_skills = ["seedance-2-0", "ai-video-gen"]
+    usage_skills = ["creative/prompting/seedance-prompting"]
 
     capabilities = ["text_to_video", "image_to_video"]
     supports = {

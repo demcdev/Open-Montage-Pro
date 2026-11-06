@@ -62,6 +62,7 @@ class Upscale(BaseTool):
         "No separate CUDA build needed on macOS — uv pip install torch includes MPS support."
     )
     agent_skills = ["ffmpeg"]
+    usage_skills = ["creative/upscale-usage"]
 
     capabilities = [
         "image_upscale",

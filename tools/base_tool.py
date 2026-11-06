@@ -449,6 +449,12 @@ class BaseTool(ABC):
     # API knowledge when planning tool usage.
     agent_skills: list[str] = []
 
+    # --- Usage skills (Layer 2 references) ---
+    # Paths under skills/, without .md, of the manuals for using this tool
+    # in OpenMontage. Read when the tool is used, so they stay out of
+    # required_skills and load only when needed.
+    usage_skills: list[str] = []
+
     # --- Verification ---
     user_visible_verification: list[str] = []
 
@@ -535,6 +541,7 @@ class BaseTool(ABC):
             or ([self.fallback] if self.fallback else []),
             "agent_skills": self.agent_skills,
             "related_skills": self.agent_skills,
+            "usage_skills": self.usage_skills,
             "user_visible_verification": self.user_visible_verification,
             "quality_score": self.quality_score,
             "historical_success_rate": self.historical_success_rate,

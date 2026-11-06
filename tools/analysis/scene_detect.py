@@ -39,6 +39,7 @@ class SceneDetect(BaseTool):
         "pip install scenedetect[opencv]"
     )
     agent_skills = ["ffmpeg"]
+    usage_skills = ["creative/scene-detect-usage"]
 
     capabilities = [
         "detect_scenes",

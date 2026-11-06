@@ -35,6 +35,7 @@ The post-render self-review (final_review) is identical across runtimes — same
 | Playbook | Active style playbook | Render consistency |
 | Reference | `remotion-composer/public/demo-props/mori-no-seishin.json` | Composition JSON format reference |
 | Reference | `skills/core/remotion.md` | Remotion patterns, anime_scene type, critical constraints |
+| Creative skill | `skills/creative/video-stitching.md` | How to assemble clips and chain generated ones |
 
 ## Process
 

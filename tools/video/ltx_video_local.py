@@ -34,6 +34,7 @@ class LTXVideoLocal(BaseTool):
     fallback = "wan_video"
     fallback_tools = ["wan_video", "hunyuan_video", "cogvideo_video", "ltx_video_modal", "image_selector"]
     agent_skills = ["ltx2"]
+    usage_skills = ["creative/prompting/ltx-prompting"]
 
     capabilities = ["text_to_video", "image_to_video"]
     supports = {

@@ -47,6 +47,7 @@ class GoogleMusic(BaseTool):
     )
     fallback_tools = ["music_gen"]
     agent_skills = ["lyria"]
+    usage_skills = ["creative/music-gen-usage"]
 
     capabilities = [
         "generate_background_music",

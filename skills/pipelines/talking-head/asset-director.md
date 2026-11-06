@@ -13,6 +13,7 @@ You have a scene plan and script. Your job is to generate the supporting assets 
 | Tools | `subtitle_gen`, `audio_mixer` | Subtitle and audio generation |
 | Tools | `image_selector` (optional) | Stock images for overlays |
 | Tools | `pixabay_music` (optional) | Royalty-free background music |
+| Core skill | `skills/core/subtitle-sync.md` | Subtitle timing and readability |
 
 ## Process
 

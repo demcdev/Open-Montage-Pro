@@ -23,6 +23,9 @@ Phase 1 deferred from HyperFrames. `edit_decisions.render_runtime` must be `"rem
 | Prior artifacts | Edit decisions, Asset manifest | Render inputs |
 | Tools | `video_compose`, `audio_mixer` | Rendering |
 | Media profiles | `lib/media_profiles.py` | Output format |
+| Creative skill | `skills/creative/video-stitching.md` | How to assemble clips and chain generated ones |
+| Core skill | `skills/core/color-grading.md` | Color profiles, LUTs and contrast rules |
+| Creative skill | `skills/creative/enhancement-strategy.md` | Which enhancements and overlays to apply, and in what order |
 
 ## Process
 

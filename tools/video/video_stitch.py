@@ -46,6 +46,7 @@ class VideoStitch(BaseTool):
         "Linux: sudo apt install ffmpeg"
     )
     agent_skills = ["ffmpeg", "video-toolkit"]
+    usage_skills = ["creative/video-stitching", "core/ffmpeg"]
 
     capabilities = [
         "validate_clips",

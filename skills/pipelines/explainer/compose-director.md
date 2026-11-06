@@ -30,6 +30,7 @@ Read `edit_decisions.render_runtime` before anything else. It was locked at prop
 | Playbook | Active style playbook | Quality targets |
 | Tools | `video_compose`, `audio_mixer` | Rendering capabilities |
 | Media profiles | `lib/media_profiles.py` | Output format specs (resolution, codec, bitrate) |
+| Creative skill | `skills/creative/video-stitching.md` | How to assemble clips and chain generated ones |
 
 ## Process
 

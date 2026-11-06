@@ -38,6 +38,7 @@ class PixabayImage(BaseTool):
         "  Get one free at https://pixabay.com/api/docs/"
     )
     agent_skills = []
+    usage_skills = ["creative/stock-sourcing-usage"]
 
     capabilities = ["search_image", "download_image", "stock_image"]
     supports = {

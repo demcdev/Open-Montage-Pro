@@ -67,6 +67,7 @@ class ComfyUIMusic(BaseTool):
         "COMFYUI_SERVER_URL for this tool only."
     )
     agent_skills = ["comfyui"]
+    usage_skills = ["creative/music-gen-usage"]
 
     capabilities = ["generate_background_music", "generate_song", "generate_instrumental"]
     supports = {

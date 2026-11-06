@@ -11,6 +11,7 @@ The montage is rendered and reviewed. You package it for delivery: one complete 
 | Schema | `schemas/artifacts/publish_log.schema.json` | Artifact validation |
 | Prior artifacts | `state.artifacts["compose"]["render_report"]` (required); `brief`, `script`, `research_brief`, `asset_manifest` (optional) | Final masters, on-screen text, claims, licences |
 | Tools | `technical_qc`, `export_bundle`, `subtitle_gen` (only with narration) | Final check, packaging, captions |
+| Core skill | `skills/core/subtitle-sync.md` | Subtitle timing and readability |
 
 ## Process
 

@@ -31,6 +31,8 @@ This pipeline currently REQUIRES `render_runtime="remotion"`. The end-tag stack 
 | Tool | `audio_mixer` | Music fade, silence window, L-cuts |
 | Tool (optional) | `color_grade` | Uniform LUT across mixed-era clips |
 | Tool (optional) | `video_trimmer`, `video_stitch` | Lower-level helpers if needed |
+| Creative skill | `skills/creative/video-stitching.md` | How to assemble clips and chain generated ones |
+| Core skill | `skills/core/color-grading.md` | Color profiles, LUTs and contrast rules |
 
 ## Mental Model
 

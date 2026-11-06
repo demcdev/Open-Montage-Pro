@@ -27,6 +27,8 @@ Silent runtime swap is a CRITICAL governance violation. Escalate blockers per AG
 | Prior artifacts | `state.artifacts["edit"]["edit_decisions"]`, `state.artifacts["assets"]["asset_manifest"]` | Edit logic and support assets |
 | Tools | `video_compose`, `audio_mixer`, `video_stitch`, `video_trimmer`, `color_grade`, `audio_enhance` | Final assembly and polish |
 | Playbook | Active style playbook | Output consistency |
+| Creative skill | `skills/creative/video-stitching.md` | How to assemble clips and chain generated ones |
+| Core skill | `skills/core/color-grading.md` | Color profiles, LUTs and contrast rules |
 
 ## Process
 

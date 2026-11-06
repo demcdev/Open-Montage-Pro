@@ -38,6 +38,7 @@ class PixabayVideo(BaseTool):
         "  Get one free at https://pixabay.com/api/docs/"
     )
     agent_skills = []
+    usage_skills = ["creative/stock-sourcing-usage"]
 
     capabilities = ["search_video", "download_video", "stock_video"]
     supports = {

@@ -78,7 +78,7 @@ Key capability families to look for in the output:
 1. Place the tool in the correct capability folder (or create a new one under `tools/`)
 2. Set `capability` and `provider` in the class definition
 3. If joining a multi-provider family, the existing selector discovers it automatically
-4. Attach relevant Layer 2 and Layer 3 skills via `agent_skills[]`
+4. Attach Layer 3 skills via `agent_skills[]` and Layer 2 manuals via `usage_skills[]`
 5. The registry discovers tools automatically — no manual registration needed
 6. **No other files need updating** — selectors, manifests, and instructions all derive from the registry
 

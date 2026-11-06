@@ -44,6 +44,7 @@ class MusicGen(BaseTool):
     )
 
     agent_skills = ["music", "sound-effects", "elevenlabs"]
+    usage_skills = ["creative/music-gen-usage"]
 
     capabilities = [
         "generate_background_music",

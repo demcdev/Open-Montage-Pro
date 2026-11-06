@@ -51,6 +51,7 @@ class VideoUnderstand(BaseTool):
         "pip install transformers torch  # For CLIP/BLIP-2 visual understanding"
     )
     agent_skills = ["video-understand"]
+    usage_skills = ["creative/video-understand-usage"]
 
     capabilities = [
         "image_description",

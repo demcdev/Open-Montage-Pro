@@ -49,6 +49,8 @@ matching and its stricter quality gates.
 | Prior artifacts | `state.artifacts["edit"]["edit_decisions"]`, `state.artifacts["assets"]["asset_manifest"]` | Edit plan and media assets |
 | Tools | `video_compose`, `audio_mixer`, `video_stitch`, `video_trimmer`, `color_grade`, `audio_enhance` | Render and finishing |
 | Playbook | Active style playbook | Finish consistency |
+| Creative skill | `skills/creative/video-stitching.md` | How to assemble clips and chain generated ones |
+| Core skill | `skills/core/color-grading.md` | Color profiles, LUTs and contrast rules |
 
 ## Process
 
