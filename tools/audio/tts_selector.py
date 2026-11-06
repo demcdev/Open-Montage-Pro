@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from lib.voice_language import mismatch_error
 from tools.base_tool import (
     BaseTool,
     ToolResult,
@@ -125,7 +126,15 @@ class TTSSelector(BaseTool):
             },
             "language_code": {
                 "type": "string",
-                "description": "Provider-specific language code, such as en-US for Google or en for fal.ai ElevenLabs.",
+                "description": (
+                    "Language of the script, in the provider's format, such as en-US for Google or "
+                    "en for fal.ai ElevenLabs. A voice named for another language is refused."
+                ),
+            },
+            "allow_voice_language_mismatch": {
+                "type": "boolean",
+                "default": False,
+                "description": "True only with a voice_language decision the user approved in decision_log.",
             },
             "timestamps": {
                 "type": "boolean",
@@ -227,6 +236,10 @@ class TTSSelector(BaseTool):
                     "normalized_task_context": task_context,
                 },
             )
+
+        language_error = mismatch_error(inputs)
+        if language_error:
+            return ToolResult(success=False, error=language_error)
 
         # Normal generation — use scored selection
         tool, score = self._select_best_tool(inputs, candidates, task_context)

@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.voice_language import mismatch_error
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -91,7 +92,15 @@ class EdgeTTS(BaseTool):
             },
             "language_code": {
                 "type": "string",
-                "description": "Picks the default voice when no voice is given, e.g. es, en-US.",
+                "description": (
+                    "Language of the script, e.g. es, en-US. Picks the default voice when no voice "
+                    "is given; a voice named for another language is refused."
+                ),
+            },
+            "allow_voice_language_mismatch": {
+                "type": "boolean",
+                "default": False,
+                "description": "True only with a voice_language decision the user approved in decision_log.",
             },
             "rate": {
                 "type": "string",
@@ -143,6 +152,10 @@ class EdgeTTS(BaseTool):
             self.check_dependencies()
         except Exception as exc:
             return ToolResult(success=False, error=str(exc))
+
+        language_error = mismatch_error(inputs, self._resolve_voice(inputs))
+        if language_error:
+            return ToolResult(success=False, error=language_error)
 
         start = time.time()
         try:
