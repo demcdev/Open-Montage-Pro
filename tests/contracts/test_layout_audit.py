@@ -167,6 +167,11 @@ def test_every_render_path_goes_through_the_gate():
     assert hyperframes.count("layout_error = self._layout_gate(") == 2
 
 
+def test_the_audit_can_measure_compositions_with_video():
+    script = Path("remotion-composer/scripts/layout-audit.mjs").read_text(encoding="utf-8")
+    assert 'imageFormat: "jpeg"' in script
+
+
 def test_probe_rules_are_the_ones_the_audit_blocks_on():
     probe = Path("remotion-composer/scripts/layout-probe.js").read_text(encoding="utf-8")
     assert all(f'rule: "{rule}"' in probe for rule in layout_audit.BLOCKING_RULES)

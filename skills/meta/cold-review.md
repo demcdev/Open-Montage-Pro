@@ -23,7 +23,8 @@ Si el máster cambia después, la revisión queda anulada.
   "brief": {"title": "…", "audience": "…", "promise": "…"},
   "scenes": [{"id": "s1", "start": 0, "end": 6.5}],
   "has_narration": true,
-  "narration_report_path": "assets/audio/narracion.narration.json"
+  "narration_report_path": "assets/audio/narracion.narration.json",
+  "layout_report_path": "renders/final_raw.layout.json"
 }
 ```
 

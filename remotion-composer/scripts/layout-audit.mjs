@@ -62,7 +62,11 @@ try {
     composition,
     inputProps,
     everyNthFrame,
-    imageFormat: "none",
+    // imageFormat "none" never starts the compositor that OffthreadVideo waits on. Frames are
+    // only a side effect here, so they stay small: boxes are measured in CSS pixels.
+    imageFormat: "jpeg",
+    jpegQuality: 30,
+    scale: 0.25,
     outputDir: join(workDir, "frames"),
     onStart: () => undefined,
     onFrameUpdate: () => undefined,
