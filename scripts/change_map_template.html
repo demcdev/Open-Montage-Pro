@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapa de OpenMontage</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f5f6f8; --surface:#ffffff; --surface-2:#f1f3f6; --surface-3:#e7eaef;
+  --border:#dde1e7; --border-strong:#c3c9d2;
+  --text:#14171c; --muted:#596170; --faint:#8a919c;
+  --accent:#2f5bd3; --accent-soft:#e8eefc;
+  --added:#1d8549; --added-soft:#e3f3e9;
+  --modified:#a8680f; --modified-soft:#fbf0dc;
+  --deleted:#c23434; --deleted-soft:#fbe5e5;
+  --impacted:#7246c8; --impacted-soft:#efe8fb;
+  --edge:#c3c9d2;
+  --diff-add:#e4f4ea; --diff-del:#fbe8e8; --diff-hunk:#6b7280;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.07);
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#0e1014; --surface:#161920; --surface-2:#1b1f27; --surface-3:#242935;
+    --border:#2a2f3a; --border-strong:#3b4250;
+    --text:#e7e9ee; --muted:#a2a9b5; --faint:#6e7583;
+    --accent:#7ea3ff; --accent-soft:#1c2744;
+    --added:#4bc283; --added-soft:#12261b;
+    --modified:#e3a64a; --modified-soft:#2b2312;
+    --deleted:#f07474; --deleted-soft:#2d1717;
+    --impacted:#a98cf2; --impacted-soft:#221b35;
+    --edge:#3b4250;
+    --diff-add:#13291c; --diff-del:#2e1717; --diff-hunk:#8b93a1;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0e1014; --surface:#161920; --surface-2:#1b1f27; --surface-3:#242935;
+  --border:#2a2f3a; --border-strong:#3b4250;
+  --text:#e7e9ee; --muted:#a2a9b5; --faint:#6e7583;
+  --accent:#7ea3ff; --accent-soft:#1c2744;
+  --added:#4bc283; --added-soft:#12261b;
+  --modified:#e3a64a; --modified-soft:#2b2312;
+  --deleted:#f07474; --deleted-soft:#2d1717;
+  --impacted:#a98cf2; --impacted-soft:#221b35;
+  --edge:#3b4250;
+  --diff-add:#13291c; --diff-del:#2e1717; --diff-hunk:#8b93a1;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:14px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+code{font-family:var(--mono);font-size:.92em;background:var(--surface-3);padding:1px 5px;border-radius:4px}
+button,select{font:inherit;color:inherit}
+.wrap{max-width:1480px;margin:0 auto;padding:22px 16px 56px}
+
+/* ---------- Header ---------- */
+.eyebrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:650}
+.topbar{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.theme-btn{appearance:none;border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:5px 9px;font-size:12px;color:var(--muted);cursor:pointer;flex:none}
+h1{font-size:25px;line-height:1.25;margin:6px 0 8px;letter-spacing:-.015em;font-weight:700}
+.request{margin:0 0 12px;color:var(--muted);max-width:920px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:var(--muted);margin-bottom:14px}
+.meta code{background:none;padding:0;color:var(--text)}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.stat{display:flex;align-items:center;gap:7px;padding:6px 11px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:12.5px;color:var(--muted)}
+.stat strong{font-size:15px;color:var(--text);font-variant-numeric:tabular-nums}
+.stat .plus{color:var(--added);font-weight:700;font-variant-numeric:tabular-nums}
+.stat .minus{color:var(--deleted);font-weight:700;font-variant-numeric:tabular-nums}
+.dot{width:9px;height:9px;border-radius:3px;display:inline-block;flex:none}
+.summary{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:12px;margin-bottom:18px}
+.summary.one{grid-template-columns:minmax(0,1fr)}
+@media (max-width:900px){.summary{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow)}
+.card h2{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 8px;font-weight:700}
+.card ol{margin:0;padding-left:18px}
+.card li{margin:4px 0}
+.card.attn{border-color:color-mix(in srgb,var(--deleted) 40%,var(--border))}
+.card.attn h2{color:var(--deleted)}
+.attn-item{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--border);padding:8px 0;cursor:pointer}
+.attn-item:first-of-type{border-top:0;padding-top:2px}
+.attn-item:hover .attn-t{color:var(--accent)}
+.attn-t{font-weight:600;font-size:13px;line-height:1.4;display:block}
+.attn-s{font-size:12px;color:var(--muted);display:block}
+
+/* ---------- Tabs & layout ---------- */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{appearance:none;background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;font-weight:600;font-size:13.5px;color:var(--muted);cursor:pointer;white-space:nowrap;display:flex;gap:7px;align-items:center}
+.tab:hover{color:var(--text)}
+.tab[aria-selected="true"]{color:var(--text);border-bottom-color:var(--accent)}
+.tab .count{font-size:11px;padding:0 7px;border-radius:999px;background:var(--surface-3);color:var(--muted);font-weight:600}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:14px;align-items:start}
+@media (max-width:1040px){.workspace{grid-template-columns:minmax(0,1fr)}}
+.main{min-width:0}
+.view[hidden]{display:none}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.caption{font-size:12.5px;color:var(--muted);margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:16px;height:11px;border-radius:3px;border:1.6px solid;display:inline-block}
+.sw-line{width:18px;height:0;border-top:2px solid;display:inline-block}
+.toggle{display:inline-flex;gap:7px;align-items:center;font-size:12.5px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--accent);margin:0}
+.canvas{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:auto;box-shadow:var(--shadow);-webkit-overflow-scrolling:touch}
+.canvas svg{display:block;margin:0 auto;height:auto}
+.empty{padding:28px 16px;color:var(--muted);text-align:center;margin:0}
+.panel{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:var(--shadow)}
+@media (max-width:1040px){.panel{position:static;max-height:none}}
+
+/* ---------- SVG ---------- */
+.band{fill:var(--surface)}
+.band.alt{fill:var(--surface-2)}
+.band-label{font:700 10.5px var(--sans);letter-spacing:.09em;text-transform:uppercase;fill:var(--muted)}
+.band-hint{font:10.5px var(--mono);fill:var(--faint)}
+.node{cursor:pointer;outline:none;transition:opacity .15s}
+.node .box{fill:var(--surface);stroke:var(--border-strong);stroke-width:1.2}
+.node.s-added .box{fill:var(--added-soft);stroke:var(--added);stroke-width:1.6}
+.node.s-modified .box{fill:var(--modified-soft);stroke:var(--modified);stroke-width:1.6}
+.node.s-deleted .box{fill:var(--deleted-soft);stroke:var(--deleted);stroke-width:1.6}
+.node.s-impacted .box{fill:var(--impacted-soft);stroke:var(--impacted);stroke-width:1.6;stroke-dasharray:5 3}
+.node .t{font:600 12.5px var(--sans);fill:var(--text)}
+.node .s{font:10.5px var(--mono);fill:var(--muted)}
+.node.s-unchanged .t{fill:var(--muted);font-weight:500}
+.node .ds{font:600 10.5px var(--mono)}
+.node .da{fill:var(--added)} .node .dd{fill:var(--deleted)}
+.node .badge{stroke:var(--surface);stroke-width:2}
+.node.s-added .badge{fill:var(--added)} .node.s-modified .badge{fill:var(--modified)}
+.node.s-deleted .badge{fill:var(--deleted)} .node.s-impacted .badge{fill:var(--impacted)}
+.node .badge-t{font:700 11px var(--sans);fill:var(--surface);pointer-events:none}
+.node:hover .box,.node:focus-visible .box{stroke-width:2.4}
+.node.sel .box{stroke:var(--accent);stroke-width:2.8;stroke-dasharray:none}
+.edge{fill:none;stroke:var(--edge);stroke-width:1.1;opacity:.75;transition:opacity .15s}
+.edge.impact{stroke:var(--impacted);stroke-width:1.5;stroke-dasharray:6 4;opacity:.8}
+svg.dense .edge:not(.impact){opacity:.28}
+.edge.hl,svg.dense .edge.hl{stroke-width:2.4;opacity:1}
+svg.focusing .node:not(.hl){opacity:.22}
+svg.focusing .edge:not(.hl){opacity:.06}
+.m-old{fill:var(--edge)} .m-impact{fill:var(--impacted)}
+
+/* ---------- Panel ---------- */
+.p-empty h3{font-size:14px;margin:0 0 6px}
+.p-empty p{color:var(--muted);font-size:13px;margin:0 0 12px}
+.p-head{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:650;padding:2px 9px;border-radius:999px;border:1px solid;white-space:nowrap}
+.pill.added{color:var(--added);background:var(--added-soft)}
+.pill.modified{color:var(--modified);background:var(--modified-soft)}
+.pill.deleted{color:var(--deleted);background:var(--deleted-soft)}
+.pill.impacted{color:var(--impacted);background:var(--impacted-soft)}
+.pill.unchanged,.pill.neutral{color:var(--muted);background:var(--surface-2);border-color:var(--border)}
+.p-title{font-size:17px;font-weight:700;margin:2px 0 2px;line-height:1.3;word-break:break-word}
+.p-path{font:12px var(--mono);color:var(--muted);word-break:break-all}
+.p-sec{margin-top:16px}
+.p-sec h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 6px;font-weight:700}
+.p-sec p{margin:0;font-size:13.5px}
+.p-callout{border-left:3px solid var(--impacted);background:var(--impacted-soft);padding:8px 10px;border-radius:0 6px 6px 0;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{appearance:none;border:1px solid var(--border);background:var(--surface-2);font-size:12px;padding:4px 8px;border-radius:6px;cursor:pointer;text-align:left;line-height:1.35}
+.chip:hover{border-color:var(--accent)}
+.chip.changed{border-color:var(--modified);background:var(--modified-soft)}
+.chip.plain{cursor:default}
+.chip.plain:hover{border-color:var(--border)}
+.chip.plain.changed:hover{border-color:var(--modified)}
+.file{border-top:1px solid var(--border);padding:7px 0}
+.file:first-child{border-top:0}
+.file summary{cursor:pointer;display:flex;gap:7px;align-items:baseline;font-size:12.5px;list-style:none}
+.file summary::-webkit-details-marker{display:none}
+.file summary::before{content:'▸';color:var(--faint);font-size:10px;flex:none}
+.file[open] summary::before{content:'▾'}
+.file .name{font-family:var(--mono);font-size:12px;word-break:break-all;flex:1}
+.file .nums{font:600 11px var(--mono);white-space:nowrap;flex:none}
+.nums .a{color:var(--added)} .nums .d{color:var(--deleted)}
+.diff{font:12px/1.6 var(--mono);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;overflow:auto;margin:8px 0 4px;padding:6px 0;max-height:420px}
+.diff span{display:block;padding:0 12px;white-space:pre;min-width:max-content}
+.diff .a{background:var(--diff-add)}
+.diff .d{background:var(--diff-del)}
+.diff .h{color:var(--diff-hunk)}
+.ref{font:12px var(--mono);color:var(--accent);text-decoration:none;word-break:break-all}
+.ref:hover{text-decoration:underline}
+.mini{font-size:12.5px;color:var(--muted)}
+.list-plain{list-style:none;margin:0;padding:0}
+.list-plain li{padding:5px 0;border-top:1px solid var(--border);font-size:12.5px}
+.list-plain li:first-child{border-top:0}
+.list-plain .via{display:block;color:var(--muted);font-size:11.5px}
+.mono{font-family:var(--mono);font-size:12px;word-break:break-all}
+details.more>summary{cursor:pointer;font-size:12.5px;color:var(--muted)}
+
+/* ---------- Impact below ---------- */
+.below{margin-top:12px}
+.check-item{display:flex;gap:9px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--border);font-size:13px;cursor:pointer}
+.check-item:first-of-type{border-top:0}
+.check-item input{margin-top:3px;accent-color:var(--added)}
+.check-item.done span{color:var(--muted);text-decoration:line-through}
+.cmd{display:block;margin-top:10px;padding:8px 10px;white-space:pre-wrap;word-break:break-all;font-size:12px}
+
+/* ---------- Stages ---------- */
+.stage-select{appearance:auto;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 8px;font-size:13px;max-width:100%}
+.stage-desc{font-size:13px;color:var(--muted);margin:0 0 12px;max-width:920px}
+.st-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;counter-reset:st}
+.st-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:9px;min-width:0}
+.st-card.changed{border-color:var(--modified)}
+.st-top{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.st-name{font-weight:700;font-size:14px;word-break:break-word}
+.st-name::before{counter-increment:st;content:counter(st);display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;margin-right:8px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:11.5px}
+.st-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-bottom:4px}
+.foot{margin-top:28px;font-size:12px;color:var(--faint);max-width:900px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <div class="eyebrow" id="eyebrow"></div>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Cambiar tema">Tema</button>
+    </div>
+    <h1 id="title"></h1>
+    <p class="request" id="request"></p>
+    <div class="meta" id="meta"></div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <section class="summary" id="summary">
+    <div class="card"><h2 id="summaryTitle"></h2><ol id="summaryList"></ol></div>
+    <div class="card attn" id="attnCard"><h2>Revisa primero</h2><div id="attnList"></div></div>
+  </section>
+
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+
+  <div class="workspace">
+    <div class="main">
+      <section class="view" id="view-arch" role="tabpanel">
+        <div class="toolbar">
+          <div class="legend" id="archLegend"></div>
+          <label class="toggle" id="ctxLabel"><input type="checkbox" id="ctxToggle"> Mostrar contexto sin cambios</label>
+        </div>
+        <div class="canvas" id="archCanvas"></div>
+      </section>
+      <section class="view" id="view-impact" role="tabpanel" hidden>
+        <div class="toolbar">
+          <p class="caption">A la izquierda lo que cambió; a la derecha lo que depende de eso sin haberse tocado. Depender no significa que algo se rompió: es lo que conviene revisar.</p>
+        </div>
+        <div class="canvas" id="impactCanvas"></div>
+        <div class="below"><div class="card"><h2>Tests que citan lo cambiado</h2><div id="testList"></div></div></div>
+      </section>
+      <section class="view" id="view-stages" role="tabpanel" hidden>
+        <div class="toolbar">
+          <label class="toggle">Pipeline <select class="stage-select" id="stageSelect"></select></label>
+          <p class="caption" id="stageCaption"></p>
+        </div>
+        <p class="stage-desc" id="stageDesc"></p>
+        <div class="st-grid" id="stageGrid"></div>
+      </section>
+    </div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script type="application/json" id="change-data">__CHANGE_MAP_DATA__</script>
+<script>
+(() => {
+'use strict';
+const DATA = JSON.parse(document.getElementById('change-data').textContent);
+const NS = 'http://www.w3.org/2000/svg';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function S(tag, attrs = {}, parent) {
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) if (v !== undefined && v !== null && v !== false) el.setAttribute(k, v);
+  if (parent) parent.appendChild(el);
+  return el;
+}
+function T(parent, attrs, text) { const t = S('text', attrs, parent); t.textContent = text; return t; }
+const N = Object.fromEntries(DATA.nodes.map(n => [n.id, n]));
+const IS_SYSTEM = DATA.meta.mode === 'system';
+const STATUS = {
+  added: { label: 'Nuevo', sym: '+' },
+  modified: { label: 'Modificado', sym: '~' },
+  deleted: { label: 'Eliminado', sym: '−' },
+  impacted: { label: 'Depende de lo cambiado', sym: '!' },
+  unchanged: { label: 'Sin cambios', sym: '' },
+};
+const clip = (s, n) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
+const state = { tab: 'arch', sel: null, showCtx: IS_SYSTEM, tests: {} };
+
+/* ---------------- Header ---------------- */
+function renderHeader() {
+  const m = DATA.meta, c = m.counts;
+  document.title = IS_SYSTEM ? 'Mapa del sistema' : 'Mapa del cambio';
+  $('#eyebrow').textContent = document.title;
+  $('#title').textContent = m.title;
+  $('#request').textContent = m.scope;
+  const when = new Date(m.generatedAt);
+  const fmt = isNaN(when) ? m.generatedAt : when.toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
+  $('#meta').innerHTML = [['Rama', m.branch], ['Comparado con', m.base], ['Generado', fmt]]
+    .filter(([, v]) => v).map(([k, v]) => `<span>${k} <code>${esc(v)}</code></span>`).join('');
+  const stat = (color, n, label) => `<div class="stat">${color ? `<span class="dot" style="background:var(--${color})"></span>` : ''}<strong>${n}</strong> ${label}</div>`;
+  $('#stats').innerHTML = IS_SYSTEM
+    ? [stat('', c.files, 'archivos'), stat('', c.pipelines, 'pipelines'), stat('', c.tools, 'herramientas'), stat('', c.skills, 'skills'), stat('', c.schemas, 'schemas'), stat('', c.tests, 'archivos de test'), stat('', c.references, 'referencias entre archivos')].join('')
+    : [c.added ? stat('added', c.added, 'nuevos') : '', c.modified ? stat('modified', c.modified, 'modificados') : '', c.deleted ? stat('deleted', c.deleted, 'eliminados') : '',
+      stat('impacted', c.impacted, 'dependen de lo cambiado'),
+      `<div class="stat"><span class="plus">+${c.add}</span><span class="minus">−${c.del}</span> líneas</div>`].join('');
+  $('#summaryTitle').textContent = IS_SYSTEM ? 'Cómo se lee' : 'Qué cambió';
+  $('#summaryList').innerHTML = m.summary.map(s => `<li>${esc(s)}</li>`).join('');
+  $('#foot').innerHTML = 'Generado con <code>scripts/change_map.py</code> a partir de git y de las referencias que hay en el repo: manifiestos, <code>usage_skills</code>, imports y rutas citadas. Muestra qué se tocó y qué lo cita, no por qué se hizo ni si funciona. Las referencias que un archivo arma en tiempo de ejecución no aparecen. Este mapa no reemplaza leer el diff.';
+  if (!DATA.attention.length) { $('#attnCard').hidden = true; $('#summary').classList.add('one'); return; }
+  $('#attnList').innerHTML = DATA.attention.map(a => `<button class="attn-item" type="button" data-id="${a.node}"><span class="attn-t">${esc(a.title)}</span><span class="attn-s">${esc(a.detail)}</span></button>`).join('');
+  $$('#attnList .attn-item').forEach(b => b.addEventListener('click', () => { setTab('arch'); select(b.dataset.id); }));
+}
+
+/* ---------------- Tabs ---------------- */
+const TABS = [
+  { id: 'arch', label: 'Arquitectura' },
+  ...(IS_SYSTEM ? [] : [{ id: 'impact', label: 'Impacto', count: DATA.impact.links.length }]),
+  { id: 'stages', label: 'Etapas del pipeline' },
+];
+const rendered = {};
+function renderTabs() {
+  $('#tabs').innerHTML = TABS.map(t => `<button class="tab" role="tab" type="button" aria-selected="${t.id === state.tab}" data-tab="${t.id}">${t.label}${t.count ? `<span class="count">${t.count}</span>` : ''}</button>`).join('');
+  $$('#tabs .tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+}
+function setTab(id) {
+  state.tab = id;
+  $$('#tabs .tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === id));
+  ['arch', 'impact', 'stages'].forEach(t => { $('#view-' + t).hidden = t !== id; });
+  if (!rendered[id]) { ({ arch: renderArch, impact: renderImpact, stages: renderStages })[id](); rendered[id] = true; }
+  syncSelection();
+}
+function defs(svg, kinds) {
+  const d = S('defs', {}, svg);
+  for (const k of kinds) {
+    const m = S('marker', { id: `m-${k}-${svg.dataset.k}`, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 8, markerHeight: 8, markerUnits: 'userSpaceOnUse', orient: 'auto-start-reverse' }, d);
+    S('path', { d: 'M0,0 L10,5 L0,10 z', class: `m-${k}` }, m);
+  }
+}
+
+/* ---------------- Architecture ---------------- */
+const MAX_ROW = 6;
+function renderArch() {
+  const host = $('#archCanvas'); host.innerHTML = '';
+  const visible = DATA.nodes.filter(n => state.showCtx || n.status !== 'unchanged');
+  if (!visible.length) { host.innerHTML = '<p class="empty">No hay cambios que mostrar.</p>'; return; }
+  const vis = new Set(visible.map(n => n.id));
+  const edges = DATA.edges.filter(e => vis.has(e.from) && vis.has(e.to));
+  const rows = [];
+  DATA.layers.forEach(L => {
+    const inLayer = visible.filter(n => n.layer === L.id);
+    for (let i = 0; i < inLayer.length; i += MAX_ROW) rows.push({ layer: L, first: i === 0, nodes: inLayer.slice(i, i + MAX_ROW) });
+  });
+  const rowOf = {}; rows.forEach((r, i) => r.nodes.forEach(n => { rowOf[n.id] = i; }));
+  const nb = {}; visible.forEach(n => { nb[n.id] = []; });
+  edges.forEach(e => { nb[e.from].push(e.to); nb[e.to].push(e.from); });
+  const pos = () => { const p = {}; rows.forEach(r => r.nodes.forEach((n, i) => { p[n.id] = (i + 0.5) / r.nodes.length; })); return p; };
+  for (let it = 0; it < 6; it++) {
+    const p = pos();
+    rows.forEach((r, ri) => {
+      const bc = n => { const ns = nb[n.id].filter(id => rowOf[id] !== ri); return ns.length ? ns.reduce((t, id) => t + p[id], 0) / ns.length : p[n.id]; };
+      r.nodes = r.nodes.map((n, i) => [n, bc(n), i]).sort((a, b) => a[1] - b[1] || a[2] - b[2]).map(x => x[0]);
+    });
+  }
+  const NW = 176, NH = 50, GX = 26, RH = 80, LW = 146, PR = 22;
+  const maxN = Math.max(...rows.map(r => r.nodes.length));
+  const innerW = Math.max(maxN * NW + (maxN - 1) * GX, 600);
+  const W = LW + innerW + PR, H = rows.length * RH;
+  const svg = S('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: 'img', 'aria-label': 'Diagrama de arquitectura por capas de OpenMontage' }, host);
+  svg.dataset.k = 'arch';
+  svg.classList.toggle('dense', edges.length > 60);
+  svg.style.width = '100%'; svg.style.maxWidth = (W * 1.12) + 'px'; svg.style.minWidth = Math.round(W * 0.74) + 'px';
+  defs(svg, ['old', 'impact']);
+  const gB = S('g', {}, svg), gE = S('g', {}, svg), gN = S('g', {}, svg);
+  const P = {};
+  let band = -1;
+  rows.forEach((r, i) => {
+    const y = i * RH;
+    if (r.first) band++;
+    S('rect', { x: 0, y, width: W, height: RH, class: 'band' + (band % 2 ? ' alt' : '') }, gB);
+    if (r.first) {
+      T(gB, { x: 18, y: y + RH / 2 - 2, class: 'band-label' }, r.layer.label);
+      T(gB, { x: 18, y: y + RH / 2 + 14, class: 'band-hint' }, r.layer.hint);
+    }
+    const rowW = r.nodes.length * NW + (r.nodes.length - 1) * GX;
+    const x0 = LW + (innerW - rowW) / 2;
+    r.nodes.forEach((n, k) => { P[n.id] = { x: x0 + k * (NW + GX), y: y + (RH - NH) / 2 }; });
+  });
+  const seg = (xa, ya, xb, yb) => { const dy = (yb - ya) / 2; return ` C${xa},${ya + dy} ${xb},${yb - dy} ${xb},${yb}`; };
+  edges.forEach(e => {
+    const a = P[e.from], b = P[e.to], down = rowOf[e.to] > rowOf[e.from];
+    const x1 = a.x + NW / 2, x2 = b.x + NW / 2;
+    const y1 = down ? a.y + NH : a.y, y2 = down ? b.y - 1 : b.y + NH + 1;
+    const kind = e.impact ? 'impact' : 'old';
+    const p = S('path', { d: `M${x1},${y1}` + seg(x1, y1, x2, y2), class: 'edge ' + (e.impact ? 'impact' : ''), 'marker-end': `url(#m-${kind}-arch)` }, gE);
+    p.dataset.from = e.from; p.dataset.to = e.to;
+    S('title', {}, p).textContent = `${N[e.from].label} cita a ${N[e.to].label}: ${e.count} referencias`;
+  });
+  rows.flatMap(r => r.nodes).forEach(n => {
+    const p = P[n.id];
+    const g = S('g', { class: `node s-${n.status}`, transform: `translate(${p.x},${p.y})`, tabindex: 0, role: 'button', 'aria-label': `${n.label}, ${STATUS[n.status].label}` }, gN);
+    g.dataset.id = n.id;
+    S('rect', { class: 'box', width: NW, height: NH, rx: 8 }, g);
+    T(g, { x: 12, y: 21, class: 't' }, clip(n.label, 22));
+    T(g, { x: 12, y: 37, class: 's' }, clip(n.kind, n.add || n.del ? 12 : 24));
+    if (n.add || n.del) {
+      const ds = S('text', { x: NW - 10, y: 37, class: 'ds', 'text-anchor': 'end' }, g);
+      S('tspan', { class: 'da' }, ds).textContent = '+' + n.add;
+      if (n.del) S('tspan', { class: 'dd', dx: 4 }, ds).textContent = '−' + n.del;
+    }
+    const sym = STATUS[n.status].sym;
+    if (sym) { S('circle', { class: 'badge', cx: NW - 6, cy: 2, r: 8.5 }, g); T(g, { x: NW - 6, y: 6, class: 'badge-t', 'text-anchor': 'middle' }, sym); }
+    S('title', {}, g).textContent = `${n.path} · ${STATUS[n.status].label}`;
+    wireNode(g, svg, n.id);
+  });
+  syncSelection();
+}
+function wireNode(g, svg, id) {
+  g.addEventListener('mouseenter', () => focusNode(svg, id));
+  g.addEventListener('mouseleave', () => focusNode(svg, state.sel));
+  g.addEventListener('click', () => select(id));
+  g.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); select(id); } });
+}
+function focusNode(svg, id) {
+  $$('.hl', svg).forEach(el => el.classList.remove('hl'));
+  if (!id || !$(`.node[data-id="${id}"]`, svg)) { svg.classList.remove('focusing'); return; }
+  svg.classList.add('focusing');
+  const keep = new Set([id]);
+  $$('.edge', svg).forEach(p => { if (p.dataset.from === id || p.dataset.to === id) { p.classList.add('hl'); keep.add(p.dataset.from); keep.add(p.dataset.to); } });
+  $$('.node', svg).forEach(g => { if (keep.has(g.dataset.id)) g.classList.add('hl'); });
+}
+
+/* ---------------- Impact ---------------- */
+function renderImpact() {
+  const host = $('#impactCanvas'); host.innerHTML = '';
+  const links = DATA.impact.links;
+  if (!links.length) host.innerHTML = '<p class="empty">Nada fuera del cambio cita los archivos tocados.</p>';
+  else {
+    const total = (ids, key) => ids.map(id => [id, links.filter(l => l[key] === id).reduce((t, l) => t + l.count, 0)]).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+    const left = total([...new Set(links.map(l => l.from))], 'from');
+    const rank = id => left.indexOf(id);
+    const score = id => { const ls = links.filter(l => l.to === id); return ls.reduce((t, l) => t + rank(l.from), 0) / ls.length; };
+    const right = [...new Set(links.map(l => l.to))].sort((a, b) => score(a) - score(b));
+    const NW = 230, NH = 46, RH = 58, GAP = 260, PAD = 18;
+    const W = PAD * 2 + NW * 2 + GAP, H = PAD * 2 + Math.max(left.length, right.length) * RH;
+    const svg = S('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: 'img', 'aria-label': 'Qué depende de lo cambiado' }, host);
+    svg.dataset.k = 'impact';
+    svg.style.width = '100%'; svg.style.maxWidth = (W * 1.15) + 'px'; svg.style.minWidth = Math.round(W * 0.8) + 'px';
+    defs(svg, ['impact']);
+    const offset = list => (H - list.length * RH) / 2;
+    const ly = id => offset(left) + left.indexOf(id) * RH + (RH - NH) / 2;
+    const ry = id => offset(right) + right.indexOf(id) * RH + (RH - NH) / 2;
+    const gE = S('g', {}, svg), gN = S('g', {}, svg);
+    links.forEach(l => {
+      const x1 = PAD + NW, x2 = W - PAD - NW - 1, y1 = ly(l.from) + NH / 2, y2 = ry(l.to) + NH / 2, mid = (x1 + x2) / 2;
+      const p = S('path', { d: `M${x1},${y1} C${mid},${y1} ${mid},${y2} ${x2},${y2}`, class: 'edge impact', 'marker-end': 'url(#m-impact-impact)' }, gE);
+      p.dataset.from = 'L' + l.from; p.dataset.to = 'R' + l.to;
+      S('title', {}, p).textContent = `${l.count} archivos de ${N[l.to].label} citan ${N[l.from].label}`;
+    });
+    const box = (id, side) => {
+      const n = N[id], x = side === 'L' ? PAD : W - PAD - NW, y = side === 'L' ? ly(id) : ry(id);
+      const status = side === 'R' ? 'impacted' : n.status;
+      const g = S('g', { class: `node s-${status}`, transform: `translate(${x},${y})`, tabindex: 0, role: 'button' }, gN);
+      g.dataset.id = side + id;
+      S('rect', { class: 'box', width: NW, height: NH, rx: 8 }, g);
+      T(g, { x: 12, y: 20, class: 't' }, clip(n.label, 30));
+      const count = links.filter(l => (side === 'L' ? l.from : l.to) === id).reduce((t, l) => t + l.count, 0);
+      T(g, { x: 12, y: 36, class: 's' }, side === 'L' ? `${n.changed} cambiado${n.changed === 1 ? '' : 's'} · ${count} ${count === 1 ? 'cita' : 'citas'}` : `${n.impactedCount} ${n.impactedCount === 1 ? 'depende' : 'dependen'}`);
+      g.addEventListener('mouseenter', () => focusNode(svg, side + id));
+      g.addEventListener('mouseleave', () => focusNode(svg, null));
+      g.addEventListener('click', () => select(id));
+      g.addEventListener('keydown', ev => { if (ev.key === 'Enter') select(id); });
+    };
+    left.forEach(id => box(id, 'L'));
+    right.forEach(id => box(id, 'R'));
+  }
+  const tests = DATA.impact.tests;
+  $('#testList').innerHTML = tests.length
+    ? tests.map((t, i) => `<label class="check-item${state.tests[i] ? ' done' : ''}"><input type="checkbox" data-i="${i}"${state.tests[i] ? ' checked' : ''}><span><span class="mono">${esc(t.path)}</span> <span class="mini">· ${t.changed ? 'cambiado en este mapa' : `cita ${t.hits} ${t.hits === 1 ? 'archivo cambiado' : 'archivos cambiados'}`}</span></span></label>`).join('') + (DATA.impact.command ? `<code class="cmd">${esc(DATA.impact.command)}</code>` : '')
+    : '<p class="mini">Ningún test cita lo cambiado.</p>';
+  $$('#testList input').forEach(cb => cb.addEventListener('change', () => { state.tests[cb.dataset.i] = cb.checked; cb.closest('.check-item').classList.toggle('done', cb.checked); }));
+}
+
+/* ---------------- Stages ---------------- */
+function renderStages() {
+  const sel = $('#stageSelect');
+  sel.innerHTML = DATA.pipelines.map((p, i) => `<option value="${i}">${esc(p.name)}${p.changed ? ' · cambió' : ''}</option>`).join('');
+  sel.value = Math.max(DATA.pipelines.findIndex(p => p.changed), 0);
+  sel.addEventListener('change', drawStages);
+  $('#stageCaption').textContent = 'Sale del manifiesto. En ámbar, lo que este cambio tocó.';
+  drawStages();
+}
+function drawStages() {
+  const p = DATA.pipelines[+$('#stageSelect').value];
+  $('#stageDesc').textContent = p.description;
+  const plain = (list) => list.map(a => `<span class="chip plain${a.changed ? ' changed' : ''}">${esc(a.name)}</span>`).join('') || '<span class="mini">Nada</span>';
+  const tools = list => list.map(t => `<button class="chip${t.changed ? ' changed' : ''}" type="button" data-node="${t.group}">${esc(t.name)}</button>`).join('') || '<span class="mini">Ninguna</span>';
+  $('#stageGrid').innerHTML = p.stages.map(s => `
+    <article class="st-card${s.changed ? ' changed' : ''}">
+      <div class="st-top"><span class="st-name">${esc(s.name)}</span>${s.approval ? '<span class="pill neutral">Tú apruebas</span>' : ''}</div>
+      ${s.skill ? `<div><div class="st-lbl">Director</div><div class="chips"><button class="chip${s.skillChanged ? ' changed' : ''}" type="button" data-node="${p.group}">${esc(s.skill)}</button></div></div>` : ''}
+      <div><div class="st-lbl">Recibe</div><div class="chips">${plain(s.in)}</div></div>
+      <div><div class="st-lbl">Produce</div><div class="chips">${plain(s.out)}</div></div>
+      <div><div class="st-lbl">Herramientas</div><div class="chips">${tools(s.tools)}</div></div>
+    </article>`).join('');
+  $$('#stageGrid [data-node]').forEach(b => b.addEventListener('click', () => select(b.dataset.node)));
+}
+
+/* ---------------- Selection & panel ---------------- */
+function select(id) {
+  state.sel = id;
+  if (!state.showCtx && N[id] && N[id].status === 'unchanged') { state.showCtx = true; $('#ctxToggle').checked = true; renderArch(); }
+  renderPanel(); syncSelection();
+  if (window.innerWidth <= 1040) $('#panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function syncSelection() {
+  $$('.node.sel').forEach(x => x.classList.remove('sel'));
+  const a = $('#archCanvas svg');
+  if (a) focusNode(a, state.sel);
+  if (!state.sel) return;
+  $$(`#archCanvas .node[data-id="${state.sel}"], #impactCanvas .node[data-id="L${state.sel}"], #impactCanvas .node[data-id="R${state.sel}"]`).forEach(x => x.classList.add('sel'));
+}
+function legendItems() {
+  const items = IS_SYSTEM ? [] : [
+    `<span><i class="sw" style="border-color:var(--added);background:var(--added-soft)"></i>Nuevo</span>`,
+    `<span><i class="sw" style="border-color:var(--modified);background:var(--modified-soft)"></i>Modificado</span>`,
+    `<span><i class="sw" style="border-color:var(--deleted);background:var(--deleted-soft)"></i>Eliminado</span>`,
+    `<span><i class="sw" style="border-color:var(--impacted);background:var(--impacted-soft);border-style:dashed"></i>Depende de lo cambiado</span>`,
+    `<span><i class="sw" style="border-color:var(--border-strong)"></i>Sin cambios</span>`,
+    `<span><i class="sw-line" style="border-color:var(--impacted);border-top-style:dashed"></i>Ruta de impacto</span>`,
+  ];
+  return [...items, `<span><i class="sw-line" style="border-color:var(--edge)"></i>Cita o usa a</span>`];
+}
+const vsHref = (path, line) => `vscode://file/${DATA.meta.repoRoot}/${path}:${line || 1}`;
+function diffHtml(diff) {
+  return `<pre class="diff">${diff.split('\n').map(l => {
+    const c = l.startsWith('@@') ? 'h' : l.startsWith('+') ? 'a' : l.startsWith('-') ? 'd' : '';
+    return `<span class="${c}">${esc(l) || ' '}</span>`;
+  }).join('')}</pre>`;
+}
+function fileRow(f) {
+  const nums = `<span class="nums">${f.add ? `<span class="a">+${f.add}</span> ` : ''}${f.del ? `<span class="d">−${f.del}</span>` : ''}</span>`;
+  const note = f.status === 'added' || f.status === 'deleted' ? `${STATUS[f.status].label}. ` : '';
+  return `<details class="file"><summary><span class="name">${esc(f.path)}</span>${nums}</summary>
+    ${f.diff ? diffHtml(f.diff) : `<p class="mini">${note}${f.omitted ? 'Contenido omitido.' : 'Sin diff de texto.'}</p>`}
+    ${f.truncated ? '<p class="mini">Diff recortado. Abre el archivo para verlo completo.</p>' : ''}
+    ${f.status !== 'deleted' ? `<a class="ref" href="${vsHref(f.path, f.line)}">Abrir en VS Code ↗</a>` : ''}</details>`;
+}
+function emptyPanel() {
+  return `<div class="p-empty"><h3>Selecciona un bloque</h3><p>${IS_SYSTEM ? 'Cada bloque agrupa archivos que viven juntos. Haz clic para ver qué es, qué usa y quién depende de él.' : 'Haz clic en un bloque para ver sus archivos, sus diffs y quién depende de ellos.'}</p>
+    <div class="p-sec"><h3>Leyenda</h3><div class="legend" style="flex-direction:column;gap:6px">${legendItems().join('')}</div></div></div>`;
+}
+function nodePanel(n) {
+  const links = dir => DATA.edges.filter(e => e[dir] === n.id).sort((a, b) => b.count - a.count);
+  const chips = (list, key) => list.map(e => `<button class="chip" type="button" data-node="${e[key]}">${esc(N[e[key]].label)} · ${e.count}</button>`).join('');
+  const uses = links('from'), usedBy = links('to');
+  const changed = n.files.filter(f => f.status !== 'unchanged' && f.status !== 'impacted');
+  const impacted = n.files.filter(f => f.status === 'impacted');
+  const rest = n.files.filter(f => f.status === 'unchanged');
+  const pills = [`<span class="pill ${n.status}">${STATUS[n.status].sym ? STATUS[n.status].sym + ' ' : ''}${STATUS[n.status].label}</span>`, `<span class="pill neutral">${esc(n.kind)}</span>`];
+  return `
+    <div class="p-head">${pills.join('')}</div>
+    <div class="p-title">${esc(n.label)}</div>
+    <div class="p-path">${esc(n.path)}</div>
+    <div class="p-sec"><h3>Qué es</h3><p>${esc(n.why)}</p></div>
+    ${changed.length ? `<div class="p-sec"><h3>Archivos cambiados · ${changed.length}</h3>${changed.map(fileRow).join('')}</div>` : ''}
+    ${impacted.length ? `<div class="p-sec"><h3>Dependen de lo cambiado · ${impacted.length}</h3><div class="p-callout">No se tocaron, pero citan un archivo que sí.</div><ul class="list-plain" style="margin-top:8px">${impacted.map(f => `<li><span class="mono">${esc(f.path)}</span><span class="via">cita ${esc(f.via.join(', '))}</span></li>`).join('')}</ul></div>` : ''}
+    ${uses.length ? `<div class="p-sec"><h3>Usa o cita a</h3><div class="chips">${chips(uses, 'to')}</div></div>` : ''}
+    ${usedBy.length ? `<div class="p-sec"><h3>Lo usan o citan</h3><div class="chips">${chips(usedBy, 'from')}</div></div>` : ''}
+    ${n.tests.length ? `<div class="p-sec"><h3>Tests que lo citan · ${n.tests.length}</h3><ul class="list-plain">${n.tests.map(t => `<li class="mono">${esc(t)}</li>`).join('')}</ul></div>` : ''}
+    ${rest.length ? `<div class="p-sec"><details class="more"><summary>${n.fileCount - changed.length - impacted.length} archivos sin cambios</summary><ul class="list-plain" style="margin-top:6px">${rest.map(f => `<li><a class="ref" href="${vsHref(f.path)}">${esc(f.path)}</a></li>`).join('')}${n.hidden ? `<li class="mini">Y ${n.hidden} más</li>` : ''}</ul></details></div>` : ''}`;
+}
+function renderPanel() {
+  const el = $('#panel');
+  el.innerHTML = state.sel && N[state.sel] ? nodePanel(N[state.sel]) : emptyPanel();
+  $$('[data-node]', el).forEach(b => b.addEventListener('click', () => select(b.dataset.node)));
+  el.scrollTop = 0;
+}
+
+/* ---------------- Theme ---------------- */
+function initTheme() {
+  const btn = $('#themeBtn'), root = document.documentElement;
+  const sysDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const label = () => { const dark = root.dataset.theme ? root.dataset.theme === 'dark' : sysDark(); btn.textContent = dark ? '☀ Claro' : '☾ Oscuro'; };
+  btn.addEventListener('click', () => { const dark = root.dataset.theme ? root.dataset.theme === 'dark' : sysDark(); root.dataset.theme = dark ? 'light' : 'dark'; label(); });
+  label();
+}
+
+/* ---------------- Init ---------------- */
+$('#archLegend').innerHTML = legendItems().join('');
+$('#ctxToggle').checked = state.showCtx;
+$('#ctxLabel').hidden = IS_SYSTEM;
+$('#ctxToggle').addEventListener('change', e => { state.showCtx = e.target.checked; renderArch(); });
+initTheme();
+renderHeader();
+renderTabs();
+setTab('arch');
+renderPanel();
+})();
+</script>
+</body>
+</html>
