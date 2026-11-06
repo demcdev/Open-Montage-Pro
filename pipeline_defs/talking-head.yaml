@@ -33,6 +33,7 @@ required_skills:
   - creative/clip-conform
   - creative/film-look-finishing
   - creative/title-thumbnail-trailer
+  - meta/layout-audit
 
 orchestration:
   mode: executive-producer
@@ -227,6 +228,7 @@ stages:
       - Output video file exists and is playable
       - Every output with audio went through audio_master, and technical_qc ran on the mastered file
       - render_report.outputs[].qc records verdict and report path, and no output has verdict block
+      - "The render left a .layout.json report with no block verdict"
 
   - name: publish
     skill: pipelines/talking-head/publish-director

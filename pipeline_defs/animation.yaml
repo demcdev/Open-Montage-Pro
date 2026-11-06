@@ -59,6 +59,9 @@ required_skills:
   - creative/title-thumbnail-trailer
   - meta/ai-shot-qa
   - meta/budget-and-model-routing
+  - meta/layout-audit
+  - meta/cold-review
+  - meta/narration-qc
 
 orchestration:
   mode: executive-producer
@@ -208,6 +211,7 @@ stages:
       - blender_world
       - music_gen
       - fal_elevenlabs_music
+      - narration_qc
     tools_available:
       - tts_selector
       - image_selector
@@ -222,6 +226,7 @@ stages:
       - blender_world
       - music_gen
       - fal_elevenlabs_music
+      - narration_qc
     checkpoint_required: true
     human_approval_default: true
     review_focus:
@@ -239,6 +244,7 @@ stages:
       - All referenced asset files exist on disk
       - layer3_skills_read list is present and includes all tools used for generation
       - Real 3D-world briefs include semantic or wireframe diagnostic review before compose
+      - "Every narration track has a narration_qc report with verdict pass"
 
   - name: edit
     skill: pipelines/animation/edit-director
@@ -276,6 +282,7 @@ stages:
       - audio_mixer
       - audio_master
       - technical_qc
+      - cold_review
     optional_tools:
       - film_look
       - video_stitch
@@ -287,6 +294,7 @@ stages:
       - hyperframes_compose
       - audio_mixer
       - video_stitch
+      - cold_review
     checkpoint_required: true
     human_approval_default: false
     review_focus:
@@ -303,6 +311,8 @@ stages:
       - self_review_completed is true with per-scene quality notes
       - Every output with audio went through audio_master, and technical_qc ran on the mastered file
       - render_report.outputs[].qc records verdict and report path, and no output has verdict block
+      - "The final master has a current cold review with verdict pass, or the user decided on escalate"
+      - "The render left a .layout.json report with no block verdict"
 
   - name: publish
     skill: pipelines/animation/publish-director
@@ -328,3 +338,4 @@ stages:
       - Schema-valid publish_log artifact
       - Export package contains video and metadata outputs
       - Every shipped master was packaged by export_bundle against a current technical_qc report
+      - "export_bundle received pipeline, so it checked the cold review of this master"

@@ -39,6 +39,8 @@ required_skills:
   - creative/editing-craft
   - core/delivery-specs
   - creative/title-thumbnail-trailer
+  - meta/layout-audit
+  - meta/narration-qc
 
 compatible_playbooks:
   recommended:
@@ -125,11 +127,13 @@ stages:
     optional_tools:
       - lip_sync
       - audio_enhance
+      - narration_qc
     tools_available:
       - tts_selector
       - subtitle_gen
       - lip_sync
       - audio_enhance
+      - narration_qc
     checkpoint_required: true
     human_approval_default: true
     review_focus:
@@ -139,6 +143,7 @@ stages:
     success_criteria:
       - Schema-valid asset_manifest artifact
       - All referenced asset files exist on disk
+      - "Every narration track has a narration_qc report with verdict pass"
 
   - name: edit
     skill: pipelines/localization-dub/edit-director
@@ -196,6 +201,7 @@ stages:
       - Output file exists and passes ffprobe validation
       - Every output with audio went through audio_master, and technical_qc ran on the mastered file
       - render_report.outputs[].qc records verdict and report path, and no output has verdict block
+      - "The render left a .layout.json report with no block verdict"
 
   - name: publish
     skill: pipelines/localization-dub/publish-director

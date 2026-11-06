@@ -182,6 +182,11 @@ Approval is per-gate — an earlier "go ahead" does not cover this gate.
 
 ---
 
+<!-- narration-qc-gate -->
+## Narration QC Gate (Binding)
+
+Follow `skills/meta/narration-qc.md`. Pass `language_code` to `tts_selector`, so a voice named for another language is refused unless the user approved it. The voice sample includes the riskiest lines: one or two words, foreign names, brands and figures. Run `narration_qc` on every narration track before mixing, and resolve each flagged sentence with the user, who listens to it.
+
 <!-- transversal-skills-2026-10 -->
 ## Transversal Skills (Binding)
 

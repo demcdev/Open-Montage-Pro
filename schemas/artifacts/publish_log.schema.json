@@ -20,6 +20,25 @@
           "visibility": { "type": "string", "enum": ["public", "private", "unlisted"] },
           "export_path": { "type": "string" },
           "timestamp": { "type": "string", "format": "date-time" },
+          "cold_review": {
+            "type": "object",
+            "description": "Cold review that cleared this master, in narrative pipelines.",
+            "required": ["verdict", "report_path"],
+            "properties": {
+              "verdict": { "type": "string", "enum": ["pass", "escalate"] },
+              "report_path": { "type": "string" },
+              "exception": {
+                "type": "object",
+                "required": ["reason", "decision_id"],
+                "properties": {
+                  "reason": { "type": "string" },
+                  "decision_id": { "type": "string" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
           "qc": {
             "type": "object",
             "description": "technical_qc result that cleared this master for export.",

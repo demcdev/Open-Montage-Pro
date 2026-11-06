@@ -57,6 +57,9 @@ required_skills:
   - creative/film-look-finishing
   - creative/title-thumbnail-trailer
   - meta/budget-and-model-routing
+  - meta/layout-audit
+  - meta/cold-review
+  - meta/narration-qc
 
 orchestration:
   mode: executive-producer
@@ -228,6 +231,7 @@ stages:
       - tts_selector
       - music_gen
       - character_rig_renderer
+      - narration_qc
     checkpoint_required: true
     human_approval_default: true
     review_focus:
@@ -239,6 +243,7 @@ stages:
       - Schema-valid asset_manifest
       - All referenced asset files exist
       - Character assets are organized under projects/<name>/assets/characters
+      - "Every narration track has a narration_qc report with verdict pass"
 
   - name: edit
     skill: pipelines/character-animation/edit-director
@@ -282,6 +287,7 @@ stages:
     required_tools:
       - audio_master
       - technical_qc
+      - cold_review
     tools_available:
       - film_look
       - audio_master
@@ -290,6 +296,7 @@ stages:
       - character_animation_reviewer
       - video_compose
       - audio_mixer
+      - cold_review
     checkpoint_required: true
     human_approval_default: false
     review_focus:
@@ -304,6 +311,8 @@ stages:
       - Output exists and passes technical validation
       - Every output with audio went through audio_master, and technical_qc ran on the mastered file
       - render_report.outputs[].qc records verdict and report path, and no output has verdict block
+      - "The final master has a current cold review with verdict pass, or the user decided on escalate"
+      - "The render left a .layout.json report with no block verdict"
 
   - name: publish
     skill: pipelines/character-animation/publish-director
@@ -329,3 +338,4 @@ stages:
     success_criteria:
       - Schema-valid publish_log
       - Every shipped master was packaged by export_bundle against a current technical_qc report
+      - "export_bundle received pipeline, so it checked the cold review of this master"

@@ -73,6 +73,16 @@ Record important findings in:
 
 ---
 
+<!-- layout-audit-gate -->
+## Layout Audit Gate (Binding)
+
+`video_compose` and `hyperframes_compose` audit the composition before rendering and stop on lasting layout problems: text off canvas, cut off, on top of other text, or hidden by a graphic. Fix the composition, or declare an intentional case per `skills/meta/layout-audit.md`. `skip_layout_audit` is for drafts only, and the report `<render>.layout.json` must exist for delivery.
+
+<!-- cold-review-gate -->
+## Cold Review Gate (Binding)
+
+After `audio_master` and `technical_qc`, run `skills/meta/cold-review.md` on the final master: `cold_review` `prepare`, the `cold-viewer` agent with only the packet path, then `cold_review` `record`. `revise` means fix and review once more; `escalate` means stop and let the user decide. Any change to the master voids the review.
+
 <!-- transversal-skills-2026-10 -->
 ## Transversal Skills (Binding)
 

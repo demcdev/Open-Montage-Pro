@@ -74,6 +74,11 @@ Recommended metadata keys:
 
 ---
 
+<!-- layout-audit-gate -->
+## Layout Audit Gate (Binding)
+
+`video_compose` and `hyperframes_compose` audit the composition before rendering and stop on lasting layout problems: text off canvas, cut off, on top of other text, or hidden by a graphic. Fix the composition, or declare an intentional case per `skills/meta/layout-audit.md`. `skip_layout_audit` is for drafts only, and the report `<render>.layout.json` must exist for delivery.
+
 <!-- transversal-skills-2026-10 -->
 ## Transversal Skills (Binding)
 

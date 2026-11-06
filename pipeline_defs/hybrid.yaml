@@ -52,6 +52,9 @@ required_skills:
   - creative/title-thumbnail-trailer
   - meta/ai-shot-qa
   - meta/budget-and-model-routing
+  - meta/layout-audit
+  - meta/cold-review
+  - meta/narration-qc
 
 compatible_playbooks:
   recommended:
@@ -148,6 +151,7 @@ stages:
       - code_snippet
       - music_gen
       - audio_enhance
+      - narration_qc
     tools_available:
       - clip_conform
       - subtitle_gen
@@ -158,6 +162,7 @@ stages:
       - code_snippet
       - music_gen
       - audio_enhance
+      - narration_qc
     checkpoint_required: true
     human_approval_default: true
     review_focus:
@@ -167,6 +172,7 @@ stages:
     success_criteria:
       - Schema-valid asset_manifest artifact
       - All referenced asset files exist on disk
+      - "Every narration track has a narration_qc report with verdict pass"
 
   - name: edit
     skill: pipelines/hybrid/edit-director
@@ -203,6 +209,7 @@ stages:
       - audio_mixer
       - audio_master
       - technical_qc
+      - cold_review
     optional_tools:
       - film_look
       - video_stitch
@@ -220,6 +227,7 @@ stages:
       - video_trimmer
       - color_grade
       - audio_enhance
+      - cold_review
     checkpoint_required: true
     human_approval_default: false
     review_focus:
@@ -233,6 +241,8 @@ stages:
       - Output file exists and passes ffprobe validation
       - Every output with audio went through audio_master, and technical_qc ran on the mastered file
       - render_report.outputs[].qc records verdict and report path, and no output has verdict block
+      - "The final master has a current cold review with verdict pass, or the user decided on escalate"
+      - "The render left a .layout.json report with no block verdict"
 
   - name: publish
     skill: pipelines/hybrid/publish-director
@@ -258,3 +268,4 @@ stages:
       - Schema-valid publish_log artifact
       - Export package contains video and metadata outputs
       - Every shipped master was packaged by export_bundle against a current technical_qc report
+      - "export_bundle received pipeline, so it checked the cold review of this master"

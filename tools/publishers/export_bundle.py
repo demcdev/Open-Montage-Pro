@@ -29,6 +29,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+from tools.analysis.cold_review import NARRATIVE_PIPELINES, cold_path, read_report
 from tools.analysis.technical_qc import file_sha256
 from tools.base_tool import (
     BaseTool,
@@ -132,6 +133,25 @@ class ExportBundle(BaseTool):
                     },
                 },
             },
+            "pipeline": {
+                "type": "string",
+                "description": "Pipeline manifest name. Narrative pipelines need a current cold review.",
+            },
+            "cold_exception": {
+                "type": "object",
+                "description": (
+                    "Required to ship a master whose cold review escalated after two "
+                    "rounds. Cannot override a missing report or one of another file."
+                ),
+                "required": ["reason", "decision_id"],
+                "properties": {
+                    "reason": {"type": "string", "description": "Why the user accepted the failed criteria."},
+                    "decision_id": {
+                        "type": "string",
+                        "description": "decision_log entry (category cold_exception) with the user's approval.",
+                    },
+                },
+            },
             "timestamp": {
                 "type": "string",
                 "description": "Override the ISO-8601 timestamp (mainly for deterministic tests).",
@@ -231,6 +251,43 @@ class ExportBundle(BaseTool):
             entry["exception"] = {"reason": reason, "decision_id": decision_id}
         return None, entry
 
+    @staticmethod
+    def _cold_gate(video_path: Path, inputs: dict[str, Any]) -> tuple[Optional[str], dict[str, Any]]:
+        """Return (error, publish_log cold review entry) for this master as it stands now."""
+        if inputs.get("pipeline") not in NARRATIVE_PIPELINES:
+            return None, {}
+        report_path = cold_path(video_path)
+        report = read_report(report_path)
+        if report is None:
+            return f"No cold review at {report_path}. Run skills/meta/cold-review.md on this master.", {}
+        if report.get("input_sha256") != file_sha256(video_path):
+            return (
+                f"Cold review {report_path} does not match {video_path.name}: "
+                "the master changed after the review. Review it again.",
+                {},
+            )
+
+        verdict = report.get("verdict")
+        failed = ", ".join(report.get("failed_criteria") or [])
+        if verdict == "revise":
+            return f"Cold review verdict is revise: fix {failed} and review again.", {}
+        if verdict not in ("pass", "escalate"):
+            return f"Cold review {report_path} has no valid verdict: {verdict!r}", {}
+
+        entry: dict[str, Any] = {"verdict": verdict, "report_path": str(report_path)}
+        if verdict == "escalate":
+            exception = inputs.get("cold_exception") or {}
+            reason = str(exception.get("reason") or "").strip()
+            decision_id = str(exception.get("decision_id") or "").strip()
+            if not (reason and decision_id):
+                return (
+                    f"Cold review still fails after two rounds: {failed}. The user decides: "
+                    "pass cold_exception with reason and decision_id to ship it anyway.",
+                    {},
+                )
+            entry["exception"] = {"reason": reason, "decision_id": decision_id}
+        return None, entry
+
     # ---- Execution ----
 
     def execute(self, inputs: dict[str, Any]) -> ToolResult:
@@ -241,6 +298,9 @@ class ExportBundle(BaseTool):
         qc_error, qc_entry = self._qc_gate(video_path, inputs)
         if qc_error:
             return ToolResult(success=False, error=qc_error)
+        cold_error, cold_entry = self._cold_gate(video_path, inputs)
+        if cold_error:
+            return ToolResult(success=False, error=cold_error)
 
         title = inputs["title"]
         project_name = inputs.get("project_name") or self._infer_project_name(video_path)
@@ -342,6 +402,7 @@ class ExportBundle(BaseTool):
             "export_path": str(export_root),
             "timestamp": timestamp,
             "qc": qc_entry,
+            **({"cold_review": cold_entry} if cold_entry else {}),
             "metadata_used": {
                 "title": title,
                 "description": description,

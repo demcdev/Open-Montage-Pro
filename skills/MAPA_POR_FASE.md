@@ -183,6 +183,9 @@ Sale: máster EN/ES, SRT/VTT, miniaturas y metadatos.
 | `core/subtitle-sync.md` | Tiempos de subtítulos | 🔧 `subtitle_gen` · 🔗 9 directores |
 | `core/loudness-mastering.md` | Volumen final por plataforma | ✅ todos |
 | `meta/technical-qc-gate.md` | Negros, congelados, silencios, picos, licencias | ✅ todos |
+| `meta/layout-audit.md` | Textos y gráficos desbordados, encimados o tapados, antes de renderizar | ✅ todos |
+| `meta/cold-review.md` | Revisión del máster por alguien que no lo hizo, con 8 criterios | ✅ ae, anim, avatar, char, cine, doc, hyb |
+| `meta/narration-qc.md` | Voz de otro idioma y frases que se salen del idioma del guion | ✅ ae, anim, avatar, char, hyb, loc, demo |
 | `core/delivery-specs.md` | Másteres por destino, SRT/VTT, capítulos | ✅ todos |
 | `creative/title-thumbnail-trailer.md` | Miniaturas, títulos, avance del siguiente capítulo | ✅ todos |
 

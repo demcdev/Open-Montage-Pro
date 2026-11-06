@@ -42,7 +42,10 @@
               "playbook_override",
               "visual_accuracy_check",
               "approval_policy",
-              "technique_selection"
+              "technique_selection",
+              "voice_language",
+              "qc_exception",
+              "cold_exception"
             ],
             "description": "What class of decision this is"
           },

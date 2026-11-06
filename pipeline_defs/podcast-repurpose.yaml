@@ -41,6 +41,7 @@ required_skills:
   - creative/editing-craft
   - core/delivery-specs
   - creative/title-thumbnail-trailer
+  - meta/layout-audit
 
 compatible_playbooks:
   recommended:
@@ -202,6 +203,7 @@ stages:
       - All output files exist and pass ffprobe validation
       - Every output with audio went through audio_master, and technical_qc ran on the mastered file
       - render_report.outputs[].qc records verdict and report path, and no output has verdict block
+      - "The render left a .layout.json report with no block verdict"
 
   - name: publish
     skill: pipelines/podcast-repurpose/publish-director

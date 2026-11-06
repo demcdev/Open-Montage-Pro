@@ -328,6 +328,9 @@ Cross-cutting skills that apply to all pipelines:
 | Production Bible | `meta/production-bible.md` | Visual/sound contract per project or series: character sheets, wardrobe states, locations, light map, reference injection per model, continuity check |
 | Shot List & Storyboard | `meta/shot-list-storyboard.md` | One `scene_plan` entry per shot, one keyframe per shot, approval ladder one frame → board → 30 s before producing |
 | Technique Selector | `meta/technique-selector.md` | Proposal or idea stage of narrative pipelines: goal → 3–8 justified techniques → tools → no-GPU fallback, in `technique_stack`, before locking the runtime |
+| Cold Review | `meta/cold-review.md` | Final master of narrative pipelines: `cold_review` and the `cold-viewer` agent score 8 criteria, with 2 rounds at most → pass / revise / escalate, enforced by `export_bundle` |
+| Layout Audit | `meta/layout-audit.md` | Before each render: `layout_audit` measures real boxes and stops on text off canvas, cut off, overlapping or covered |
+| Narration QC | `meta/narration-qc.md` | Assets stage: refuses voices of another language and flags sentences that slip out of the script's language with `narration_qc` |
 | Technical QC Gate | `meta/technical-qc-gate.md` | Binding technical gate with `technical_qc`: black, freeze, silence, loudness, true peak, conformity, licenses → pass / warn / block |
 | AI Shot QA | `meta/ai-shot-qa.md` | Frame-by-frame review of every generated clip (hands, morphing, flicker, face drift) with `frame_sampler` + `video_understand`; accept / trim / regenerate threshold and rejection log |
 | Budget & Model Routing | `meta/budget-and-model-routing.md` | Shot tiers (premium models only on hero shots), real `estimate_cost` estimates into `proposal_packet.cost_estimate`, spend control with `cost_tracker` (estimate → reserve → reconcile) |

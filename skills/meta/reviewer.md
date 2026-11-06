@@ -297,6 +297,14 @@ Run at **research** and **proposal** stages when user-supplied media files exist
 - Plan doesn't reflect quality risks: **SUGGESTION**
 - Plan assumes content not in source: **CRITICAL**
 
+## Independent Reviews
+
+This skill is self-review. Three checks do not depend on it, and a pass here never replaces them:
+
+- `skills/meta/narration-qc.md` at assets: voice language and slips in the narration.
+- `skills/meta/layout-audit.md` before each render: text off canvas, cut off, overlapping or covered.
+- `skills/meta/cold-review.md` on the final master of narrative pipelines: a reviewer who did not make the video.
+
 ## Final Self-Review Review
 
 Run at **compose** and **publish** stages. Ensures the agent reviewed the actual rendered output.

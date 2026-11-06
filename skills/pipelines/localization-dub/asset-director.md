@@ -105,3 +105,8 @@ This stage gates on human approval (`human_approval_default: true`). After revie
 checkpoint with `status="awaiting_human"`, present the summary (the Backlot board renders
 the artifact), and **END YOUR TURN**. Do not start the next stage in the same response.
 Approval is per-gate — an earlier "go ahead" does not cover this gate.
+
+<!-- narration-qc-gate -->
+## Narration QC Gate (Binding)
+
+Follow `skills/meta/narration-qc.md`. Pass `language_code` to `tts_selector`, so a voice named for another language is refused unless the user approved it. The voice sample includes the riskiest lines: one or two words, foreign names, brands and figures. Run `narration_qc` on every narration track before mixing, and resolve each flagged sentence with the user, who listens to it.
