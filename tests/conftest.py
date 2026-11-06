@@ -46,6 +46,13 @@ class NetworkCallInTestError(RuntimeError):
     """Raised when a test tries to open a non-loopback connection."""
 
 
+@pytest.fixture(autouse=True)
+def _no_layout_audit_in_renders(monkeypatch):
+    """Render tests stub the render itself, so the browser audit before it must not run."""
+    monkeypatch.setattr("tools.video.video_compose.render_gate", lambda *args, **kwargs: None)
+    monkeypatch.setattr("tools.analysis.layout_audit.render_gate", lambda *args, **kwargs: None)
+
+
 def _network_allowed() -> bool:
     return os.environ.get(_ALLOW_ENV_FLAG, "").strip().lower() in {"1", "true", "yes"}
 

@@ -42,6 +42,7 @@ from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import unquote, urlsplit
 
+from tools.analysis.layout_audit import render_gate
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -97,6 +98,14 @@ class VideoCompose(BaseTool):
             },
             "input_path": {"type": "string"},
             "output_path": {"type": "string"},
+            "skip_layout_audit": {
+                "type": "boolean",
+                "default": False,
+                "description": (
+                    "Skip the layout audit before rendering. For drafts only: a "
+                    "delivery without its .layout.json report fails cold review."
+                ),
+            },
             "edit_decisions": {
                 "type": "object",
                 "description": "Full edit_decisions artifact (required for compose/render)",
@@ -1044,6 +1053,20 @@ class VideoCompose(BaseTool):
         if bespoke.get("concurrency"):
             cmd.append(f"--concurrency={bespoke['concurrency']}")
 
+        layout_error = render_gate(
+            {
+                "engine": "remotion",
+                "entry": str(effective_entry),
+                "composition_id": str(comp_id),
+                "props_path": str(Path(props_path).resolve()) if props_path else None,
+                "public_dir": str(Path(public_dir).resolve()) if public_dir else None,
+            },
+            output_path,
+            skip=inputs.get("skip_layout_audit", False),
+        )
+        if layout_error:
+            return ToolResult(success=False, error=layout_error)
+
         try:
             # Run from inside the composer dir so npx resolves the local
             # remotion binary (mirrors _remotion_render).
@@ -1834,6 +1857,8 @@ class VideoCompose(BaseTool):
             hf_inputs["fps"] = inputs["fps"]
         if "strict" in inputs:
             hf_inputs["strict"] = inputs["strict"]
+        if "skip_layout_audit" in inputs:
+            hf_inputs["skip_layout_audit"] = inputs["skip_layout_audit"]
         if "skip_contrast" in inputs:
             hf_inputs["skip_contrast"] = inputs["skip_contrast"]
         if "strict_check" in inputs:
@@ -2064,11 +2089,13 @@ class VideoCompose(BaseTool):
                 cmd.append(f"--public-dir={public_dir}")
 
             # Apply media profile dimensions
+            profile_size: dict[str, int] = {}
             if profile_name:
                 try:
                     from lib.media_profiles import get_profile
                     p = get_profile(profile_name)
                     cmd.extend(["--width", str(p.width), "--height", str(p.height)])
+                    profile_size = {"width": p.width, "height": p.height}
                 except (ImportError, ValueError):
                     pass
 
@@ -2091,6 +2118,21 @@ class VideoCompose(BaseTool):
                     subprocess_timeout = max(subprocess_timeout, ms // 1000 + 60)
                 except (TypeError, ValueError):
                     pass
+
+            layout_error = render_gate(
+                {
+                    "engine": "remotion",
+                    "entry": str(composer_dir / "src" / "index.tsx"),
+                    "composition_id": composition_id,
+                    "props_path": str(props_path),
+                    "public_dir": str(public_dir) if public_dir is not None else None,
+                    **profile_size,
+                },
+                output_path,
+                skip=inputs.get("skip_layout_audit", False),
+            )
+            if layout_error:
+                return ToolResult(success=False, error=layout_error)
 
             # Invoke from inside the composer dir so npx can resolve the
             # local remotion binary via node_modules/.bin. Without this,

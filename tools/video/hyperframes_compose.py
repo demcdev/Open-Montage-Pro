@@ -198,6 +198,14 @@ class HyperFramesCompose(BaseTool):
                     "`hyperframes render --strict`."
                 ),
             },
+            "skip_layout_audit": {
+                "type": "boolean",
+                "default": False,
+                "description": (
+                    "Skip the layout audit before rendering. For drafts only: a "
+                    "delivery without its .layout.json report fails cold review."
+                ),
+            },
             "skip_contrast": {
                 "type": "boolean",
                 "default": False,
@@ -702,7 +710,13 @@ class HyperFramesCompose(BaseTool):
             args.append("--strict")
         if inputs.get("snapshots", False):
             args.append("--snapshots")
-        proc = self._run_hf(args, cwd=workspace, timeout=300, check=False)
+        if inputs.get("samples"):
+            args.append(f"--samples={inputs['samples']}")
+        if inputs.get("collapse_static") is False:
+            args.append("--no-collapse-static")
+        if inputs.get("max_issues"):
+            args.append(f"--max-issues={inputs['max_issues']}")
+        proc = self._run_hf(args, cwd=workspace, timeout=900, check=False)
         data: dict[str, Any] = {"exit_code": proc.returncode}
         payload = self._parse_json_output(proc.stdout)
         if payload is not None:
@@ -715,6 +729,17 @@ class HyperFramesCompose(BaseTool):
             success=ok,
             data=data,
             error=None if ok else f"hyperframes check exit {proc.returncode}",
+        )
+
+    @staticmethod
+    def _layout_gate(workspace: Path, output_path: Path, inputs: dict[str, Any]) -> Optional[str]:
+        """Stop the render on lasting layout problems, which check only warns about."""
+        from tools.analysis.layout_audit import render_gate
+
+        return render_gate(
+            {"engine": "hyperframes", "workspace_path": str(workspace)},
+            output_path,
+            skip=inputs.get("skip_layout_audit", False),
         )
 
     def _add_block(self, inputs: dict[str, Any]) -> ToolResult:
@@ -826,6 +851,10 @@ class HyperFramesCompose(BaseTool):
                 data={"steps": steps},
             )
 
+        layout_error = self._layout_gate(workspace, output_path, inputs)
+        if layout_error:
+            return ToolResult(success=False, error=layout_error, data={"steps": steps})
+
         # 4. Render.
         width, height, fps = self._resolve_dimensions(
             inputs.get("profile"), inputs.get("fps", 30)
@@ -923,6 +952,10 @@ class HyperFramesCompose(BaseTool):
                 error=f"Quality check failed for authored workspace: {quality_check.error}",
                 data={"steps": steps},
             )
+
+        layout_error = self._layout_gate(workspace, output_path, inputs)
+        if layout_error:
+            return ToolResult(success=False, error=layout_error, data={"steps": steps})
 
         _, _, fps = self._resolve_dimensions(
             inputs.get("profile"), inputs.get("fps", 30)
@@ -1367,6 +1400,13 @@ class HyperFramesCompose(BaseTool):
             resolved = shutil.which(cmd[0])
             if resolved:
                 cmd[0] = resolved
+        # A stale browser path makes `check` skip every browser pass and report
+        # empty sections, so fall back to the browser HyperFrames manages itself.
+        env = dict(os.environ)
+        browser = env.get("HYPERFRAMES_BROWSER_PATH")
+        if browser and not Path(browser).exists():
+            log.warning("HYPERFRAMES_BROWSER_PATH does not exist, ignoring it: %s", browser)
+            del env["HYPERFRAMES_BROWSER_PATH"]
         try:
             return subprocess.run(
                 cmd,
@@ -1375,6 +1415,7 @@ class HyperFramesCompose(BaseTool):
                 timeout=timeout,
                 cwd=str(cwd) if cwd else None,
                 check=False,
+                env=env,
             )
         except subprocess.TimeoutExpired as e:
             # Surface timeouts as a failed CompletedProcess so callers get a
