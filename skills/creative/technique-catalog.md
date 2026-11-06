@@ -133,7 +133,7 @@ Detalle en `skills/creative/film-look-finishing.md`.
 | `fin_stylized` | Estética de época | Un recuerdo, un archivo falso, un pasaje | Se usa en todo el video | `fx:vhs`, `fx:crt`, `fx:grade_sepia` | `local` |
 | `fin_freeze` | Congelado | Remarcar un instante o presentar a alguien | No está declarado en `intentional_ranges`: el QC lo marcará | `fx:freeze` | `local` |
 | `fin_motion_blur` | Desenfoque direccional | Reforzar un barrido rápido. **Parcial:** es un filtro 2D, no desenfoque real de render | Se espera desenfoque por movimiento de objetos | `fx:motion_blur` | `local` |
-| `fin_speed_ramp` | Rampa de velocidad | Acentuar un golpe de acción. **Parcial:** hoy hay velocidad constante por corte (`cut.speed`) y empuje de cámara con rampa; el reajuste real sobre clips es de la Fase 5 | Se necesita cámara lenta fluida con clips de pocos fps | `camera:ramp_push_in`, `camera:ramp_pull_out` | `local` |
+| `fin_speed_ramp` | Rampa de velocidad | Acentuar un golpe de acción, una o dos veces por pieza | Personas hablando en plano, o cámara lenta fluida con clips de pocos fps | `tool:speed_ramp`, `skill:core/speed-ramp.md`, `camera:ramp_push_in`, `camera:ramp_pull_out` | `local` |
 | `fin_upscale` | Escalado | El material fuente vale y falta resolución | No hay GPU: mejor regenerar a mayor resolución | `tool:upscale`, `skill:creative/upscale-usage.md` | `→ src_ai_video` |
 
 ## 6. Sonido

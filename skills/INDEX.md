@@ -328,6 +328,7 @@ Cross-cutting skills that apply to all pipelines:
 | Production Bible | `meta/production-bible.md` | Visual/sound contract per project or series: character sheets, wardrobe states, locations, light map, reference injection per model, continuity check |
 | Shot List & Storyboard | `meta/shot-list-storyboard.md` | One `scene_plan` entry per shot, one keyframe per shot, approval ladder one frame → board → 30 s before producing |
 | Technique Selector | `meta/technique-selector.md` | Proposal or idea stage of narrative pipelines: goal → 3–8 justified techniques → tools → no-GPU fallback, in `technique_stack`, before locking the runtime |
+| Speed Ramp | `core/speed-ramp.md` | Edit stage: `speed_ramp` changes speed gradually inside one shot, with an exact output length |
 | Beat Sync | `core/beat-sync.md` | Edit stage: `beat_grid` finds tempo, beats and bars of a track and snaps cuts to them, refusing music with no clear pulse |
 | Cold Review | `meta/cold-review.md` | Final master of narrative pipelines: `cold_review` and the `cold-viewer` agent score 8 criteria, with 2 rounds at most → pass / revise / escalate, enforced by `export_bundle` |
 | Layout Audit | `meta/layout-audit.md` | Before each render: `layout_audit` measures real boxes and stops on text off canvas, cut off, overlapping or covered |

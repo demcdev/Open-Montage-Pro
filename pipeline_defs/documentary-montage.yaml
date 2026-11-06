@@ -189,7 +189,7 @@ stages:
       - asset_manifest
     produces:
       - edit_decisions
-    tools_available: [beat_grid]
+    tools_available: [beat_grid, speed_ramp]
     checkpoint_required: true
     human_approval_default: true
     review_focus:

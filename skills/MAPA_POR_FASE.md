@@ -183,6 +183,7 @@ Sale: máster EN/ES, SRT/VTT, miniaturas y metadatos.
 | `core/subtitle-sync.md` | Tiempos de subtítulos | 🔧 `subtitle_gen` · 🔗 9 directores |
 | `core/loudness-mastering.md` | Volumen final por plataforma | ✅ todos |
 | `meta/technical-qc-gate.md` | Negros, congelados, silencios, picos, licencias | ✅ todos |
+| `core/speed-ramp.md` | Rampas de velocidad reales sobre clips con `speed_ramp` | 🔗 `speed_ramp`, `technique-catalog` |
 | `core/beat-sync.md` | Cortes al pulso con `beat_grid` | 🔗 `beat_grid`, `technique-catalog` |
 | `meta/layout-audit.md` | Textos y gráficos desbordados, encimados o tapados, antes de renderizar | ✅ todos |
 | `meta/cold-review.md` | Revisión del máster por alguien que no lo hizo, con 8 criterios | ✅ ae, anim, avatar, char, cine, doc, hyb |

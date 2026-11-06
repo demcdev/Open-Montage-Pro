@@ -737,6 +737,7 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | What is the checkpoint/review policy? | `skills/meta/` |
 | Is this render technically fit to ship (black frames, silences, loudness, specs, licenses)? | `skills/meta/technical-qc-gate.md` (tool `technical_qc`) |
 | How do I deliver voice, music and effects as separate files? | "Stems" in `skills/creative/sound-design.md` (`audio_mixer` `stems_dir`) |
+| How do I change speed inside a shot? | `skills/core/speed-ramp.md` (tool `speed_ramp`) |
 | How do I cut on the beat? | `skills/core/beat-sync.md` (tool `beat_grid`) |
 | Does the narration stay in the script's language? | `skills/meta/narration-qc.md` (tool `narration_qc`) |
 | Are graphics or text off screen, overlapping or covered? | `skills/meta/layout-audit.md` (tool `layout_audit`, automatic before each render) |
