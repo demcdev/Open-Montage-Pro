@@ -109,6 +109,11 @@ Approval is per-gate — an earlier "go ahead" does not cover this gate.
 
 ---
 
+<!-- pre-render-review -->
+## Pre-Render Review (Binding)
+
+Before generating any voice, write at least three different openings and a retention map, then run the `script` moment of `skills/meta/pre-render-review.md`. Show the user the openings and the one the reviewer chose. Fix the script here: after the voice exists, every change costs another approval.
+
 <!-- transversal-skills-2026-10 -->
 ## Transversal Skills (Binding)
 

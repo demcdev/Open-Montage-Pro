@@ -22,6 +22,8 @@ from tools.analysis.cold_review import (
     ColdReview,
     is_ai_tagged,
     preview_verdict,
+    script_problems,
+    spoken_seconds,
 )
 from tools.analysis.technical_qc import file_sha256
 from tools.video.hyperframes_compose import HyperFramesCompose
@@ -173,7 +175,60 @@ def test_the_final_review_says_which_previews_ran(tmp_path):
     result = ColdReview().execute(
         {"operation": "record", "video_path": str(video), "scores": scores, "project_dir": str(tmp_path)}
     )
-    assert result.data["previews"] == {"plan": "go", "clips": "missing", "frames": "missing"}
+    assert result.data["previews"] == {"script": "missing", "plan": "go", "clips": "missing", "frames": "missing"}
+
+
+HOOKS = ["Un verano no llegó.", "¿Quién robó el verano?", "Nevó en junio."]
+SCRIPT = " ".join(["palabra"] * 75)
+MAP = [{"second": 0, "reason": "a"}, {"second": 6, "reason": "b"}, {"second": 12, "reason": "c"}, {"second": 18, "reason": "d"}, {"second": 24, "reason": "e"}]
+
+
+def test_speech_time_comes_from_the_word_count():
+    assert spoken_seconds(SCRIPT) == 30.0
+
+
+def test_a_sound_script_has_no_measured_problems():
+    assert script_problems(SCRIPT, HOOKS, MAP, 30) == []
+
+
+def test_openings_must_be_compared():
+    assert any("openings" in problem for problem in script_problems(SCRIPT, HOOKS[:2], MAP, 30))
+
+
+def test_a_long_opening_is_flagged():
+    long_hook = " ".join(["palabra"] * 15)
+    assert any("Opening takes" in problem for problem in script_problems(SCRIPT, [*HOOKS, long_hook], MAP, 30))
+
+
+@pytest.mark.parametrize("hook", ["Hola a todos, hoy veremos algo.", "En este video verás todo.", "Welcome back."])
+def test_generic_openings_are_flagged(hook):
+    assert any("Generic" in problem for problem in script_problems(SCRIPT, [*HOOKS, hook], MAP, 30))
+
+
+def test_an_overlong_script_is_flagged():
+    assert any("target" in problem for problem in script_problems(SCRIPT, HOOKS, MAP, 20))
+
+
+def test_a_stretch_without_a_reason_to_stay_is_flagged():
+    problems = script_problems(SCRIPT, HOOKS, [{"second": 0, "reason": "a"}, {"second": 22, "reason": "b"}], 30)
+    assert any("from 0.0 to 22.0" in problem for problem in problems)
+
+
+def test_measured_problems_overrule_the_viewer(tmp_path):
+    prepared = preview(tmp_path, stage="script", script_text=SCRIPT, hooks=HOOKS[:1], retention_map=MAP, target_seconds=30)
+    assert prepared.data["measured_problems"]
+    result = record(tmp_path, "script", verdict="go")
+    assert result.data["verdict"] == "fix" and result.data["findings"]
+
+
+def test_the_chosen_opening_is_kept(tmp_path):
+    preview(tmp_path, stage="script", script_text=SCRIPT, hooks=HOOKS, retention_map=MAP, target_seconds=30)
+    result = record(tmp_path, "script", verdict="go", best_hook=HOOKS[2])
+    assert result.data["verdict"] == "go" and result.data["best_hook"] == HOOKS[2]
+
+
+def test_a_script_is_needed(tmp_path):
+    assert not preview(tmp_path, stage="script", hooks=HOOKS).success
 
 
 def test_the_viewer_knows_each_moment():
@@ -188,7 +243,7 @@ def test_narrative_pipelines_review_before_rendering(pipeline):
     manifest = load_pipeline(pipeline)
     assert "meta/pre-render-review" in manifest["required_skills"]
     stages = {stage["name"]: stage for stage in manifest["stages"]}
-    for name in ("scene_plan", "assets", "compose"):
+    for name in ("script", "scene_plan", "assets", "compose"):
         assert "cold_review" in stages[name]["tools_available"], name
         text = (ROOT / "skills" / f"{stages[name]['skill']}.md").read_text(encoding="utf-8")
         assert "<!-- pre-render-review -->" in text, name

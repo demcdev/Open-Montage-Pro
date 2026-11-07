@@ -112,7 +112,7 @@ stages:
       - research_brief
     produces:
       - script
-    tools_available: []
+    tools_available: [cold_review]
     checkpoint_required: true
     human_approval_default: true
     review_focus:

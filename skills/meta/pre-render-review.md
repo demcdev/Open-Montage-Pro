@@ -4,6 +4,7 @@ Revisar el video mientras se hace, para corregir en caliente y no después de un
 
 | Momento | Etapa | Qué revisa | Qué atrapa |
 |---|---|---|---|
+| `script` | `script`, antes de generar la voz | Guion, aperturas alternativas y mapa de retención | Gancho débil, tramos sin motivo para seguir, frases engañosas, guion demasiado largo |
 | `plan` | `scene_plan`, antes de aprobarlo | Cada frase con su plano y su cifra | Voz y cifra que no coinciden, imagen que no acompaña la frase, anacronismos |
 | `clips` | `assets`, al elegir stock | Hoja de contacto de cada clip | Objetos modernos, planos que no encajan, clips marcados como IA |
 | `frames` | `compose`, antes del render | Fotogramas de cada escena | Composición, contraste, gráficos ilegibles |
@@ -16,6 +17,22 @@ Revisar el video mientras se hace, para corregir en caliente y no después de un
 4. **Actuar** según el veredicto.
 
 ## Entrada de cada momento
+
+**`script`:** el guion, al menos 3 aperturas distintas y el mapa de retención, con un momento por cada motivo para seguir viendo.
+
+```json
+{
+  "stage": "script",
+  "script_text": "El guion completo.",
+  "hooks": ["Apertura con paradoja.", "Apertura con cifra.", "Apertura con pregunta."],
+  "retention_map": [{"second": 0, "reason": "Abre la pregunta"}, {"second": 6, "reason": "Primer giro"}],
+  "target_seconds": 30
+}
+```
+
+La herramienta mide antes de opinar. Fuerza `fix` si hay menos de 3 aperturas, si una pasa de 5 s, si empieza con una fórmula genérica, si el guion se pasa más de un 15 % o si hay un tramo largo sin motivo para seguir. El tiempo se estima a 2,5 palabras por segundo.
+
+Antes de generar la voz, muéstrale al usuario las aperturas y la elegida por el revisor. Guarda el resultado en `script.metadata.hook_options` y `script.metadata.retention_map`.
 
 **`plan`:** una fila por frase del guion.
 

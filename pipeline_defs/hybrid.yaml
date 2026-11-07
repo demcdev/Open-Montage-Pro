@@ -99,6 +99,7 @@ stages:
       - transcriber
       - scene_detect
       - audio_enhance
+      - cold_review
     checkpoint_required: true
     human_approval_default: true
     review_focus:

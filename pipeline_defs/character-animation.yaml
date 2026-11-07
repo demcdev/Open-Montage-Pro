@@ -142,6 +142,7 @@ stages:
       - script
     tools_available:
       - transcriber
+      - cold_review
     checkpoint_required: true
     human_approval_default: true
     review_focus:

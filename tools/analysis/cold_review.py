@@ -11,7 +11,7 @@ scores are capped by what was measured: a missing or failing report wins over an
 score. The policy lives in ``skills/meta/cold-review.md``.
 
 ``preview`` and ``record_preview`` run the same reviewer before the render, on the
-plan, the clips and stills, so problems are fixed while they are cheap. Those verdicts
+script, the plan, the clips and stills, so problems are fixed while they are cheap. Those verdicts
 warn and leave a record; they never stop a render. See
 ``skills/meta/pre-render-review.md``.
 """
@@ -51,12 +51,19 @@ MAX_FRAMES = 40
 FRAME_WIDTH = 960
 SCENE_MOMENTS = (0.35, 0.75)
 HOOK_SECONDS = 1.0
-PREVIEW_STAGES = ("plan", "clips", "frames")
+PREVIEW_STAGES = ("script", "plan", "clips", "frames")
 MAX_PREVIEW_PASSES = 2
 PREVIEW_SCALE = 0.5
 SHEET_TILES = 4
 SHEET_TILE_WIDTH = 480
 AI_TAGS = ("ai generated", "ai-generated")
+SPEECH_WORDS_PER_SECOND = 2.5
+MIN_HOOKS = 3
+MAX_HOOK_SECONDS = 5.0
+MAX_OVERRUN = 1.15
+MIN_BEAT_GAP_SECONDS = 5.0
+BEAT_GAP_RATIO = 0.2
+GENERIC_OPENINGS = ("en este video", "hola", "bienvenid", "hoy vamos a", "hoy te", "in this video", "welcome", "hey guys", "today we")
 COMPOSER_DIR = Path(__file__).resolve().parent.parent.parent / "remotion-composer"
 
 
@@ -101,6 +108,33 @@ def is_ai_tagged(tags: str) -> bool:
 def preview_verdict(verdict: str, pass_number: int) -> str:
     """After its last pass, a moment that still needs fixes goes to the user."""
     return "escalate" if verdict == "fix" and pass_number >= MAX_PREVIEW_PASSES else verdict
+
+
+def spoken_seconds(text: str) -> float:
+    return round(len(str(text).split()) / SPEECH_WORDS_PER_SECOND, 1)
+
+
+def script_problems(script: str, hooks: list[str], beats: list[dict[str, Any]], target_seconds: float) -> list[str]:
+    """Return what can be measured in a script, before any opinion on it."""
+    problems = []
+    if len(hooks) < MIN_HOOKS:
+        problems.append(f"Only {len(hooks)} openings to compare; at least {MIN_HOOKS} are needed.")
+    for hook in hooks:
+        if spoken_seconds(hook) > MAX_HOOK_SECONDS:
+            problems.append(f"Opening takes {spoken_seconds(hook)} s, over {MAX_HOOK_SECONDS:.0f} s: {hook}")
+        if hook.strip().lower().startswith(GENERIC_OPENINGS):
+            problems.append(f"Generic opening: {hook}")
+    duration = spoken_seconds(script)
+    if target_seconds and duration > target_seconds * MAX_OVERRUN:
+        problems.append(f"Script takes about {duration} s for a {target_seconds:.0f} s target.")
+
+    # Every stretch needs a reason to stay, so the map must run from start to end.
+    limit = max(MIN_BEAT_GAP_SECONDS, (target_seconds or duration) * BEAT_GAP_RATIO)
+    moments = [0.0, *sorted(float(beat["second"]) for beat in beats), duration]
+    for start, end in zip(moments, moments[1:]):
+        if end - start > limit:
+            problems.append(f"No reason to keep watching from {start:.1f} to {end:.1f} s.")
+    return problems
 
 
 def measured_caps(packet: dict[str, Any]) -> dict[str, tuple[int, str]]:
@@ -183,6 +217,19 @@ class ColdReview(BaseTool):
                 "description": "preview and record_preview: project folder. record: also lists the previews that ran.",
             },
             "stage": {"type": "string", "enum": list(PREVIEW_STAGES), "description": "Moment to preview."},
+            "script_text": {"type": "string", "description": "script: full narration."},
+            "hooks": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "script: alternative openings to compare.",
+            },
+            "retention_map": {
+                "type": "array",
+                "items": {"type": "object"},
+                "description": "script: {second, reason} for each moment that gives a reason to keep watching.",
+            },
+            "target_seconds": {"type": "number", "description": "script: planned duration."},
+            "best_hook": {"type": "string", "description": "record_preview: opening chosen by cold-viewer."},
             "lines": {
                 "type": "array",
                 "items": {"type": "object"},
@@ -341,7 +388,21 @@ class ColdReview(BaseTool):
         out_dir.mkdir(parents=True, exist_ok=True)
         packet: dict[str, Any] = {"stage": stage, "brief": inputs.get("brief") or {}}
 
-        if stage == "plan":
+        if stage == "script":
+            if not inputs.get("script_text"):
+                raise ValueError("script needs script_text.")
+            hooks = inputs.get("hooks") or []
+            beats = inputs.get("retention_map") or []
+            packet.update(
+                {
+                    "script": inputs["script_text"],
+                    "hooks": hooks,
+                    "retention_map": beats,
+                    "spoken_seconds": spoken_seconds(inputs["script_text"]),
+                    "measured_problems": script_problems(inputs["script_text"], hooks, beats, float(inputs.get("target_seconds") or 0)),
+                }
+            )
+        elif stage == "plan":
             if not inputs.get("lines"):
                 raise ValueError("plan needs lines.")
             packet["lines"] = inputs["lines"]
@@ -362,7 +423,12 @@ class ColdReview(BaseTool):
 
         packet_path = out_dir / "packet.json"
         packet_path.write_text(json.dumps(packet, indent=2, ensure_ascii=False), encoding="utf-8")
-        return {"packet_path": str(packet_path), "stage": stage, "ai_tagged": packet.get("ai_tagged", [])}
+        return {
+            "packet_path": str(packet_path),
+            "stage": stage,
+            "ai_tagged": packet.get("ai_tagged", []),
+            "measured_problems": packet.get("measured_problems", []),
+        }
 
     def _contact_sheet(self, clip: dict[str, Any], out_dir: Path) -> dict[str, Any]:
         """Tile evenly spaced frames, and leave the file path out of what the viewer reads."""
@@ -426,7 +492,9 @@ class ColdReview(BaseTool):
         packet = read_report(artifacts / f"preview_{stage}" / "packet.json") or {}
         for clip in packet.get("ai_tagged") or []:
             findings.append({"scene_id": "", "problem": f"Clip {clip} is tagged as AI.", "proposed_fix": "Replace it with real footage."})
-        if packet.get("ai_tagged"):
+        for problem in packet.get("measured_problems") or []:
+            findings.append({"scene_id": "", "problem": problem, "proposed_fix": "Fix it and repeat this moment."})
+        if packet.get("ai_tagged") or packet.get("measured_problems"):
             verdict = "fix"
         if verdict not in ("go", "fix"):
             raise ValueError("verdict must be go or fix.")
@@ -439,6 +507,8 @@ class ColdReview(BaseTool):
             "pass_number": pass_number,
             "findings": findings,
         }
+        if inputs.get("best_hook"):
+            report["best_hook"] = inputs["best_hook"]
         report_path = artifacts / f"preview_{stage}.json"
         report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
         return {**report, "report_path": str(report_path)}

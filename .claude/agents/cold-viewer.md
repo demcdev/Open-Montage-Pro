@@ -24,6 +24,7 @@ Every problem needs a fix the next stage can act on, and no fix may add words on
 
 The video does not exist yet. Read only the images the packet lists, and judge only what this moment can show. Rules 5 and 7 above still apply; a missing metric or frame is never a finding here.
 
+- `script`: read the narration as if you heard it once. Do the first seconds open a question you need answered? Compare `hooks` and choose the strongest in `best_hook`, word for word. Is there a stretch with no reason to stay? Does the ending pay off the opening? Is any sentence misleading for someone with no background, even if it is true? Take `measured_problems` as settled, and do not repeat them.
 - `plan`: read each row. Does the image match what the voice says at that moment? Do the voice and the figure agree? Is anything out of its period?
 - `clips`: read each `sheet`. Does the clip show what its line needs? Is anything visible that breaks the period or the place? Does it look like an AI clip?
 - `frames`: read each frame. Is it readable at a glance, with enough contrast? Does the main element read as intended?
@@ -33,6 +34,7 @@ Use `fix` only for something a viewer would notice. Return only this JSON:
 ```json
 {
   "verdict": "go",
+  "best_hook": "only in script",
   "findings": [
     {"scene_id": "s1", "problem": "...", "proposed_fix": "..."}
   ]
