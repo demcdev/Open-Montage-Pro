@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -174,7 +175,7 @@ class DashscopeImage(BaseTool):
 
             # DashScope bills per image and URLs expire ~24h; save every one.
             output_paths = self._resolve_output_paths(
-                inputs.get("output_path", "dashscope_image.png"),
+                str(inputs.get("output_path") or scratch_path("dashscope_image.png")),
                 count=len(image_urls),
             )
             for path, url in zip(output_paths, image_urls):

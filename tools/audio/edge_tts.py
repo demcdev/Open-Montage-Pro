@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from lib.voice_language import mismatch_error
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -226,7 +227,7 @@ class EdgeTTS(BaseTool):
         volume = inputs.get("volume", "+0%")
         with_timestamps = bool(inputs.get("timestamps"))
 
-        output_path = Path(inputs.get("output_path", "tts_output.mp3"))
+        output_path = Path(inputs.get("output_path") or scratch_path("tts_output.mp3"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         async def synthesize() -> list[dict[str, Any]]:

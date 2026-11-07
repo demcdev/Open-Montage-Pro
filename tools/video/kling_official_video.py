@@ -27,6 +27,7 @@ from tools._kling.schemas import (
     VIDEO_MODELS,
     VIDEO_RESOLUTIONS,
 )
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     DependencyError,
@@ -600,7 +601,7 @@ class KlingOfficialVideo(BaseTool):
     ) -> list[Path]:
         if not outputs:
             raise ValueError("Kling video response contained no videos")
-        base_path = Path(inputs.get("output_path", "kling_official_video.mp4"))
+        base_path = Path(inputs.get("output_path") or scratch_path("kling_official_video.mp4"))
         paths: list[Path] = []
         for index, item in enumerate(outputs):
             url = self._output_url(item)

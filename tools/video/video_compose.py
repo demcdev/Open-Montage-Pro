@@ -43,6 +43,7 @@ from typing import Any, Optional
 from urllib.parse import unquote, urlsplit
 
 from tools.analysis.layout_audit import render_gate
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -456,7 +457,7 @@ class VideoCompose(BaseTool):
         if not edit_decisions:
             return ToolResult(success=False, error="edit_decisions required for compose")
 
-        output_path = Path(inputs.get("output_path", "composed_output.mp4"))
+        output_path = Path(inputs.get("output_path") or scratch_path("composed_output.mp4"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
         audio_path = inputs.get("audio_path")
         subtitle_path = inputs.get("subtitle_path")

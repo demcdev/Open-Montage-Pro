@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -341,7 +342,7 @@ class AudioMixer(BaseTool):
         if not tracks:
             return ToolResult(success=False, error="No tracks provided")
 
-        output_path = Path(inputs.get("output_path", "mixed_audio.wav"))
+        output_path = Path(inputs.get("output_path") or scratch_path("mixed_audio.wav"))
         normalize = inputs.get("normalize", True)
 
         # Validate all inputs exist
@@ -424,7 +425,7 @@ class AudioMixer(BaseTool):
             }
         """
         ducking = inputs.get("ducking", {})
-        output_path = Path(inputs.get("output_path", "ducked_audio.wav"))
+        output_path = Path(inputs.get("output_path") or scratch_path("ducked_audio.wav"))
 
         # --- Resolve speech/music paths from either input format ---
         speech_path = None
@@ -573,7 +574,7 @@ class AudioMixer(BaseTool):
         if not tracks:
             return ToolResult(success=False, error="No tracks provided for full_mix")
 
-        output_path = Path(inputs.get("output_path", "full_mix_output.wav"))
+        output_path = Path(inputs.get("output_path") or scratch_path("full_mix_output.wav"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
         normalize = inputs.get("normalize", True)
         ducking = inputs.get("ducking", {"enabled": True})
@@ -818,7 +819,7 @@ class AudioMixer(BaseTool):
         """
         video_path = inputs.get("video_path")
         music_path = inputs.get("music_path")
-        output_path = Path(inputs.get("output_path", "segmented_music_output.mp4"))
+        output_path = Path(inputs.get("output_path") or scratch_path("segmented_music_output.mp4"))
         segments = inputs.get("segments", [])
         music_volume = inputs.get("music_volume", 0.20)
         fade_dur = inputs.get("fade_duration", 0.5)

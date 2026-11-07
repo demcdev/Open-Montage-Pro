@@ -9,6 +9,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -217,7 +218,7 @@ class DoubaoTTS(BaseTool):
         text = inputs["text"]
         fmt = inputs.get("format", "mp3")
         resource_id = inputs.get("resource_id", self.DEFAULT_RESOURCE_ID)
-        output_path = Path(inputs.get("output_path", f"doubao_tts.{self._extension_for_format(fmt)}"))
+        output_path = Path(inputs.get("output_path") or scratch_path(f"doubao_tts.{self._extension_for_format(fmt)}"))
         metadata_path = Path(
             inputs.get("metadata_path") or output_path.with_suffix(output_path.suffix + ".json")
         )

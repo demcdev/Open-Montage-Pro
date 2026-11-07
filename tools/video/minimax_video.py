@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -621,7 +622,7 @@ class MiniMaxVideo(BaseTool):
 
             video_response = requests.get(download_url, timeout=120)
             video_response.raise_for_status()
-            output_path = Path(inputs.get("output_path", "minimax_output.mp4"))
+            output_path = Path(inputs.get("output_path") or scratch_path("minimax_output.mp4"))
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(video_response.content)
         except Exception as e:  # noqa: BLE001 - surface a redacted error to the caller

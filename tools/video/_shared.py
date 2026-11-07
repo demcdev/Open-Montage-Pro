@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import ToolResult, ToolStatus
 
 
@@ -452,7 +453,7 @@ def generate_local_video(
     output = pipeline(**generation_args)
     frames = output.frames[0] if hasattr(output, "frames") else output.images
 
-    output_path = Path(inputs.get("output_path", f"{tool_name}_{variant}.mp4"))
+    output_path = Path(inputs.get("output_path") or scratch_path(f"{tool_name}_{variant}.mp4"))
     output_path.parent.mkdir(parents=True, exist_ok=True)
     export_to_video(frames, str(output_path), fps=fps)
 
@@ -639,7 +640,7 @@ def generate_heygen_video(inputs: dict[str, Any]) -> ToolResult:
         return ToolResult(success=False, error=f"No execution_id in response: {payload}")
 
     video_url = poll_heygen(execution_id, api_key, timeout=600)
-    output_path = Path(inputs.get("output_path", f"heygen_video_{execution_id}.mp4"))
+    output_path = Path(inputs.get("output_path") or scratch_path(f"heygen_video_{execution_id}.mp4"))
     output_path.parent.mkdir(parents=True, exist_ok=True)
     download = requests.get(video_url, timeout=120)
     download.raise_for_status()
@@ -718,7 +719,7 @@ def generate_ltx_modal_video(inputs: dict[str, Any]) -> ToolResult:
 
     response = requests.post(endpoint_url, json=payload, timeout=300)
     response.raise_for_status()
-    output_path = Path(inputs.get("output_path", "ltx_video_modal.mp4"))
+    output_path = Path(inputs.get("output_path") or scratch_path("ltx_video_modal.mp4"))
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     content_type = response.headers.get("content-type", "")

@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -117,7 +118,7 @@ class PiperTTS(BaseTool):
         return result
 
     def _generate(self, inputs: dict[str, Any]) -> ToolResult:
-        output_path = Path(inputs.get("output_path", "tts_output.wav"))
+        output_path = Path(inputs.get("output_path") or scratch_path("tts_output.wav"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         proc = subprocess.run(

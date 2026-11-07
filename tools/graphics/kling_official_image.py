@@ -27,6 +27,7 @@ from tools._kling.schemas import (
     IMAGE_RESULT_TYPES,
     OMNI_IMAGE_MODELS,
 )
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     DependencyError,
@@ -369,7 +370,7 @@ class KlingOfficialImage(BaseTool):
     def _download_images(self, client: KlingClient, outputs: list[dict[str, Any]], inputs: dict[str, Any]) -> list[Path]:
         if not outputs:
             raise ValueError("Kling image response contained no images")
-        base_path = Path(inputs.get("output_path", "kling_official_image.png"))
+        base_path = Path(inputs.get("output_path") or scratch_path("kling_official_image.png"))
         paths: list[Path] = []
         for index, item in enumerate(outputs):
             url = self._output_url(item)

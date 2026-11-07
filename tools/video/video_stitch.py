@@ -15,6 +15,7 @@ import time
 from pathlib import Path
 from typing import Any, Optional
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -492,7 +493,7 @@ class VideoStitch(BaseTool):
         if len(clips) < 2:
             return ToolResult(success=False, error="At least 2 clips required for stitch")
 
-        output_path = Path(inputs.get("output_path", "stitched_output.mp4"))
+        output_path = Path(inputs.get("output_path") or scratch_path("stitched_output.mp4"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
         transition = inputs.get("transition", "cut")
         transition_dur = inputs.get("transition_duration", 0.5)
@@ -748,7 +749,7 @@ class VideoStitch(BaseTool):
         if len(clips) < 2:
             return ToolResult(success=False, error="At least 2 clips required for preview")
 
-        output_path = Path(inputs.get("output_path", "stitch_preview.mp4"))
+        output_path = Path(inputs.get("output_path") or scratch_path("stitch_preview.mp4"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Verify all clips exist
@@ -795,7 +796,7 @@ class VideoStitch(BaseTool):
         if not layout:
             return ToolResult(success=False, error="layout is required for spatial operation")
 
-        output_path = Path(inputs.get("output_path", "spatial_output.mp4"))
+        output_path = Path(inputs.get("output_path") or scratch_path("spatial_output.mp4"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
         codec = inputs.get("codec", "libx264")
         crf = inputs.get("crf", 23)

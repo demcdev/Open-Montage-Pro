@@ -10,6 +10,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -174,7 +175,7 @@ class RecraftImage(BaseTool):
             image_response.raise_for_status()
 
             ext = "svg" if inputs.get("style") == "vector_illustration" else "png"
-            output_path = Path(inputs.get("output_path", f"generated_image.{ext}"))
+            output_path = Path(inputs.get("output_path") or scratch_path(f"generated_image.{ext}"))
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(image_response.content)
 

@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -92,7 +93,10 @@ class PixabayImage(BaseTool):
             "safesearch": {"type": "boolean", "default": True},
             "per_page": {"type": "integer", "default": 5, "minimum": 3, "maximum": 200},
             "page": {"type": "integer", "default": 1},
-            "output_path": {"type": "string"},
+            "output_path": {
+                "type": "string",
+                "description": "Always pass a path under projects/<id>/. Defaults to output/scratch/.",
+            },
         },
     }
 
@@ -169,7 +173,7 @@ class PixabayImage(BaseTool):
             image_response = requests.get(image_url, timeout=60)
             image_response.raise_for_status()
 
-            output_path = Path(inputs.get("output_path", f"pixabay_{hit['id']}.jpg"))
+            output_path = Path(inputs.get("output_path") or scratch_path(f"pixabay_{hit['id']}.jpg"))
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(image_response.content)
 

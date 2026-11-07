@@ -16,6 +16,7 @@ from typing import Any
 
 from tools.google_credentials import GOOGLE_API_TIMEOUT_SECONDS
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -509,7 +510,7 @@ class VeoVideo(BaseTool):
                     ),
                 )
 
-            output_path = Path(inputs.get("output_path", "veo_output.mp4"))
+            output_path = Path(inputs.get("output_path") or scratch_path("veo_output.mp4"))
             output_path.parent.mkdir(parents=True, exist_ok=True)
             video_asset.save(str(output_path))
 
@@ -691,7 +692,7 @@ class VeoVideo(BaseTool):
             video_response = requests.get(video_url, timeout=120)
             video_response.raise_for_status()
 
-            output_path = Path(inputs.get("output_path", "veo_output.mp4"))
+            output_path = Path(inputs.get("output_path") or scratch_path("veo_output.mp4"))
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(video_response.content)
 

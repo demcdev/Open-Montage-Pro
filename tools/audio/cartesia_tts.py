@@ -5,6 +5,7 @@ from pathlib import Path
 import requests
 from tools.provider_pricing import PriceQuoteRequired
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     ToolTier,
@@ -63,7 +64,7 @@ class CartesiaTTS(BaseTool):
 
             validate(inputs, self.input_schema)
             if (
-                Path(inputs.get("output_path", "cartesia_tts.wav")).suffix.lower()
+                Path(inputs.get("output_path") or scratch_path("cartesia_tts.wav")).suffix.lower()
                 != ".wav"
             ):
                 raise ValueError("Cartesia output_path must end in .wav")
@@ -95,7 +96,7 @@ class CartesiaTTS(BaseTool):
             response.raise_for_status()
             if not response.content:
                 raise ValueError("Empty Cartesia audio")
-            path = Path(inputs.get("output_path", "cartesia_tts.wav"))
+            path = Path(inputs.get("output_path") or scratch_path("cartesia_tts.wav"))
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(response.content)
             return ToolResult(

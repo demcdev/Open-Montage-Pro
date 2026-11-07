@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -294,7 +295,7 @@ class ScreenCaptureSelector(BaseTool):
             tool = providers.get("ffmpeg")
             if tool and tool.get_status() == ToolStatus.AVAILABLE:
                 return tool.execute({
-                    "output_path": inputs.get("output_path", "recording.mp4"),
+                    "output_path": str(inputs.get("output_path") or scratch_path("recording.mp4")),
                     "duration_seconds": inputs.get("duration_seconds", 60),
                     "fps": inputs.get("fps", 30),
                     "capture_audio": inputs.get("capture_audio", True),

@@ -17,6 +17,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -231,7 +232,7 @@ class ComfyUIMusic(BaseTool):
         seed = inputs.get("seed")
         if seed is None:
             seed = ComfyUIClient.random_seed()
-        output_path = Path(inputs.get("output_path", f"comfyui_music_{seed}.mp3"))
+        output_path = Path(inputs.get("output_path") or scratch_path(f"comfyui_music_{seed}.mp3"))
 
         try:
             if custom_workflow:

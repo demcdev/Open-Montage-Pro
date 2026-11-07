@@ -19,6 +19,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -251,7 +252,7 @@ class DashscopeAsr(BaseTool):
 
         # Save full transcription
         output_path = Path(
-            inputs.get("output_path", "dashscope_asr.json")
+            inputs.get("output_path") or scratch_path("dashscope_asr.json")
         )
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(

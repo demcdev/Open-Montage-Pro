@@ -14,6 +14,7 @@ from typing import Any
 
 from tools.provider_pricing import PriceQuoteRequired
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -179,7 +180,7 @@ class GoogleMusic(BaseTool):
         prompt = inputs["prompt"]
         duration = float(inputs.get("duration_seconds", 30))
         auto_fix = inputs.get("auto_fix", True)
-        output_path = inputs.get("output_path", "music_output.mp3")
+        output_path = str(inputs.get("output_path") or scratch_path("music_output.mp3"))
 
         # Ensure minimum duration of 5 seconds
         if duration < 5:

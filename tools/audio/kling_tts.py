@@ -13,6 +13,7 @@ from tools._kling.errors import KlingAPIError
 from tools._kling.media import extension_from_url, numbered_output_path, output_path_with_suffix
 from tools._kling.schemas import TTS_LANGUAGES, TTS_SPEED_MAX, TTS_SPEED_MIN
 from tools.analysis.audio_probe import probe_duration
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     DependencyError,
@@ -281,7 +282,7 @@ class KlingTTS(BaseTool):
     ) -> list[Path]:
         if not outputs:
             raise ValueError("Kling TTS response contained no audios")
-        base_path = Path(inputs.get("output_path", "kling_tts.mp3"))
+        base_path = Path(inputs.get("output_path") or scratch_path("kling_tts.mp3"))
         paths: list[Path] = []
         for index, item in enumerate(outputs):
             url = self._output_url(item)

@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     ToolTier,
@@ -103,7 +104,7 @@ class QwenImage21(BaseTool):
                 raise ValueError(
                     "Edit requires a source image; generate cannot accept one"
                 )
-            path = Path(inputs.get("output_path", "qwen_image_21.png"))
+            path = Path(inputs.get("output_path") or scratch_path("qwen_image_21.png"))
             if inputs.get("transparent_background") and path.suffix.lower() != ".png":
                 raise ValueError("RGBA output requires a PNG path")
             if self.get_status() != ToolStatus.AVAILABLE:

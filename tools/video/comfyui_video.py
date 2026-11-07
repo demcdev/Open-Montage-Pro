@@ -14,6 +14,7 @@ from typing import Any
 
 import requests
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -497,7 +498,7 @@ class ComfyUIVideo(BaseTool):
         start = time.time()
         seed = inputs.get("seed") or ComfyUIClient.random_seed()
         output_path = Path(
-            inputs.get("output_path", f"comfyui_video_{operation}_{seed}.mp4")
+            inputs.get("output_path") or scratch_path(f"comfyui_video_{operation}_{seed}.mp4")
         )
 
         try:

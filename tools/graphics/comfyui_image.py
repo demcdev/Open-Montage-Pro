@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -197,7 +198,7 @@ class ComfyUIImage(BaseTool):
         height = inputs.get("height", 1024)
         steps = inputs.get("steps", 20)
         guidance = inputs.get("guidance", 3.5)
-        output_path = Path(inputs.get("output_path", f"comfyui_image_{seed}.png"))
+        output_path = Path(inputs.get("output_path") or scratch_path(f"comfyui_image_{seed}.png"))
 
         try:
             if custom_workflow:

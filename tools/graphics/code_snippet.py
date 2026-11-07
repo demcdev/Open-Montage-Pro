@@ -10,6 +10,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -140,7 +141,7 @@ class CodeSnippet(BaseTool):
         padding = inputs.get("padding", 40)
         line_numbers = inputs.get("line_numbers", True)
         title = inputs.get("title")
-        output_path = Path(inputs.get("output_path", "code_snippet.png"))
+        output_path = Path(inputs.get("output_path") or scratch_path("code_snippet.png"))
 
         theme = THEMES.get(theme_name, THEMES["monokai"])
 

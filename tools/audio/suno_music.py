@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -279,7 +280,7 @@ class SunoMusic(BaseTool):
         """Download the audio file to the output path."""
         import requests
 
-        output_path = Path(inputs.get("output_path", "suno_output.mp3"))
+        output_path = Path(inputs.get("output_path") or scratch_path("suno_output.mp3"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         response = requests.get(audio_url, timeout=120)

@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -205,7 +206,7 @@ class GeminiOmniFalVideo(BaseTool):
             video_url = result_response.json()["video"]["url"]
             download = requests.get(video_url, timeout=120)
             download.raise_for_status()
-            output_path = Path(inputs.get("output_path", "gemini_omni_fal_output.mp4"))
+            output_path = Path(inputs.get("output_path") or scratch_path("gemini_omni_fal_output.mp4"))
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(download.content)
         except Exception as exc:

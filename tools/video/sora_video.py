@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -158,7 +159,7 @@ class SoraVideo(BaseTool):
         size = self._normalize_size(inputs, model)
         seconds = self._normalize_seconds(inputs)
         prompt = str(inputs["prompt"]).strip()
-        output_path = Path(inputs.get("output_path", "sora_output.mp4"))
+        output_path = Path(inputs.get("output_path") or scratch_path("sora_output.mp4"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         payload: dict[str, Any] = {

@@ -14,6 +14,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -378,7 +379,7 @@ class FishAudioTTS(BaseTool):
         audio_content = response.content
 
         ext = self._EXT_MAP.get(fmt, "mp3")
-        output_path = Path(inputs.get("output_path", f"fish_audio_tts.{ext}"))
+        output_path = Path(inputs.get("output_path") or scratch_path(f"fish_audio_tts.{ext}"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_bytes(audio_content)
 

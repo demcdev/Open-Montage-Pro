@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any
 from xml.sax.saxutils import escape, quoteattr
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -269,7 +270,7 @@ class AzureTTS(BaseTool):
                 error=f"Azure TTS returned HTTP {response.status_code}: {detail}",
             )
 
-        output_path = Path(inputs.get("output_path", f"tts_output.{ext}"))
+        output_path = Path(inputs.get("output_path") or scratch_path(f"tts_output.{ext}"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_bytes(response.content)
 

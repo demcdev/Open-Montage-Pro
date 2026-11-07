@@ -6,6 +6,7 @@ from pathlib import Path
 
 from tools.provider_pricing import PriceQuoteRequired
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     ToolTier,
@@ -176,7 +177,7 @@ class IdeogramImage(BaseTool):
                 raise ValueError(
                     "Provider flagged an output; no unsafe output was downloaded"
                 )
-            path = Path(inputs.get("output_path", "ideogram.png"))
+            path = Path(inputs.get("output_path") or scratch_path("ideogram.png"))
             outputs = [
                 download(
                     item["url"],

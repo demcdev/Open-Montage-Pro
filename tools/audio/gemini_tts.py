@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from tools.provider_pricing import PriceQuoteRequired
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     ToolTier,
@@ -151,7 +152,7 @@ class GeminiTTS(BaseTool):
                     headers={"x-goog-api-key": key},
                 )
                 return ToolResult(success=True, data=voices)
-            path = Path(inputs.get("output_path", "gemini_tts.wav"))
+            path = Path(inputs.get("output_path") or scratch_path("gemini_tts.wav"))
             if path.suffix.lower() != ".wav":
                 raise ValueError(
                     "This adapter requests WAV; output_path must end in .wav"

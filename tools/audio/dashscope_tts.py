@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -186,7 +187,7 @@ class DashscopeTTS(BaseTool):
             download.raise_for_status()
 
             output_path = Path(
-                inputs.get("output_path", "dashscope_tts.wav")
+                inputs.get("output_path") or scratch_path("dashscope_tts.wav")
             )
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(download.content)

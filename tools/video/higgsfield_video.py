@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -235,7 +236,7 @@ class HiggsFieldVideo(BaseTool):
             video_response = requests.get(video_url, timeout=120)
             video_response.raise_for_status()
 
-            output_path = Path(inputs.get("output_path", "higgsfield_output.mp4"))
+            output_path = Path(inputs.get("output_path") or scratch_path("higgsfield_output.mp4"))
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(video_response.content)
 

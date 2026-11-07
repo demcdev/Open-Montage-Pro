@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -159,7 +160,7 @@ class OpenAITTS(BaseTool):
             )
 
         client = OpenAI()
-        output_path = Path(inputs.get("output_path", f"openai_tts.{fmt}"))
+        output_path = Path(inputs.get("output_path") or scratch_path(f"openai_tts.{fmt}"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         kwargs: dict[str, Any] = {

@@ -18,6 +18,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -314,7 +315,7 @@ class HunyuanCloudVideo(BaseTool):
         download.raise_for_status()
 
         output_path = Path(
-            inputs.get("output_path", f"hunyuan_cloud_{task_id}.mp4")
+            inputs.get("output_path") or scratch_path(f"hunyuan_cloud_{task_id}.mp4")
         )
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_bytes(download.content)

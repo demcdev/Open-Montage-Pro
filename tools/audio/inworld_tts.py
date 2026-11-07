@@ -3,6 +3,7 @@
 import base64
 import os
 from pathlib import Path
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     ToolTier,
@@ -78,7 +79,7 @@ class InworldTTS(BaseTool):
             audio = base64.b64decode(result["audioContent"], validate=True)
             if not audio:
                 raise ValueError("Empty Inworld audio")
-            path = Path(inputs.get("output_path", "inworld_tts.mp3"))
+            path = Path(inputs.get("output_path") or scratch_path("inworld_tts.mp3"))
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(audio)
             return ToolResult(

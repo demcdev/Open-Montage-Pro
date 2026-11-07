@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -307,7 +308,7 @@ class GoogleTTS(BaseTool):
         audio_content = base64.b64decode(response.json()["audioContent"])
 
         ext = self._EXT_MAP.get(audio_encoding, "mp3")
-        output_path = Path(inputs.get("output_path", f"tts_output.{ext}"))
+        output_path = Path(inputs.get("output_path") or scratch_path(f"tts_output.{ext}"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_bytes(audio_content)
 

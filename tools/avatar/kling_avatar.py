@@ -18,6 +18,7 @@ from tools._kling.media import (
     output_path_with_suffix,
 )
 from tools._kling.schemas import AVATAR_MODES
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     DependencyError,
@@ -283,7 +284,7 @@ class KlingAvatar(BaseTool):
     ) -> list[Path]:
         if not outputs:
             raise ValueError("Kling avatar response contained no videos")
-        base_path = Path(inputs.get("output_path", "kling_avatar.mp4"))
+        base_path = Path(inputs.get("output_path") or scratch_path("kling_avatar.mp4"))
         paths: list[Path] = []
         for index, item in enumerate(outputs):
             url = self._output_url(item)

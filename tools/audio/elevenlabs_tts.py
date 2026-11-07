@@ -12,6 +12,7 @@ from typing import Any
 
 from tools.provider_pricing import PriceQuoteRequired
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -286,7 +287,7 @@ class ElevenLabsTTS(BaseTool):
             audio_bytes = response.content
 
         ext = "mp3" if "mp3" in output_format else "wav"
-        output_path = Path(inputs.get("output_path", f"tts_output.{ext}"))
+        output_path = Path(inputs.get("output_path") or scratch_path(f"tts_output.{ext}"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
         if output_format.startswith("pcm_"):
             import wave

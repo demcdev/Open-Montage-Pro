@@ -13,6 +13,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -186,7 +187,7 @@ class VideoTrimmer(BaseTool):
         if not segments:
             return ToolResult(success=False, error="No segments provided for concat")
 
-        output_path = Path(inputs.get("output_path", "concat_output.mp4"))
+        output_path = Path(inputs.get("output_path") or scratch_path("concat_output.mp4"))
 
         # First, cut each segment to a temp file if start/end are specified
         temp_files: list[Path] = []

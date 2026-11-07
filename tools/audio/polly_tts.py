@@ -26,6 +26,7 @@ import wave
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -281,7 +282,7 @@ class PollyTTS(BaseTool):
             )
             audio += response["AudioStream"].read()
 
-        output_path = Path(inputs.get("output_path", f"tts_output.{ext}"))
+        output_path = Path(inputs.get("output_path") or scratch_path(f"tts_output.{ext}"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
         if wav:
             buffer = io.BytesIO()

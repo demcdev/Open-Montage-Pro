@@ -20,6 +20,7 @@ import time
 from pathlib import Path
 from typing import Any, Optional
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -171,7 +172,7 @@ class ImageGen(BaseTool):
         )
 
         image_data = base64.b64decode(response.data[0].b64_json)
-        output_path = Path(inputs.get("output_path", "generated_image.png"))
+        output_path = Path(inputs.get("output_path") or scratch_path("generated_image.png"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_bytes(image_data)
 
@@ -216,7 +217,7 @@ class ImageGen(BaseTool):
         image_response = requests.get(image_url, timeout=60)
         image_response.raise_for_status()
 
-        output_path = Path(inputs.get("output_path", "generated_image.png"))
+        output_path = Path(inputs.get("output_path") or scratch_path("generated_image.png"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_bytes(image_response.content)
 
@@ -262,7 +263,7 @@ class ImageGen(BaseTool):
             generator=generator,
         ).images[0]
 
-        output_path = Path(inputs.get("output_path", "generated_image.png"))
+        output_path = Path(inputs.get("output_path") or scratch_path("generated_image.png"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
         image.save(str(output_path))
 

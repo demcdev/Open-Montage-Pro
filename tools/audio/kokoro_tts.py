@@ -8,6 +8,7 @@ import wave
 from pathlib import Path
 from typing import Any
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -213,7 +214,7 @@ class KokoroTTS(BaseTool):
         speed = float(inputs.get("speed", inputs.get("speaking_rate", 1.0)))
         sentence_pause = float(inputs.get("sentence_pause", 0.25))
 
-        output_path = Path(inputs.get("output_path", "tts_output.wav"))
+        output_path = Path(inputs.get("output_path") or scratch_path("tts_output.wav"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         engine = Kokoro(str(model_dir() / MODEL_FILE), str(model_dir() / VOICES_FILE))

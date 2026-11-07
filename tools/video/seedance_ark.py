@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -632,7 +633,7 @@ class SeedanceArkVideo(BaseTool):
             video_url = content.get("video_url")
             if not video_url:
                 raise RuntimeError("Ark task succeeded without content.video_url")
-            output_path = Path(inputs.get("output_path", "seedance_ark_output.mp4"))
+            output_path = Path(inputs.get("output_path") or scratch_path("seedance_ark_output.mp4"))
             self._download_video(str(video_url), output_path)
 
             from tools.video._shared import probe_output

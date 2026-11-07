@@ -9,6 +9,7 @@ from typing import Any
 
 from tools.provider_pricing import PriceQuoteRequired
 
+from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
     Determinism,
@@ -376,10 +377,7 @@ class FalElevenLabsTTS(BaseTool):
                 raise ValueError("Empty fal audio output")
             output_format = job["output_format"]
             output_path = Path(
-                inputs.get(
-                    "output_path",
-                    f"fal_elevenlabs_tts.{self._output_extension(output_format)}",
-                )
+                inputs.get("output_path") or scratch_path(f"fal_elevenlabs_tts.{self._output_extension(output_format)}")
             )
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(response.content)
