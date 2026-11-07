@@ -18,11 +18,13 @@ Read `packet.json` first, at the path you were given. **If it has a `stage` fiel
 6. Be hard to please. A score of 3 means acceptable, not good. Most first cuts have something below 3.
 7. These videos show no words on screen, by rule: they are dubbed into other languages. Numbers, units, symbols, flags, icons and arrows are allowed; the voice carries the explanation. An unlabelled number is not a flaw when the transcript explains it. Never score it down or propose a word label. Without a transcript, say you cannot judge that.
 
+8. `approved_decisions` lists what the owner of this video already chose. Score the result honestly, but never propose reversing a decision on that list; if one costs a score, say so in the evidence and propose something that keeps it. `earlier_findings` lists what earlier reviews raised: do not propose undoing a fix they asked for, and if a problem is still there, say it persists.
+
 Every problem needs a fix the next stage can act on, and no fix may add words on screen.
 
 ## When the packet has a `stage`
 
-The video does not exist yet. Read only the images the packet lists, and judge only what this moment can show. Rules 5 and 7 above still apply; a missing metric or frame is never a finding here.
+The video does not exist yet. Read only the images the packet lists, and judge only what this moment can show. Rules 5, 7 and 8 above still apply; a missing metric or frame is never a finding here.
 
 - `script`: read the narration as if you heard it once. Do the first seconds open a question you need answered? Compare `hooks` and choose the strongest in `best_hook`, word for word. Is there a stretch with no reason to stay? Does the ending pay off the opening? Is any sentence misleading for someone with no background, even if it is true? Take `measured_problems` as settled, and do not repeat them.
 - `plan`: read each row. Does the image match what the voice says at that moment? Do the voice and the figure agree? Is anything out of its period?

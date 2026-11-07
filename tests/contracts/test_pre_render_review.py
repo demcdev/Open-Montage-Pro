@@ -57,7 +57,7 @@ def test_the_plan_packet_holds_only_what_the_viewer_needs(tmp_path):
     assert result.success, result.error
     packet = json.loads(Path(result.data["packet_path"]).read_text(encoding="utf-8"))
     assert packet["stage"] == "plan" and packet["lines"] == [LINE]
-    assert set(packet) == {"stage", "brief", "lines"}
+    assert set(packet) == {"stage", "brief", "lines", "approved_decisions", "earlier_findings"}
     assert Path(result.data["packet_path"]).parent.name == "preview_plan"
 
 
@@ -113,7 +113,7 @@ def test_frames_are_asked_of_the_engine_at_each_scene(tmp_path, monkeypatch):
     monkeypatch.setattr(ColdReview, "_render_preview_frames", render)
     result = preview(tmp_path, stage="frames", engine="remotion", scenes=[{"id": "s1", "start": 0, "end": 10}])
     assert result.success, result.error
-    assert seen["times"] == [1.0, 3.5, 7.5]
+    assert seen["times"] == [1.0, 3.5, 9.65]
     packet = json.loads(Path(result.data["packet_path"]).read_text(encoding="utf-8"))
     assert packet["frames"] == [{"time": 1.0, "file": "frame_00001.00.jpg"}]
 

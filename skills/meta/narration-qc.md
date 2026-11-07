@@ -44,7 +44,7 @@ Cada frase se revisa buscando tres señales:
 | `foreign_language` | El audio no suena al idioma del guion. Solo en clips de 1 s o más |
 | `low_confidence` | Whisper dudó de lo que oyó |
 
-Una frase se marca con dos señales, o con `wrong_words` si tiene dos palabras o menos. Una sola señal es ruido normal, y también aparece en voces nativas.
+Una palabra distinta al guion marca su frase por sí sola, y el informe la nombra en `wrong_words`. `foreign_language` y `low_confidence` son ruido normal por separado, así que marcan solo si coinciden.
 
 ## Paso 4: resolver lo marcado
 

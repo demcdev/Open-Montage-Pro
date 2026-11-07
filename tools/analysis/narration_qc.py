@@ -9,11 +9,11 @@ leaves traces. Each script sentence is aligned to the audio and checked for thre
   under ``MIN_LANGUAGE_SECONDS`` are skipped, because native voices fail this too.
 - ``low_confidence``: Whisper was unsure of what it heard.
 
-One trace alone is ordinary noise, so a sentence is flagged at ``FLAG_SIGNALS``, or
-on ``wrong_words`` alone when it is at most ``SHORT_SENTENCE_WORDS`` long, because
-there the wrong word is the whole line. A flag means "listen to this", not "this is wrong": someone has to hear it, then
-regenerate it or list it in ``accepted_sentences``. An accent that changes without
-touching the words can pass unseen, which is why the approved sample still matters.
+A wrong word flags its sentence on its own, because one word can carry the whole line.
+The other two traces are ordinary noise alone, so they flag at ``FLAG_SIGNALS``. A flag
+means "listen to this", not "this is wrong": someone has to hear it, then regenerate it
+or list it in ``accepted_sentences``. An accent that changes without touching the words
+can pass unseen, which is why the approved sample still matters.
 """
 
 from __future__ import annotations
@@ -38,7 +38,6 @@ from tools.base_tool import (
 
 SAMPLE_RATE = 16000
 FLAG_SIGNALS = 2
-SHORT_SENTENCE_WORDS = 2
 MIN_LANGUAGE_SECONDS = 1.0
 MIN_LANGUAGE_PROBABILITY = 0.5
 MIN_WORD_CONFIDENCE = 0.6
@@ -80,6 +79,12 @@ def align(script_words: list[str], heard_words: list[str]) -> list[int]:
     return positions
 
 
+def unheard_words(script_words: list[str], heard: list[dict[str, Any]]) -> list[str]:
+    heard_words = [word["norm"] for word in heard]
+    joined = "".join(heard_words)
+    return [word for word in script_words if word not in joined and not any(same_word(word, other) for other in heard_words)]
+
+
 def sentence_signals(
     script_words: list[str],
     heard: list[dict[str, Any]],
@@ -87,8 +92,7 @@ def sentence_signals(
 ) -> list[str]:
     """Return the traces of a slip in one aligned sentence."""
     signals = []
-    heard_words = [word["norm"] for word in heard]
-    if not all(any(same_word(word, other) for other in heard_words) for word in script_words):
+    if unheard_words(script_words, heard):
         signals.append("wrong_words")
     if language_probability is not None and language_probability < MIN_LANGUAGE_PROBABILITY:
         signals.append("foreign_language")
@@ -97,10 +101,8 @@ def sentence_signals(
     return signals
 
 
-def is_flagged(signals: list[str], word_count: int) -> bool:
-    if len(signals) >= FLAG_SIGNALS:
-        return True
-    return "wrong_words" in signals and word_count <= SHORT_SENTENCE_WORDS
+def is_flagged(signals: list[str]) -> bool:
+    return "wrong_words" in signals or len(signals) >= FLAG_SIGNALS
 
 
 def analyze(script: str, words: list[dict[str, Any]], language_of_clip) -> list[dict[str, Any]]:
@@ -139,7 +141,8 @@ def analyze(script: str, words: list[dict[str, Any]], language_of_clip) -> list[
                 "end": end,
                 "language_probability": None if probability is None else round(probability, 3),
                 "signals": signals,
-                "flagged": is_flagged(signals, len(group)),
+                "wrong_words": unheard_words(group, heard_here),
+                "flagged": is_flagged(signals),
             }
         )
     return checked

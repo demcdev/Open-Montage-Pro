@@ -29,7 +29,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
-from tools.analysis.cold_review import MAX_ROUNDS, NARRATIVE_PIPELINES, cold_path, read_report
+from tools.analysis.cold_review import MAX_ROUNDS, NARRATIVE_PIPELINES, approved_decisions, cold_path, project_of, read_report
 from tools.analysis.technical_qc import file_sha256
 from tools.base_tool import (
     BaseTool,
@@ -43,6 +43,8 @@ from tools.base_tool import (
     ToolTier,
 )
 
+
+PIPELINE_DIR = Path(__file__).resolve().parent.parent.parent / "pipeline_defs"
 
 class ExportBundle(BaseTool):
     name = "export_bundle"
@@ -78,7 +80,7 @@ class ExportBundle(BaseTool):
 
     input_schema = {
         "type": "object",
-        "required": ["video_path", "title"],
+        "required": ["video_path", "title", "pipeline"],
         "properties": {
             "video_path": {
                 "type": "string",
@@ -137,9 +139,13 @@ class ExportBundle(BaseTool):
                     },
                 },
             },
+            "project_dir": {
+                "type": "string",
+                "description": "Project folder. Defaults to the parent of renders/.",
+            },
             "pipeline": {
                 "type": "string",
-                "description": "Pipeline manifest name. Narrative pipelines need a current cold review.",
+                "description": "Pipeline manifest name. Narrative pipelines need a current cold review and a decision_log.",
             },
             "cold_exception": {
                 "type": "object",
@@ -202,6 +208,26 @@ class ExportBundle(BaseTool):
                 ts = "0:00"
             lines.append(f"{ts} - {label}".rstrip(" -"))
         return lines
+
+    @staticmethod
+    def _pipeline_gate(inputs: dict[str, Any]) -> Optional[str]:
+        """A pipeline this repo does not know could not say which gates apply."""
+        pipeline = inputs.get("pipeline")
+        if not pipeline:
+            return "pipeline is required: it decides which gates this master must pass."
+        if not (PIPELINE_DIR / f"{pipeline}.yaml").is_file():
+            return f"Unknown pipeline {pipeline!r}: no manifest in {PIPELINE_DIR}."
+        return None
+
+    @staticmethod
+    def _decision_gate(video_path: Path, inputs: dict[str, Any]) -> Optional[str]:
+        """A narrative master must leave a record of what was decided along the way."""
+        if inputs.get("pipeline") not in NARRATIVE_PIPELINES:
+            return None
+        project = inputs.get("project_dir") or project_of(video_path) or video_path.parent
+        if not approved_decisions(project):
+            return f"No decisions in {project}: write artifacts/decision_log.json before exporting."
+        return None
 
     @staticmethod
     def _qc_gate(video_path: Path, inputs: dict[str, Any]) -> tuple[Optional[str], dict[str, Any]]:
@@ -278,7 +304,7 @@ class ExportBundle(BaseTool):
         if verdict not in ("pass", "escalate"):
             return f"Cold review {report_path} has no valid verdict: {verdict!r}", {}
 
-        entry: dict[str, Any] = {"verdict": verdict, "report_path": str(report_path)}
+        entry: dict[str, Any] = {"verdict": verdict, "report_path": str(report_path), "gates": report.get("gates") or {}}
         if verdict == "escalate":
             exception = inputs.get("cold_exception") or {}
             reason = str(exception.get("reason") or "").strip()
@@ -299,12 +325,19 @@ class ExportBundle(BaseTool):
         if not video_path.is_file():
             return ToolResult(success=False, error=f"video_path not found: {video_path}")
 
+        pipeline_error = self._pipeline_gate(inputs)
+        if pipeline_error:
+            return ToolResult(success=False, error=pipeline_error)
         qc_error, qc_entry = self._qc_gate(video_path, inputs)
         if qc_error:
             return ToolResult(success=False, error=qc_error)
         cold_error, cold_entry = self._cold_gate(video_path, inputs)
         if cold_error:
             return ToolResult(success=False, error=cold_error)
+
+        decision_error = self._decision_gate(video_path, inputs)
+        if decision_error:
+            return ToolResult(success=False, error=decision_error)
 
         title = inputs["title"]
         project_name = inputs.get("project_name") or self._infer_project_name(video_path)
@@ -426,6 +459,8 @@ class ExportBundle(BaseTool):
         }
         if inputs.get("visibility"):
             entry["visibility"] = inputs["visibility"]
+        if not inputs.get("thumbnail_path"):
+            entry["warnings"] = ["No thumbnail in this export."]
 
         publish_log = {"version": "1.0", "entries": [entry]}
 

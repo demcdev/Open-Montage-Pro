@@ -49,7 +49,8 @@ MIN_SCORE = 3
 MAX_ROUNDS = 3
 MAX_FRAMES = 40
 FRAME_WIDTH = 960
-SCENE_MOMENTS = (0.35, 0.75)
+SCENE_MOMENT = 0.35
+SETTLE_SECONDS = 0.35
 HOOK_SECONDS = 1.0
 PREVIEW_STAGES = ("script", "plan", "clips", "frames")
 MAX_PREVIEW_PASSES = 2
@@ -83,16 +84,59 @@ def read_report(path: Path) -> dict[str, Any] | None:
     return report if isinstance(report, dict) else None
 
 
-def frame_times(duration: float, scenes: list[dict[str, Any]], layout: dict[str, Any] | None) -> list[float]:
-    """Pick frames: the hook, two per scene, and every moment the audit flagged."""
+def project_of(video_path: Path) -> Path | None:
+    """Return the project of a master kept at projects/<name>/renders/."""
+    resolved = video_path.resolve()
+    return resolved.parent.parent if resolved.parent.name == "renders" else None
+
+
+def approved_decisions(project_dir: str | Path | None) -> list[dict[str, Any]]:
+    """Return what the project's decision_log says was decided, for reviewers to respect."""
+    if not project_dir:
+        return []
+    root = Path(project_dir)
+    log = read_report(root / "artifacts" / "decision_log.json") or read_report(root / "decision_log.json") or {}
+    return [
+        {key: decision.get(key) for key in ("subject", "selected", "reason")}
+        for decision in log.get("decisions") or []
+        if decision.get("user_visible", True)
+    ]
+
+
+def earlier_findings(project_dir: str | Path | None, stages: tuple[str, ...], cold_report: Path | None = None) -> list[dict[str, Any]]:
+    """Return what earlier reviews already raised, so a new one can build on it."""
+    if not project_dir:
+        return []
+    artifacts = Path(project_dir) / "artifacts"
+    reports = {stage: read_report(artifacts / f"preview_{stage}.json") for stage in stages}
+    if cold_report:
+        reports["master"] = read_report(cold_report)
+    return [
+        {"source": source, "problem": finding.get("problem"), "proposed_fix": finding.get("proposed_fix")}
+        for source, report in reports.items()
+        for finding in (report or {}).get("findings") or []
+    ]
+
+
+def frame_times(
+    duration: float,
+    scenes: list[dict[str, Any]],
+    layout: dict[str, Any] | None,
+    cues: list[float] | None = None,
+) -> list[float]:
+    """Pick frames: the hook, two per scene, every moment the audit flagged and every cue.
+
+    The second frame of a scene sits at its end, once its animation has settled, because
+    a frame taken halfway through a movement shows a state no viewer is meant to judge.
+    """
     times = [min(HOOK_SECONDS, duration / 2)]
     for scene in scenes:
         start, end = float(scene["start"]), float(scene["end"])
-        times += [start + (end - start) * moment for moment in SCENE_MOMENTS]
+        times += [start + (end - start) * SCENE_MOMENT, end - min(SETTLE_SECONDS, (end - start) * 0.25)]
     if not scenes:
         step = max(duration / (MAX_FRAMES - 1), 2.0)
         times += [step * index for index in range(1, int(duration / step) + 1)]
-    flagged = [finding["start"] for finding in (layout or {}).get("findings", [])]
+    flagged = [finding["start"] for finding in (layout or {}).get("findings", [])] + [float(cue) for cue in cues or []]
     if len(times) + len(flagged) > MAX_FRAMES:
         stride = (len(times) + len(flagged)) / MAX_FRAMES
         times = [times[int(index * stride)] for index in range(int(len(times) / stride))]
@@ -212,6 +256,11 @@ class ColdReview(BaseTool):
                 ),
             },
             "video_path": {"type": "string", "description": "prepare and record: final master, after audio_master."},
+            "cues": {
+                "type": "array",
+                "items": {"type": "number"},
+                "description": "prepare and frames: exact seconds to include, such as a key word or figure.",
+            },
             "project_dir": {
                 "type": "string",
                 "description": "preview and record_preview: project folder. record: also lists the previews that ran.",
@@ -326,7 +375,7 @@ class ColdReview(BaseTool):
         for old in out_dir.glob("frame_*.jpg"):
             old.unlink()
         frames = []
-        for moment in frame_times(duration, inputs.get("scenes") or [], layout):
+        for moment in frame_times(duration, inputs.get("scenes") or [], layout, inputs.get("cues")):
             frame = out_dir / f"frame_{moment:08.2f}.jpg"
             self.run_command(
                 ["ffmpeg", "-y", "-v", "error", "-ss", str(moment), "-i", str(video_path),
@@ -335,6 +384,7 @@ class ColdReview(BaseTool):
             )
             frames.append({"time": moment, "file": frame.name})
 
+        project = inputs.get("project_dir") or project_of(video_path)
         packet = {
             "input_sha256": file_sha256(video_path),
             "duration_seconds": round(duration, 2),
@@ -346,6 +396,8 @@ class ColdReview(BaseTool):
             "layout": None if layout is None else {k: layout.get(k) for k in ("verdict", "findings", "samples_checked")},
             "technical_qc": None if qc is None else {k: qc.get(k) for k in ("verdict", "loudness", "findings")},
             "frames": frames,
+            "approved_decisions": approved_decisions(project),
+            "earlier_findings": earlier_findings(project, PREVIEW_STAGES, cold_path(video_path)),
         }
         packet_path = out_dir / "packet.json"
         packet_path.write_text(json.dumps(packet, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -371,6 +423,10 @@ class ColdReview(BaseTool):
             "scores": scores,
             "failed_criteria": failed,
             "findings": inputs.get("findings") or [],
+            "gates": {
+                "layout": (packet.get("layout") or {}).get("verdict"),
+                "narration": (packet.get("narration") or {}).get("verdict") if packet.get("has_narration") else "no_narration",
+            },
         }
         if inputs.get("project_dir"):
             artifacts = Path(inputs["project_dir"]) / "artifacts"
@@ -386,7 +442,12 @@ class ColdReview(BaseTool):
             raise ValueError(f"stage must be one of {PREVIEW_STAGES}.")
         out_dir = Path(inputs["project_dir"]) / "artifacts" / f"preview_{stage}"
         out_dir.mkdir(parents=True, exist_ok=True)
-        packet: dict[str, Any] = {"stage": stage, "brief": inputs.get("brief") or {}}
+        packet: dict[str, Any] = {
+            "stage": stage,
+            "brief": inputs.get("brief") or {},
+            "approved_decisions": approved_decisions(inputs["project_dir"]),
+            "earlier_findings": earlier_findings(inputs["project_dir"], PREVIEW_STAGES[: PREVIEW_STAGES.index(stage) + 1]),
+        }
 
         if stage == "script":
             if not inputs.get("script_text"):
@@ -419,7 +480,7 @@ class ColdReview(BaseTool):
                 old.unlink()
             duration = max(float(scene["end"]) for scene in scenes)
             packet["scenes"] = scenes
-            packet["frames"] = self._render_preview_frames(inputs, frame_times(duration, scenes, None), out_dir)
+            packet["frames"] = self._render_preview_frames(inputs, frame_times(duration, scenes, None, inputs.get("cues")), out_dir)
 
         packet_path = out_dir / "packet.json"
         packet_path.write_text(json.dumps(packet, indent=2, ensure_ascii=False), encoding="utf-8")

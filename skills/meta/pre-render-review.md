@@ -84,5 +84,5 @@ Para juzgar ritmo y movimiento, el usuario necesita verlo. En piezas importantes
 ## Límites
 
 - No sustituye la revisión final, que juzga el máster con su audio y su compresión.
-- En piezas largas, `frames` limita el muestreo a 40 fotogramas.
+- En piezas largas, `frames` limita el muestreo a 40 fotogramas; `cues` añade segundos exactos.
 - Puede marcar falsos problemas: por eso avisa y no bloquea.

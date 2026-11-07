@@ -176,7 +176,7 @@ def export(tmp_path: Path, stems_dir: Path):
     report = {"input_sha256": file_sha256(video), "verdict": "pass", "profile": "youtube", "findings": []}
     video.with_suffix(".qc.json").write_text(json.dumps(report), encoding="utf-8")
     return ExportBundle().execute(
-        {"video_path": str(video), "title": "t", "export_dir": str(tmp_path / "out"), "stems_dir": str(stems_dir)}
+        {"pipeline": "clip-factory", "video_path": str(video), "title": "t", "export_dir": str(tmp_path / "out"), "stems_dir": str(stems_dir)}
     )
 
 

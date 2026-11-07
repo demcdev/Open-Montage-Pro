@@ -63,18 +63,31 @@ def test_a_short_line_flags_on_its_wrong_word_alone():
 
 
 @pytest.mark.parametrize(
-    ("signals", "words", "expected"),
+    ("signals", "expected"),
     [
-        (["low_confidence"], 1, False),
-        (["foreign_language"], 3, False),
-        (["wrong_words"], 7, False),
-        (["wrong_words"], 2, True),
-        (["wrong_words", "low_confidence"], 7, True),
-        (["foreign_language", "low_confidence"], 3, True),
+        ([], False),
+        (["low_confidence"], False),
+        (["foreign_language"], False),
+        (["wrong_words"], True),
+        (["foreign_language", "low_confidence"], True),
     ],
 )
-def test_one_trace_is_noise_unless_the_line_is_short(signals, words, expected):
-    assert is_flagged(signals, words) is expected
+def test_a_wrong_word_flags_alone_and_other_traces_need_company(signals, expected):
+    assert is_flagged(signals) is expected
+
+
+def said(text: str) -> list[dict]:
+    return [word(item, index, index + 0.3) for index, item in enumerate(text.split())]
+
+
+def test_one_wrong_word_flags_a_long_sentence_and_names_the_word():
+    words = said("Buceas en un arrecife y ves un pech rojo sobre un coral")
+    results = analyze("Buceas en un arrecife y ves un pez rojo sobre un coral.", words, spanish)
+    assert results[0]["flagged"] and results[0]["wrong_words"] == ["pez"]
+
+
+def test_words_run_together_are_not_wrong_words():
+    assert flagged(analyze("Tu verias algo asi.", said("Tuverias algo asi"), spanish)) == []
 
 
 def test_short_clips_skip_language_detection():

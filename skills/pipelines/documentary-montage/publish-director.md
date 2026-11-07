@@ -74,7 +74,7 @@ Package every shipped master with `export_bundle`, after its last `technical_qc`
 <!-- cold-review-export -->
 ## Cold Review At Export (Binding)
 
-Pass `pipeline` with this manifest's name to `export_bundle`. The tool refuses a master with no `<master>.cold.json`, a review of different bytes, or a `revise` verdict. An `escalate` verdict ships only with `cold_exception` (`reason` plus the `decision_id` of the user's `cold_exception` decision in `decision_log`).
+Pass `pipeline` with this manifest's name to `export_bundle`. The tool refuses a master with no `<master>.cold.json`, a review of different bytes, a `revise` verdict, or a project with no decisions in `decision_log.json`. An `escalate` verdict ships only with `cold_exception` (`reason` plus the `decision_id` of the user's `cold_exception` decision in `decision_log`).
 
 <!-- youtube-policy-gate -->
 ## YouTube Policy Gate

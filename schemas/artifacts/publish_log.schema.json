@@ -20,6 +20,7 @@
           "visibility": { "type": "string", "enum": ["public", "private", "unlisted"] },
           "export_path": { "type": "string" },
           "timestamp": { "type": "string", "format": "date-time" },
+          "warnings": {"type": "array", "items": {"type": "string"}, "description": "What this export ships without, such as a thumbnail."},
           "cold_review": {
             "type": "object",
             "description": "Cold review that cleared this master, in narrative pipelines.",
@@ -27,6 +28,7 @@
             "properties": {
               "verdict": { "type": "string", "enum": ["pass", "escalate"] },
               "report_path": { "type": "string" },
+              "gates": {"type": "object", "description": "Verdicts of the measured reports behind this review.", "properties": {"layout": {"type": ["string", "null"]}, "narration": {"type": ["string", "null"]}}, "additionalProperties": false},
               "exception": {
                 "type": "object",
                 "required": ["reason", "decision_id"],

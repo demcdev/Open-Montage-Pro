@@ -24,9 +24,12 @@ Si el máster cambia después, la revisión queda anulada.
   "scenes": [{"id": "s1", "start": 0, "end": 6.5}],
   "has_narration": true,
   "narration_report_path": "assets/audio/narracion.narration.json",
-  "layout_report_path": "renders/final_raw.layout.json"
+  "layout_report_path": "renders/final_raw.layout.json",
+  "cues": [38.2]
 }
 ```
+
+El paquete toma dos fotogramas por escena: uno en su desarrollo y otro al final, con la animación terminada. Usa `cues` para pedir segundos exactos, como una cifra o una palabra clave. También incluye `approved_decisions`, leído del `decision_log`, y `earlier_findings`, de las revisiones previas: el revisor puntúa con honestidad, pero no propone revertirlos.
 
 2. **Revisar.** Llama al agente `cold-viewer` y pásale **solo** la ruta de `packet.json`. No le cuentes qué se intentó, qué costó ni qué crees que falla. En otro entorno sin subagentes, usa una sesión nueva sin historial.
 3. **Registrar.** `cold_review` con `operation: "record"`, las puntuaciones y hallazgos tal como vinieron, y `round`.

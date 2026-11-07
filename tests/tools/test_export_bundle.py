@@ -58,7 +58,7 @@ def test_contract_metadata():
 
 def test_missing_video_errors(tmp_path):
     result = ExportBundle().execute(
-        {"video_path": str(tmp_path / "nope.mp4"), "title": "X"}
+        {"pipeline": "clip-factory", "video_path": str(tmp_path / "nope.mp4"), "title": "X"}
     )
     assert result.success is False
     assert "not found" in (result.error or "")
@@ -72,7 +72,7 @@ def test_export_bundle_layout_and_publish_log(tmp_path):
 
     result = ExportBundle().execute(
         {
-            "video_path": str(video),
+            "pipeline": "clip-factory", "video_path": str(video),
             "title": "Vector Databases Explained in 60 Seconds",
             "export_dir": str(tmp_path / "out"),
             "description": "A quick explainer.",
@@ -122,7 +122,7 @@ def test_chapter_time_formatting_hours(tmp_path):
     _make_video(video)
     result = ExportBundle().execute(
         {
-            "video_path": str(video),
+            "pipeline": "clip-factory", "video_path": str(video),
             "title": "Long",
             "export_dir": str(tmp_path / "out"),
             "chapters": [{"time_seconds": 3725, "label": "Deep dive"}],  # 1:02:05
@@ -137,7 +137,7 @@ def test_infer_project_name(tmp_path):
     video = tmp_path / "projects" / "my-cool-video" / "renders" / "final.mp4"
     _make_video(video)
     result = ExportBundle().execute(
-        {"video_path": str(video), "title": "T", "export_dir": str(tmp_path / "out")}
+        {"pipeline": "clip-factory", "video_path": str(video), "title": "T", "export_dir": str(tmp_path / "out")}
     )
     # export still works; project name inference exercised via no-export_dir path below
     assert result.success is True
@@ -149,7 +149,7 @@ def test_missing_optional_asset_errors(tmp_path):
     for key in ("subtitles_path", "thumbnail_path"):
         result = ExportBundle().execute(
             {
-                "video_path": str(video),
+                "pipeline": "clip-factory", "video_path": str(video),
                 "title": "T",
                 "export_dir": str(tmp_path / "out"),
                 key: str(tmp_path / "does_not_exist.x"),
@@ -163,14 +163,14 @@ def test_default_export_dir_inside_project_workspace(tmp_path):
     # projects/<name>/renders/final.mp4 -> projects/<name>/exports (no export_dir given)
     video = tmp_path / "projects" / "demo" / "renders" / "final.mp4"
     _make_video(video)
-    result = ExportBundle().execute({"video_path": str(video), "title": "T"})
+    result = ExportBundle().execute({"pipeline": "clip-factory", "video_path": str(video), "title": "T"})
     assert result.success is True
     assert Path(result.data["export_path"]) == (tmp_path / "projects" / "demo" / "exports").resolve()
 
 
 def _export(video: Path, tmp_path: Path, **extra):
     return ExportBundle().execute(
-        {"video_path": str(video), "title": "T", "export_dir": str(tmp_path / "out"), **extra}
+        {"pipeline": "clip-factory", "video_path": str(video), "title": "T", "export_dir": str(tmp_path / "out"), **extra}
     )
 
 
@@ -284,3 +284,24 @@ def test_registry_discovers_export_bundle():
     reg.discover()
     assert reg.get("export_bundle") is not None
     assert reg.get_by_capability("publish")[0].name == "export_bundle"
+
+
+def _bundle_inputs(tmp_path: Path, **extra) -> dict:
+    video = tmp_path / "renders" / "final.mp4"
+    _make_video(video)
+    return {"video_path": str(video), "title": "t", "export_dir": str(tmp_path / "out"), **extra}
+
+
+def test_export_refused_without_a_pipeline(tmp_path):
+    result = ExportBundle().execute(_bundle_inputs(tmp_path))
+    assert not result.success and "pipeline is required" in result.error
+
+
+def test_export_refused_with_an_unknown_pipeline(tmp_path):
+    result = ExportBundle().execute(_bundle_inputs(tmp_path, pipeline="nope"))
+    assert not result.success and "Unknown pipeline" in result.error
+
+
+def test_an_export_without_thumbnail_says_so(tmp_path):
+    result = ExportBundle().execute(_bundle_inputs(tmp_path, pipeline="clip-factory"))
+    assert result.data["publish_log"]["entries"][0]["warnings"] == ["No thumbnail in this export."]

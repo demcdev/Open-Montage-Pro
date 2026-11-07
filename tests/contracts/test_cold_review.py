@@ -90,7 +90,16 @@ def test_every_score_needs_evidence():
 def test_frames_cover_the_hook_each_scene_and_flagged_moments():
     scenes = [{"start": 0, "end": 10}, {"start": 10, "end": 20}]
     layout = {"findings": [{"start": 13.0}]}
-    assert frame_times(20, scenes, layout) == [1.0, 3.5, 7.5, 13.0, 13.5, 17.5]
+    assert frame_times(20, scenes, layout) == [1.0, 3.5, 9.65, 13.0, 13.5, 19.65]
+
+
+def test_cues_add_exact_moments():
+    assert 12.25 in frame_times(20, [{"start": 0, "end": 20}], None, [12.25])
+
+
+def test_a_short_scene_keeps_its_last_frame_inside_it():
+    times = frame_times(10, [{"start": 4, "end": 5}], None)
+    assert 4.75 in times
 
 
 def test_frames_stay_capped_and_keep_every_flagged_moment():
@@ -152,8 +161,14 @@ def _review(video: Path, verdict: str, sha: str | None = None) -> None:
     cold_review.cold_path(video).write_text(json.dumps(report), encoding="utf-8")
 
 
+def _decide(project: Path) -> None:
+    decision = {"subject": "Apertura", "selected": "Imagina esto", "reason": "Aprobada por el usuario"}
+    (project / "decision_log.json").write_text(json.dumps({"decisions": [decision]}), encoding="utf-8")
+
+
 def _export(video: Path, tmp_path: Path, **extra):
     _approve_qc(video)
+    _decide(video.parent)
     inputs = {"video_path": str(video), "title": "t", "export_dir": str(tmp_path / "out"), "pipeline": "cinematic"}
     return ExportBundle().execute({**inputs, **extra})
 
@@ -258,3 +273,27 @@ def test_exception_categories_exist_in_the_decision_log():
     schema = json.loads((ROOT / "schemas" / "artifacts" / "decision_log.schema.json").read_text(encoding="utf-8"))
     categories = schema["properties"]["decisions"]["items"]["properties"]["category"]["enum"]
     assert {"voice_language", "qc_exception", "cold_exception"} <= set(categories)
+
+
+def test_a_narrative_export_needs_decisions(prepared, tmp_path):
+    _approve_qc(prepared)
+    _review(prepared, "pass")
+    inputs = {"video_path": str(prepared), "title": "t", "export_dir": str(tmp_path / "out"), "pipeline": "cinematic"}
+    result = ExportBundle().execute(inputs)
+    assert not result.success and "decision_log" in result.error
+
+
+def test_reviewers_receive_decisions_and_earlier_findings(tmp_path):
+    artifacts = tmp_path / "artifacts"
+    artifacts.mkdir()
+    _decide(artifacts)
+    finding = {"scene_id": "s1", "problem": "El pez no se ve", "proposed_fix": "Mostrarlo"}
+    (artifacts / "preview_plan.json").write_text(json.dumps({"findings": [finding]}), encoding="utf-8")
+    assert cold_review.approved_decisions(tmp_path)[0]["selected"] == "Imagina esto"
+    earlier = cold_review.earlier_findings(tmp_path, cold_review.PREVIEW_STAGES)
+    assert earlier == [{"source": "plan", "problem": "El pez no se ve", "proposed_fix": "Mostrarlo"}]
+
+
+def test_a_project_without_a_log_has_no_decisions(tmp_path):
+    assert cold_review.approved_decisions(tmp_path) == []
+    assert cold_review.approved_decisions(None) == []

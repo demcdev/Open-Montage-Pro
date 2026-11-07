@@ -80,3 +80,8 @@ Read these before working in this stage. They are shared across pipelines; this 
 - `skills/meta/technical-qc-gate.md` — run `technical_qc` on every render shown to the user and on the final master; `block` stops delivery, every `warn` is opened and resolved. Declare planned silences/holds in `edit_decisions.metadata.intentional_ranges`.
 - `skills/core/delivery-specs.md` — destination specs (YouTube, Shorts, Reels, TikTok), one complete version per language, SRT/VTT rules and chapters; never burn subtitles.
 - `skills/creative/title-thumbnail-trailer.md` — three honest thumbnail variants, title options, credits and next-episode teaser.
+
+<!-- export-pipeline -->
+## Pipeline At Export (Binding)
+
+Pass `pipeline` with this manifest's name to `export_bundle`. The tool refuses an export without it.
