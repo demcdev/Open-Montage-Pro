@@ -330,6 +330,7 @@ Cross-cutting skills that apply to all pipelines:
 | Technique Selector | `meta/technique-selector.md` | Proposal or idea stage of narrative pipelines: goal → 3–8 justified techniques → tools → no-GPU fallback, in `technique_stack`, before locking the runtime |
 | Speed Ramp | `core/speed-ramp.md` | Edit stage: `speed_ramp` changes speed gradually inside one shot, with an exact output length |
 | Beat Sync | `core/beat-sync.md` | Edit stage: `beat_grid` finds tempo, beats and bars of a track and snaps cuts to them, refusing music with no clear pulse |
+| Pre-Render Review | `meta/pre-render-review.md` | Scene plan, assets and compose: `cold_review` `preview` and `cold-viewer` review the plan, the clips and stills, so problems are fixed before the render |
 | Cold Review | `meta/cold-review.md` | Final master of narrative pipelines: `cold_review` and the `cold-viewer` agent score 8 criteria, with 3 rounds at most → pass / revise / escalate, enforced by `export_bundle` |
 | Layout Audit | `meta/layout-audit.md` | Before each render: `layout_audit` measures real boxes and stops on text off canvas, cut off, overlapping or covered |
 | Narration QC | `meta/narration-qc.md` | Assets stage: refuses voices of another language and flags sentences that slip out of the script's language with `narration_qc` |

@@ -195,6 +195,11 @@ Approval is per-gate — an earlier "go ahead" does not cover this gate.
 
 ---
 
+<!-- pre-render-review -->
+## Pre-Render Review (Binding)
+
+When choosing stock or sourced clips, run the `clips` moment of `skills/meta/pre-render-review.md` and fix what it finds before edit.
+
 <!-- transversal-skills-2026-10 -->
 ## Transversal Skills (Binding)
 

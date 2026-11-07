@@ -63,6 +63,11 @@ Do not present the output as complete when `character_qa_report.status` is
 
 After `audio_master` and `technical_qc`, run `skills/meta/cold-review.md` on the final master: `cold_review` `prepare`, the `cold-viewer` agent with only the packet path, then `cold_review` `record`. `revise` means fix and review again, up to three rounds; `escalate` means stop and let the user decide. Any change to the master voids the review.
 
+<!-- pre-render-review -->
+## Pre-Render Review (Binding)
+
+Before the full render, run the `frames` moment of `skills/meta/pre-render-review.md`. In important pieces, also show the user a draft.
+
 <!-- transversal-skills-2026-10 -->
 ## Transversal Skills (Binding)
 

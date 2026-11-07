@@ -60,6 +60,7 @@ required_skills:
   - meta/layout-audit
   - meta/cold-review
   - meta/narration-qc
+  - meta/pre-render-review
 
 orchestration:
   mode: executive-producer
@@ -203,7 +204,7 @@ stages:
       - proposal_packet
     produces:
       - scene_plan
-    tools_available: []
+    tools_available: [cold_review]
     checkpoint_required: true
     human_approval_default: true
     review_focus:
@@ -232,6 +233,7 @@ stages:
       - music_gen
       - character_rig_renderer
       - narration_qc
+      - cold_review
     checkpoint_required: true
     human_approval_default: true
     review_focus:

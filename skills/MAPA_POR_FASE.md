@@ -186,6 +186,7 @@ Sale: máster EN/ES, SRT/VTT, miniaturas y metadatos.
 | `core/speed-ramp.md` | Rampas de velocidad reales sobre clips con `speed_ramp` | 🔗 `speed_ramp`, `technique-catalog` |
 | `core/beat-sync.md` | Cortes al pulso con `beat_grid` | 🔗 `beat_grid`, `technique-catalog` |
 | `meta/layout-audit.md` | Textos y gráficos desbordados, encimados o tapados, antes de renderizar | ✅ todos |
+| `meta/pre-render-review.md` | Revisar plan, clips y fotogramas antes del render | ✅ ae, anim, avatar, char, cine, doc, hyb |
 | `meta/cold-review.md` | Revisión del máster por alguien que no lo hizo, con 8 criterios | ✅ ae, anim, avatar, char, cine, doc, hyb |
 | `meta/narration-qc.md` | Voz de otro idioma y frases que se salen del idioma del guion | ✅ ae, anim, avatar, char, hyb, loc, demo |
 | `core/delivery-specs.md` | Másteres por destino, SRT/VTT, capítulos | ✅ todos |

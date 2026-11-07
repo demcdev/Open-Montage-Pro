@@ -366,6 +366,11 @@ The `script` stage owns the beat map, the on-screen words and any narration; the
 
 ---
 
+<!-- pre-render-review -->
+## Pre-Render Review (Binding)
+
+Before approval, run the `plan` moment of `skills/meta/pre-render-review.md`: one row per script line with its image and figure.
+
 <!-- transversal-skills-2026-10 -->
 ## Transversal Skills (Binding)
 

@@ -58,6 +58,7 @@ required_skills:
   - creative/title-thumbnail-trailer
   - meta/layout-audit
   - meta/cold-review
+  - meta/pre-render-review
 
 compatible_playbooks:
   custom_allowed: true
@@ -134,7 +135,7 @@ stages:
       - research_brief
     produces:
       - scene_plan
-    tools_available: []
+    tools_available: [cold_review]
     checkpoint_required: true
     human_approval_default: true
     review_focus:
@@ -168,6 +169,7 @@ stages:
       - corpus_builder
       - clip_search
       - music_gen
+      - cold_review
     checkpoint_required: true
     human_approval_default: true
     review_focus:

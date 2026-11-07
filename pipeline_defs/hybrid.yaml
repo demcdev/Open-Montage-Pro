@@ -55,6 +55,7 @@ required_skills:
   - meta/layout-audit
   - meta/cold-review
   - meta/narration-qc
+  - meta/pre-render-review
 
 compatible_playbooks:
   recommended:
@@ -122,6 +123,7 @@ stages:
     tools_available:
       - frame_sampler
       - scene_detect
+      - cold_review
     checkpoint_required: true
     human_approval_default: true
     review_focus:
@@ -163,6 +165,7 @@ stages:
       - music_gen
       - audio_enhance
       - narration_qc
+      - cold_review
     checkpoint_required: true
     human_approval_default: true
     review_focus:

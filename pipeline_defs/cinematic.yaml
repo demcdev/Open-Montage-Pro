@@ -68,6 +68,7 @@ required_skills:
   - meta/budget-and-model-routing
   - meta/layout-audit
   - meta/cold-review
+  - meta/pre-render-review
 
 compatible_playbooks:
   recommended:
@@ -169,6 +170,7 @@ stages:
     tools_available:
       - frame_sampler
       - scene_detect
+      - cold_review
     checkpoint_required: true
     human_approval_default: true
     review_focus:
@@ -216,6 +218,7 @@ stages:
       - pixabay_music
       - freesound_music
       - music_gen
+      - cold_review
     checkpoint_required: true
     human_approval_default: true
     review_focus:

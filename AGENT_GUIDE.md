@@ -741,6 +741,7 @@ The `.agents/skills/` directory is large. When you're not coming in through a to
 | How do I cut on the beat? | `skills/core/beat-sync.md` (tool `beat_grid`) |
 | Does the narration stay in the script's language? | `skills/meta/narration-qc.md` (tool `narration_qc`) |
 | Are graphics or text off screen, overlapping or covered? | `skills/meta/layout-audit.md` (tool `layout_audit`, automatic before each render) |
+| How do I catch problems before the render? | `skills/meta/pre-render-review.md` (tool `cold_review`, agent `cold-viewer`) |
 | Would a first-time viewer accept this master? | `skills/meta/cold-review.md` (tool `cold_review`, agent `cold-viewer`) |
 | How loud should the final audio be, and how do I master it? | `skills/core/loudness-mastering.md` (tool `audio_master`) |
 | How do I keep characters, wardrobe, locations and light consistent across shots and chapters? | `skills/meta/production-bible.md` |
