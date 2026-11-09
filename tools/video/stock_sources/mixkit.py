@@ -5,7 +5,10 @@ Mixkit offers curated, high-quality footage (HD and 4K) under a free
 licence with no attribution required. The library is smaller than
 Pixabay/Pexels but has higher average quality due to Envato's curation.
 
-No API available — this adapter scrapes Mixkit search pages.
+No API available — this adapter scrapes Mixkit search pages. Each result
+card carries the clip id, and the files sit at a predictable address
+(``assets.mixkit.co/videos/<id>/<id>-1080.mp4``, with ``-720`` for clips
+that have no 1080p), so no detail page is fetched.
 
 What Mixkit is good for
 -----------------------
@@ -21,11 +24,17 @@ import re
 from pathlib import Path
 from typing import Any
 
+from lib.media_download import download_media
+
 from .base import Candidate, SearchFilters
 
 _log = logging.getLogger(__name__)
 
-_SEARCH_URL = "https://mixkit.co/free-stock-video/"
+# ``?q=`` on the listing page is ignored (it returns the same popular clips
+# for any query); the real search lives under ``discover/<slug>/``.
+_SEARCH_URL = "https://mixkit.co/free-stock-video/discover/{slug}/"
+_ASSET_URL = "https://assets.mixkit.co/videos/{id}/{id}-{height}.mp4"
+_HEADERS = {"User-Agent": "OpenMontage/1.0"}
 _LICENSE = "Mixkit License (free for commercial and personal use, no attribution required)"
 
 
@@ -57,15 +66,15 @@ class MixkitSource:
         if kind == "image":
             return []
 
-        # Mixkit search URL pattern
-        slug = query.lower().replace(" ", "-")
-        search_url = f"https://mixkit.co/free-stock-video/{slug}/"
+        slug = re.sub(r"[^a-z0-9]+", "-", query.lower()).strip("-")
+        if not slug:
+            return []
 
         try:
             r = requests.get(
-                search_url,
+                _SEARCH_URL.format(slug=slug),
                 timeout=30,
-                headers={"User-Agent": "OpenMontage/1.0"},
+                headers=_HEADERS,
             )
             r.raise_for_status()
         except Exception as e:
@@ -77,51 +86,35 @@ class MixkitSource:
         soup = BeautifulSoup(r.text, "html.parser")
         out: list[Candidate] = []
 
-        # Mixkit lists video cards with preview videos and download links
-        cards = soup.select(".item-grid__item, .video-item, article, [class*='VideoCard']")
-        for card in cards[:filters.per_page]:
-            link_el = card.select_one("a[href]")
-            if not link_el:
+        for card in soup.select(".item-grid-card"):
+            if len(out) >= filters.per_page:
+                break
+            player = card.select_one("[data-item-grid--video-player-item-id-value]")
+            link_el = card.select_one("a.item-grid-video-player__overlay-link[href]")
+            if not player or not link_el:
+                continue
+            clip_id = player["data-item-grid--video-player-item-id-value"]
+            if not clip_id.isdigit():
                 continue
 
-            href = link_el.get("href", "")
-            if not href:
-                continue
+            href = link_el["href"]
             if not href.startswith("http"):
                 href = f"https://mixkit.co{href}"
 
-            # Skip non-video links
-            if "/free-stock-video/" not in href and "/video/" not in href:
-                continue
+            title_el = card.select_one(".item-grid-video-player__overlay-video-title")
+            title = title_el.get_text(strip=True) if title_el else link_el.get_text(strip=True)
 
-            title = ""
-            title_el = card.select_one("h3, h2, .title, [class*='title']")
-            if title_el:
-                title = title_el.get_text(strip=True)
-            if not title:
-                title = link_el.get_text(strip=True)
-
-            # Thumbnail
-            thumb = ""
             img_el = card.select_one("img")
-            if img_el:
-                thumb = img_el.get("src", "") or img_el.get("data-src", "") or ""
-
-            # Video preview
-            video_el = card.select_one("video source[src], video[src]")
-            preview_url = ""
-            if video_el:
-                preview_url = video_el.get("src", "") or ""
-
-            # Extract ID from URL
-            clip_id = href.rstrip("/").rsplit("/", 1)[-1] if href else ""
+            thumb = (img_el.get("src") or "") if img_el else ""
+            video_el = card.select_one("video[src]")
+            preview_url = (video_el.get("src") or "") if video_el else ""
 
             out.append(
                 Candidate(
                     source=self.name,
                     source_id=f"mixkit_{clip_id}",
                     source_url=href,
-                    download_url=href,  # Resolved in download()
+                    download_url=_ASSET_URL.format(id=clip_id, height=1080),
                     kind="video",
                     width=0,
                     height=0,
@@ -133,6 +126,7 @@ class MixkitSource:
                     extra={
                         "detail_url": href,
                         "preview_url": preview_url,
+                        "fallback_url": _ASSET_URL.format(id=clip_id, height=720),
                     },
                 )
             )
@@ -140,79 +134,18 @@ class MixkitSource:
         return out
 
     def download(self, candidate: Candidate, out_path: Path) -> Path:
-        """Download by resolving the detail page for the actual download URL."""
+        """Download the 1080p file, or the 720p one when a clip has no 1080p."""
         import requests
-        from bs4 import BeautifulSoup
 
         out_path = Path(out_path)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-
-        detail_url = candidate.extra.get("detail_url", candidate.download_url)
-
-        # Direct media URL
-        if any(detail_url.lower().endswith(ext) for ext in (".mp4", ".mov", ".webm")):
-            return self._stream_download(detail_url, out_path)
-
+        fallback = candidate.extra.get("fallback_url")
         try:
-            r = requests.get(
-                detail_url, timeout=30,
-                headers={"User-Agent": "OpenMontage/1.0"},
-            )
-            r.raise_for_status()
-            soup = BeautifulSoup(r.text, "html.parser")
-
-            download_url = None
-
-            # Look for download button/link
-            for a in soup.select("a[href]"):
-                href = a.get("href", "")
-                text = (a.get_text(strip=True) or "").lower()
-                classes = " ".join(a.get("class", []))
-                if "download" in text or "download" in classes:
-                    if href and any(ext in href.lower() for ext in [".mp4", ".mov", ".webm"]):
-                        download_url = href
-                        break
-                    elif href and "/download/" in href:
-                        download_url = href
-                        break
-
-            # Look for video source tags
-            if not download_url:
-                for source in soup.select("video source[src]"):
-                    src = source.get("src", "")
-                    if src and any(ext in src.lower() for ext in [".mp4", ".mov"]):
-                        download_url = src
-                        break
-
-            # Look for data attributes with video URLs
-            if not download_url:
-                for el in soup.select("[data-video-url], [data-download-url], [data-src]"):
-                    url = el.get("data-video-url") or el.get("data-download-url") or el.get("data-src") or ""
-                    if url and any(ext in url.lower() for ext in [".mp4", ".mov"]):
-                        download_url = url
-                        break
-
-            if not download_url:
-                raise ValueError(f"Could not find download URL on Mixkit page: {detail_url}")
-
-            if not download_url.startswith("http"):
-                download_url = f"https://mixkit.co{download_url}"
-
-            return self._stream_download(download_url, out_path)
-
-        except Exception as e:
-            raise RuntimeError(f"Mixkit download failed for {detail_url}: {e}") from e
-
-    def _stream_download(self, url: str, out_path: Path) -> Path:
-        import requests
-
-        with requests.get(
-            url, stream=True, timeout=120,
-            headers={"User-Agent": "OpenMontage/1.0"},
-        ) as r:
-            r.raise_for_status()
-            with open(out_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1 << 16):
-                    if chunk:
-                        f.write(chunk)
+            download_media(candidate.download_url, out_path, kind=candidate.kind,
+                           timeout=120, headers=_HEADERS)
+        except requests.HTTPError as e:
+            status = getattr(e.response, "status_code", None)
+            if not fallback or status not in (403, 404):
+                raise
+            download_media(fallback, out_path, kind=candidate.kind,
+                           timeout=120, headers=_HEADERS)
         return out_path

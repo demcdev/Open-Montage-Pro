@@ -5,8 +5,8 @@ protocol. Coverr offers curated, high-quality stock footage (HD and 4K)
 under a free commercial-use licence with no attribution required.
 
 Free API tier: 50 requests per hour. Production tier (with Pro/Ultimate
-subscription): 2,000 requests per hour. The adapter uses the free tier
-by default — no API key required for basic search.
+subscription): 2,000 requests per hour. Both tiers need COVERR_API_KEY;
+anonymous requests get 401. Download links only come back with ``urls=true``.
 
 What Coverr is good for
 -----------------------
@@ -20,6 +20,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Any
+
+from lib.media_download import download_media
 
 from .base import Candidate, SearchFilters
 
@@ -36,14 +38,13 @@ class CoverrSource:
     provider = "coverr"
     priority = 16
     install_instructions = (
-        "Coverr works without an API key (free tier, 50 req/hr). "
-        "Set COVERR_API_KEY in .env for higher rate limits (Pro tier)."
+        "Set COVERR_API_KEY in .env (free key from coverr.co/developers, 50 req/hr). "
+        "Anonymous requests get 401 Invalid API_KEY."
     )
     supports = {"video": True, "image": False}
 
     def is_available(self) -> bool:
-        # Coverr works without an API key (free tier)
-        return True
+        return bool(os.environ.get("COVERR_API_KEY"))
 
     def search(self, query: str, filters: SearchFilters) -> list[Candidate]:
         import requests
@@ -61,6 +62,8 @@ class CoverrSource:
             "query": query,
             "page_size": max(1, min(filters.per_page, 25)),
             "page": max(1, filters.page),
+            # Without this the API omits every download link.
+            "urls": "true",
         }
 
         r = requests.get(
@@ -75,7 +78,9 @@ class CoverrSource:
 
         out: list[Candidate] = []
         for v in hits:
-            duration = float(v.get("duration", 0) or 0)
+            if v.get("is_premium"):
+                continue
+            duration = float(v.get("duration", 0) or 0)  # the API sends a string
             if filters.min_duration is not None and duration < filters.min_duration:
                 continue
             if filters.max_duration is not None and duration > filters.max_duration:
@@ -85,16 +90,15 @@ class CoverrSource:
             urls = v.get("urls", {}) or {}
             download_url = (
                 urls.get("mp4_download")
-                or urls.get("mp4_1080")
-                or urls.get("mp4_720")
+                or urls.get("mp4")
                 or urls.get("mp4_preview")
                 or ""
             )
             if not download_url:
                 continue
 
-            width = int(v.get("width") or 1920)
-            height = int(v.get("height") or 1080)
+            width = int(v.get("max_width") or v.get("width") or 1920)
+            height = int(v.get("max_height") or v.get("height") or 1080)
             if filters.min_width and width < filters.min_width:
                 continue
 
@@ -117,7 +121,7 @@ class CoverrSource:
                     creator=v.get("creator", {}).get("name", "") if isinstance(v.get("creator"), dict) else "",
                     license=_LICENSE,
                     source_tags=source_tags,
-                    thumbnail_url=urls.get("poster") or urls.get("thumbnail") or "",
+                    thumbnail_url=v.get("poster") or v.get("thumbnail") or "",
                     extra={
                         "slug": v.get("slug"),
                         "category": v.get("category"),
@@ -127,17 +131,8 @@ class CoverrSource:
         return out
 
     def download(self, candidate: Candidate, out_path: Path) -> Path:
-        import requests
-
         out_path = Path(out_path)
         out_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with requests.get(
-            candidate.download_url, stream=True, timeout=120
-        ) as r:
-            r.raise_for_status()
-            with open(out_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1 << 16):
-                    if chunk:
-                        f.write(chunk)
+        download_media(candidate.download_url, out_path, kind=candidate.kind, timeout=120)
         return out_path

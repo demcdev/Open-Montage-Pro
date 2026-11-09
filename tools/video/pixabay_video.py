@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.media_download import download_media
 from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
@@ -194,12 +195,8 @@ class PixabayVideo(BaseTool):
 
             # Download immediately — Pixabay URLs expire
             video_url = video_info["url"]
-            video_response = requests.get(video_url, timeout=120)
-            video_response.raise_for_status()
-
             output_path = Path(inputs.get("output_path") or scratch_path(f"pixabay_video_{hit['id']}.mp4"))
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_bytes(video_response.content)
+            verified = download_media(video_url, output_path, kind="video", timeout=120)
 
         except Exception as e:
             return ToolResult(success=False, error=f"Pixabay video search failed: {e}")
@@ -216,6 +213,7 @@ class PixabayVideo(BaseTool):
                 "height": video_info.get("height"),
                 "query": query,
                 "output": str(output_path),
+                "verified": verified,
                 "total_results": data.get("total", 0),
                 "results_returned": len(hits),
                 "license": "Pixabay Content License (free, no attribution required)",

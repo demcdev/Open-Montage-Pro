@@ -7,6 +7,8 @@ high-quality landscape, forest, mountain, waterfall, and time-lapse
 footage.
 
 Licensed under CC BY 4.0 (attribution required). No API available.
+Clips are hosted on Mux: each search card's ``contentURL`` names the Mux
+playback id, and ``stream.mux.com/<id>/high.mp4`` is the full-resolution MP4.
 
 What Dareful is good for
 ------------------------
@@ -18,15 +20,35 @@ What Dareful is good for
 from __future__ import annotations
 
 import logging
+import re
 from pathlib import Path
 from typing import Any
+
+from lib.media_download import download_media
 
 from .base import Candidate, SearchFilters
 
 _log = logging.getLogger(__name__)
 
 _BASE_URL = "https://www.dareful.com"
+_HEADERS = {"User-Agent": "OpenMontage/1.0"}
 _LICENSE = "Creative Commons Attribution 4.0 (CC BY 4.0, attribution required)"
+_MUX_STREAM = re.compile(r"https://stream\.mux\.com/([A-Za-z0-9]+)\.m3u8")
+_MUX_MP4 = "https://stream.mux.com/{id}/high.mp4"
+_ISO_DURATION = re.compile(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:([\d.]+)S)?")
+
+
+def _mux_mp4(text: str) -> str | None:
+    match = _MUX_STREAM.search(text)
+    return _MUX_MP4.format(id=match.group(1)) if match else None
+
+
+def _seconds(iso: str) -> float:
+    match = _ISO_DURATION.fullmatch(iso or "")
+    if not match:
+        return 0.0
+    hours, minutes, seconds = (float(g or 0) for g in match.groups())
+    return hours * 3600 + minutes * 60 + seconds
 
 
 class DarefulSource:
@@ -62,7 +84,7 @@ class DarefulSource:
                 _BASE_URL,
                 params={"s": query},
                 timeout=30,
-                headers={"User-Agent": "OpenMontage/1.0"},
+                headers=_HEADERS,
             )
             r.raise_for_status()
         except Exception as e:
@@ -74,30 +96,27 @@ class DarefulSource:
         soup = BeautifulSoup(r.text, "html.parser")
         out: list[Candidate] = []
 
-        # Find video post cards
-        cards = soup.select("article, .post, .entry, .video-item, .grid-item")
-        for card in cards[:filters.per_page]:
-            link_el = card.select_one("a[href]")
-            if not link_el:
+        def meta(card, prop: str) -> str:
+            el = card.select_one(f"meta[itemprop={prop}]")
+            return (el.get("content") or "") if el else ""
+
+        for card in soup.select("article[itemtype$='VideoObject']"):
+            if len(out) >= filters.per_page:
+                break
+            link_el = card.select_one("a.grid-link[href]")
+            download_url = _mux_mp4(meta(card, "contentURL"))
+            if not link_el or not download_url:
                 continue
 
-            href = link_el.get("href", "")
-            if not href:
-                continue
+            href = link_el["href"]
             if not href.startswith("http"):
                 href = f"{_BASE_URL}{href}"
-
-            title = ""
-            title_el = card.select_one("h2, h3, .entry-title, .title")
-            if title_el:
-                title = title_el.get_text(strip=True)
-            if not title:
-                title = link_el.get_text(strip=True)
-
-            thumb = ""
-            img_el = card.select_one("img")
-            if img_el:
-                thumb = img_el.get("src", "") or img_el.get("data-src", "") or ""
+            title = link_el.get("title") or card.get("aria-label") or ""
+            duration = _seconds(meta(card, "duration"))
+            if filters.min_duration is not None and duration < filters.min_duration:
+                continue
+            if filters.max_duration is not None and duration > filters.max_duration:
+                continue
 
             clip_id = href.rstrip("/").rsplit("/", 1)[-1]
 
@@ -106,15 +125,15 @@ class DarefulSource:
                     source=self.name,
                     source_id=f"dareful_{clip_id}",
                     source_url=href,
-                    download_url=href,
+                    download_url=download_url,
                     kind="video",
-                    width=3840,  # Dareful is primarily 4K
-                    height=2160,
-                    duration=0.0,
+                    width=int(meta(card, "width") or 1920),
+                    height=int(meta(card, "height") or 1080),
+                    duration=duration,
                     creator="Joel Holland (Dareful)",
                     license=_LICENSE,
-                    source_tags=f"{title} nature landscape 4k {query}",
-                    thumbnail_url=thumb,
+                    source_tags=f"{title} nature landscape {query}",
+                    thumbnail_url=meta(card, "thumbnailUrl"),
                     extra={"detail_url": href},
                 )
             )
@@ -122,68 +141,21 @@ class DarefulSource:
         return out
 
     def download(self, candidate: Candidate, out_path: Path) -> Path:
-        """Download by resolving the detail page for the actual file URL."""
+        """Download the Mux MP4; a candidate that only has the page URL is resolved first."""
         import requests
-        from bs4 import BeautifulSoup
 
         out_path = Path(out_path)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-
-        detail_url = candidate.extra.get("detail_url", candidate.download_url)
-
-        if any(detail_url.lower().endswith(ext) for ext in (".mp4", ".mov", ".webm")):
-            return self._stream_download(detail_url, out_path)
-
-        try:
-            r = requests.get(
-                detail_url, timeout=30,
-                headers={"User-Agent": "OpenMontage/1.0"},
-            )
+        download_url = candidate.download_url
+        if not download_url.startswith("https://stream.mux.com/"):
+            # The detail page also links Shutterstock previews, so only the
+            # Mux stream counts as the clip.
+            r = requests.get(candidate.extra.get("detail_url", download_url),
+                             timeout=30, headers=_HEADERS)
             r.raise_for_status()
-            soup = BeautifulSoup(r.text, "html.parser")
-
-            download_url = None
-
-            # Look for download links
-            for a in soup.select("a[href]"):
-                href = a.get("href", "")
-                text = (a.get_text(strip=True) or "").lower()
-                if any(ext in href.lower() for ext in [".mp4", ".mov", ".webm"]):
-                    download_url = href
-                    break
-                if "download" in text and href:
-                    download_url = href
-                    break
-
-            # Check video elements
+            download_url = _mux_mp4(r.text)
             if not download_url:
-                for source in soup.select("video source[src], video[src]"):
-                    src = source.get("src", "")
-                    if src:
-                        download_url = src
-                        break
+                raise ValueError(f"No Mux stream on Dareful page: {candidate.source_url}")
 
-            if not download_url:
-                raise ValueError(f"Could not find download URL on Dareful page: {detail_url}")
-
-            if not download_url.startswith("http"):
-                download_url = f"{_BASE_URL}{download_url}"
-
-            return self._stream_download(download_url, out_path)
-
-        except Exception as e:
-            raise RuntimeError(f"Dareful download failed for {detail_url}: {e}") from e
-
-    def _stream_download(self, url: str, out_path: Path) -> Path:
-        import requests
-
-        with requests.get(
-            url, stream=True, timeout=180,
-            headers={"User-Agent": "OpenMontage/1.0"},
-        ) as r:
-            r.raise_for_status()
-            with open(out_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1 << 16):
-                    if chunk:
-                        f.write(chunk)
+        download_media(download_url, out_path, kind=candidate.kind,
+                       timeout=180, headers=_HEADERS)
         return out_path

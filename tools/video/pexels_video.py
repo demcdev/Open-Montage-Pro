@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.media_download import download_media
 from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
@@ -181,12 +182,8 @@ class PexelsVideo(BaseTool):
                 return ToolResult(success=False, error="No downloadable video file found.")
 
             video_url = selected_file["link"]
-            video_response = requests.get(video_url, timeout=120)
-            video_response.raise_for_status()
-
             output_path = Path(inputs.get("output_path") or scratch_path(f"pexels_video_{video['id']}.mp4"))
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_bytes(video_response.content)
+            verified = download_media(video_url, output_path, kind="video", timeout=120)
 
         except Exception as e:
             return ToolResult(success=False, error=f"Pexels video search failed: {e}")
@@ -204,6 +201,7 @@ class PexelsVideo(BaseTool):
                 "quality": selected_file.get("quality"),
                 "query": query,
                 "output": str(output_path),
+                "verified": verified,
                 "total_results": data.get("total_results", 0),
                 "results_returned": len(videos),
                 "license": "Pexels License (free, no attribution required)",

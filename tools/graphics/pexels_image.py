@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.media_download import download_media
 from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
@@ -153,12 +154,8 @@ class PexelsImage(BaseTool):
             download_size = inputs.get("download_size", "large2x")
             image_url = photo["src"].get(download_size, photo["src"]["large2x"])
 
-            image_response = requests.get(image_url, timeout=60)
-            image_response.raise_for_status()
-
             output_path = Path(inputs.get("output_path") or scratch_path(f"pexels_{photo['id']}.jpg"))
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_bytes(image_response.content)
+            download_media(image_url, output_path, kind="image", timeout=60)
 
         except Exception as e:
             return ToolResult(success=False, error=f"Pexels image search failed: {e}")

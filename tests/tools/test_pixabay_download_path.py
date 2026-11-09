@@ -29,10 +29,21 @@ class _Response:
     def json(self):
         return {"hits": [self.hit], "total": 1}
 
+    def iter_content(self, chunk_size=1):
+        yield self.content
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_exc):
+        return False
+
 
 @pytest.fixture
 def scratch(monkeypatch, tmp_path) -> Path:
     monkeypatch.setenv("PIXABAY_API_KEY", "test-key")
+    # These tests are about where the file lands, not whether b"file" decodes.
+    monkeypatch.setattr("lib.media_download.check_media", lambda *_args: True)
     monkeypatch.chdir(tmp_path)
     folder = tmp_path / "scratch"
     monkeypatch.setattr(paths, "SCRATCH_DIR", folder)

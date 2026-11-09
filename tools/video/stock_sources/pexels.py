@@ -19,6 +19,8 @@ import os
 from pathlib import Path
 from typing import Any, Optional
 
+from lib.media_download import download_media
+
 from .base import Candidate, SearchFilters
 
 
@@ -76,8 +78,6 @@ class PexelsSource:
         builder is responsible for deciding whether to call this at
         all.
         """
-        import requests  # lazy — avoid pulling requests at import time
-
         if not candidate.download_url:
             raise ValueError(
                 f"Candidate {candidate.clip_id} has no download_url"
@@ -86,14 +86,7 @@ class PexelsSource:
         out_path = Path(out_path)
         out_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with requests.get(
-            candidate.download_url, stream=True, timeout=120
-        ) as r:
-            r.raise_for_status()
-            with open(out_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1 << 16):
-                    if chunk:
-                        f.write(chunk)
+        download_media(candidate.download_url, out_path, kind=candidate.kind, timeout=120)
         return out_path
 
     # ------------------------------------------------------------------

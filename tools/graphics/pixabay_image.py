@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.media_download import download_media
 from lib.paths import scratch_path
 from tools.base_tool import (
     BaseTool,
@@ -170,12 +171,8 @@ class PixabayImage(BaseTool):
             image_url = hit.get("largeImageURL", hit.get("webformatURL"))
 
             # Download immediately — Pixabay URLs contain embedded tokens that expire
-            image_response = requests.get(image_url, timeout=60)
-            image_response.raise_for_status()
-
             output_path = Path(inputs.get("output_path") or scratch_path(f"pixabay_{hit['id']}.jpg"))
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_bytes(image_response.content)
+            download_media(image_url, output_path, kind="image", timeout=60)
 
         except Exception as e:
             return ToolResult(success=False, error=f"Pixabay image search failed: {e}")

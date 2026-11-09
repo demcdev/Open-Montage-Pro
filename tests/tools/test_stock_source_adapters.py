@@ -219,3 +219,184 @@ def test_search_returns_empty_when_the_source_has_no_results(
         )
         == []
     )
+
+
+class _JsonResponse(_EmptyOkResponse):
+    def __init__(self, payload):
+        self.payload = payload
+
+    def json(self):
+        return self.payload
+
+
+def _coverr_hit(slug, *, premium=False):
+    # Field names and types as api.coverr.co/videos returns them with urls=true.
+    return {
+        "id": f"id-{slug}",
+        "slug": slug,
+        "title": "Ocean waves",
+        "tags": ["ocean", "waves"],
+        "duration": "10.510500",
+        "max_width": 3840,
+        "max_height": 2160,
+        "is_premium": premium,
+        "poster": f"https://cdn.coverr.co/{slug}/poster.jpg",
+        "urls": {
+            "mp4": f"https://cdn.coverr.co/{slug}/1080p.mp4",
+            "mp4_preview": f"https://cdn.coverr.co/{slug}/preview.mp4",
+            "mp4_download": f"https://cdn.coverr.co/{slug}/download.mp4",
+        },
+    }
+
+
+def test_coverr_asks_for_download_links_and_reads_the_real_fields(monkeypatch):
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append(kwargs)
+        return _JsonResponse({"hits": [_coverr_hit("free"), _coverr_hit("paid", premium=True)]})
+
+    _install_fake_transport(monkeypatch, fake_get)
+    found = get_source("coverr").search("ocean", SearchFilters(kind="video", per_page=5))
+
+    assert calls[0]["params"]["urls"] == "true"
+    assert calls[0]["headers"]["Authorization"] == "Bearer test-coverr"
+    assert [c.source_id for c in found] == ["id-free"]
+    clip = found[0]
+    assert clip.download_url == "https://cdn.coverr.co/free/download.mp4"
+    assert (clip.width, clip.height, clip.duration) == (3840, 2160, 10.5105)
+    assert clip.thumbnail_url == "https://cdn.coverr.co/free/poster.jpg"
+    assert clip.source_tags == "Ocean waves ocean waves"
+
+
+def test_coverr_needs_a_key(monkeypatch):
+    monkeypatch.delenv("COVERR_API_KEY", raising=False)
+    assert get_source("coverr").is_available() is False
+
+
+# Scraper fixtures are cut from the live pages (November 2026), keeping only
+# the markup each adapter reads. When a site changes, refresh them from a
+# real page rather than editing them to fit the parser.
+
+class _HtmlResponse(_EmptyOkResponse):
+    def __init__(self, text):
+        self.text = text
+
+
+def _serve_html(monkeypatch, fake_get):
+    """Fake transport, but with the real HTML parser behind `bs4`."""
+    bs4 = pytest.importorskip("bs4")
+    _install_fake_transport(monkeypatch, fake_get)
+    monkeypatch.setitem(sys.modules, "bs4", bs4)
+
+
+_MIXKIT_SEARCH = """
+<div class="item-grid-card" data-algolia-analytics-object-id="video-2168">
+ <div class="item-grid-video-player" data-item-grid--video-player-item-id-value="2168"
+      data-item-grid--video-player-item-type-value="Video">
+  <picture><img alt="Bright orange sunset on beach." src="https://assets.mixkit.co/videos/2168/2168-thumb-360-0.jpg"/></picture>
+  <video class="item-grid-video-player__video" src="https://assets.mixkit.co/videos/2168/2168-360.mp4"></video>
+  <span class="item-grid-video-player__overlay-video-title"> Bright orange sunset on beach </span>
+  <a class="item-grid-video-player__overlay-link" href="/free-stock-video/bright-orange-sunset-on-beach-2168/">Bright orange sunset on beach</a>
+ </div>
+</div>
+"""
+
+_DAREFUL_SEARCH = """
+<article class="post-ad entry">
+ <a href="https://shutterstock.7eer.net/c/489458/1422653/1305" title="Try Shutterstock"><img src="https://dareful.com/sstk-inline-ad.jpg"/></a>
+</article>
+<article aria-label="Winter Forest Hike" class="post-2277 entry" itemprop="video" itemscope="" itemtype="http://schema.org/VideoObject">
+ <a class="grid-link" data-video="2277" href="https://dareful.com/winter-forest-hike/" title="Winter Forest Hike">
+  <div class="video-title" itemprop="name">00:16 | Winter Forest Hike</div></a>
+ <div class="video_info">
+  <meta content="PT16.649967S" itemprop="duration"/>
+  <meta content="https://dareful.com/wp-content/uploads/2024/10/thumbnail-2-590x332.png" itemprop="thumbnailUrl"/>
+  <meta content="https://stream.mux.com/HAOWt8ZRHuXVBLRbBQlR64cKmYz0002fBrUuSITWg1154.m3u8" itemprop="contentURL"/>
+  <meta content="1920" itemprop="width"/><meta content="1080" itemprop="height"/>
+ </div>
+</article>
+"""
+
+
+def test_mixkit_reads_the_result_cards_and_points_at_the_1080p_file(monkeypatch):
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return _HtmlResponse(_MIXKIT_SEARCH)
+
+    _serve_html(monkeypatch, fake_get)
+    found = get_source("mixkit").search("sunset beach", SearchFilters(kind="video", per_page=5))
+
+    assert calls[0][0] == "https://mixkit.co/free-stock-video/discover/sunset-beach/"
+    assert len(found) == 1
+    clip = found[0]
+    assert clip.source_id == "mixkit_2168"
+    assert clip.source_url == "https://mixkit.co/free-stock-video/bright-orange-sunset-on-beach-2168/"
+    assert clip.download_url == "https://assets.mixkit.co/videos/2168/2168-1080.mp4"
+    assert clip.extra["fallback_url"] == "https://assets.mixkit.co/videos/2168/2168-720.mp4"
+    assert clip.extra["preview_url"].endswith("2168-360.mp4")
+    assert clip.source_tags.startswith("Bright orange sunset on beach")
+
+
+def test_mixkit_falls_back_to_720p_when_a_clip_has_no_1080p(monkeypatch, tmp_path):
+    import requests
+
+    from tools.video.stock_sources import mixkit
+    from tools.video.stock_sources.base import Candidate
+
+    fetched = []
+
+    def fake_download(url, path, **_kwargs):
+        fetched.append(url)
+        if url.endswith("-1080.mp4"):
+            response = requests.Response()
+            response.status_code = 403
+            raise requests.HTTPError("403 Forbidden", response=response)
+        return True
+
+    monkeypatch.setattr(mixkit, "download_media", fake_download)
+    candidate = Candidate(
+        source="mixkit", source_id="mixkit_7", source_url="https://mixkit.co/x",
+        download_url="https://assets.mixkit.co/videos/7/7-1080.mp4", kind="video",
+        extra={"fallback_url": "https://assets.mixkit.co/videos/7/7-720.mp4"},
+    )
+    mixkit.MixkitSource().download(candidate, tmp_path / "7.mp4")
+    assert fetched == [candidate.download_url, candidate.extra["fallback_url"]]
+
+
+def test_dareful_skips_ads_and_downloads_the_mux_mp4(monkeypatch):
+    _serve_html(monkeypatch, lambda *_a, **_k: _HtmlResponse(_DAREFUL_SEARCH))
+    found = get_source("dareful").search("forest", SearchFilters(kind="video", per_page=5))
+
+    assert [c.source_id for c in found] == ["dareful_winter-forest-hike"]
+    clip = found[0]
+    assert clip.download_url == (
+        "https://stream.mux.com/HAOWt8ZRHuXVBLRbBQlR64cKmYz0002fBrUuSITWg1154/high.mp4"
+    )
+    assert (clip.width, clip.height, clip.duration) == (1920, 1080, 16.649967)
+    assert clip.thumbnail_url.endswith("thumbnail-2-590x332.png")
+
+
+def test_dareful_resolves_a_page_url_to_the_mux_stream_not_an_ad(monkeypatch, tmp_path):
+    import requests
+
+    from tools.video.stock_sources import dareful
+    from tools.video.stock_sources.base import Candidate
+
+    page = (
+        '<a href="https://ak.picdn.net/shutterstock/videos/1/thumb/stock-footage.mp4">ad</a>'
+        '<a href="https://stream.mux.com/AbC123.m3u8">Download Video</a>'
+    )
+    monkeypatch.setattr(requests, "get", lambda *_a, **_k: _HtmlResponse(page))
+    fetched = []
+    monkeypatch.setattr(dareful, "download_media", lambda url, *_a, **_k: fetched.append(url))
+
+    candidate = Candidate(
+        source="dareful", source_id="dareful_x", source_url="https://dareful.com/x/",
+        download_url="https://dareful.com/x/", kind="video",
+        extra={"detail_url": "https://dareful.com/x/"},
+    )
+    dareful.DarefulSource().download(candidate, tmp_path / "x.mp4")
+    assert fetched == ["https://stream.mux.com/AbC123/high.mp4"]

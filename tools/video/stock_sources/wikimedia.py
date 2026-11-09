@@ -12,6 +12,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from lib.media_download import download_media
+
 from .base import Candidate, SearchFilters
 
 
@@ -109,25 +111,16 @@ class WikimediaSource:
         return []
 
     def download(self, candidate: Candidate, out_path: Path) -> Path:
-        import requests  # lazy
-
         if not candidate.download_url:
             raise ValueError(f"Candidate {candidate.clip_id} has no download_url")
 
         out_path = Path(out_path)
         out_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with requests.get(
-            candidate.download_url,
-            stream=True,
-            timeout=300,
+        download_media(
+            candidate.download_url, out_path, kind=candidate.kind, timeout=300,
             headers={"User-Agent": _USER_AGENT},
-        ) as r:
-            r.raise_for_status()
-            with open(out_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1 << 16):
-                    if chunk:
-                        f.write(chunk)
+        )
         return out_path
 
 
