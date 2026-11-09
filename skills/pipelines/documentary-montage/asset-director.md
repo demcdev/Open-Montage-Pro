@@ -9,9 +9,9 @@ clips that fill each slot. There are two paths:
 
 1. **Build the corpus** — fan the scene director's queries out across
    all available stock sources (Pexels, Pixabay Video, Coverr, Mixkit,
-   Archive.org, NARA, Library of Congress, NASA, ESA,
-   JAXA, NOAA, Dareful, Wikimedia, Unsplash, Openverse, Smithsonian,
-   Art Institute of Chicago) and download/embed the candidates.
+   Archive.org, NARA, Library of Congress, NASA, Dareful, Wikimedia,
+   Unsplash, Openverse, Smithsonian, Art Institute of Chicago) and
+   download/embed the candidates.
 2. **Pick per slot** — run CLIP retrieval against the corpus with each
    slot description and choose one winner per slot.
 
