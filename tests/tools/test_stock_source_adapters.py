@@ -100,7 +100,6 @@ _SOURCE_CREDENTIALS = {
     "NASA_API_KEY": "test-nasa",
     "PEXELS_API_KEY": "test-pexels",
     "PIXABAY_API_KEY": "test-pixabay",
-    "POND5_API_KEY": "test-pond5",
     "UNSPLASH_ACCESS_KEY": "test-unsplash",
 }
 
@@ -110,7 +109,6 @@ _SOURCE_CREDENTIALS = {
 _STILL_SWALLOWS_TRANSPORT_ERRORS = {
     "archive_org": "#511 follow-up: query cascade continues past a failed strategy",
     "wikimedia": "#511 follow-up: query cascade continues past a failed strategy",
-    "pond5_pd": "#511 follow-up: API failure falls through to the web fallback",
 }
 
 
@@ -399,6 +397,54 @@ def test_dareful_resolves_a_page_url_to_the_mux_stream_not_an_ad(monkeypatch, tm
     )
     dareful.DarefulSource().download(candidate, tmp_path / "x.mp4")
     assert fetched == ["https://stream.mux.com/AbC123/high.mp4"]
+
+
+class _ChallengeResponse(_EmptyOkResponse):
+    """What loc.gov's Cloudflare sends instead of JSON (November 2026)."""
+
+    status_code = 403
+    headers = {"cf-mitigated": "challenge", "server": "cloudflare"}
+    text = '<!DOCTYPE html><html lang="en-US"><head><title>Just a moment...</title>'
+
+    def raise_for_status(self):
+        raise AssertionError("the challenge must be reported before raise_for_status")
+
+
+def test_loc_names_a_bot_challenge_instead_of_a_bare_403(monkeypatch):
+    _install_fake_transport(monkeypatch, lambda *_a, **_k: _ChallengeResponse())
+    with pytest.raises(RuntimeError, match="blocking automated requests"):
+        get_source("loc").search("steam train", SearchFilters(kind="video", per_page=3))
+
+
+class _WebPageResponse(_EmptyOkResponse):
+    """NARA's v2 API without a key: the catalog's HTML shell, status 200."""
+
+    text = "<!doctype html><html lang=\"en\"><head><script>var hostname=..."
+
+    def json(self):
+        raise ValueError("Expecting value: line 1 column 1 (char 0)")
+
+
+def test_nara_needs_a_key(monkeypatch):
+    monkeypatch.delenv("NARA_API_KEY", raising=False)
+    assert get_source("nara").is_available() is False
+
+
+def test_nara_sends_the_key_and_explains_a_web_page_answer(monkeypatch):
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return _WebPageResponse()
+
+    _install_fake_transport(monkeypatch, fake_get)
+    with pytest.raises(RuntimeError, match="check NARA_API_KEY"):
+        get_source("nara").search("apollo", SearchFilters(kind="video", per_page=3))
+
+    url, kwargs = calls[0]
+    assert url == "https://catalog.archives.gov/api/v2/records/search"
+    assert kwargs["headers"]["x-api-key"] == "test-nara"
+    assert kwargs["params"]["typeOfMaterials"] == "Moving Images"
 
 
 def _unsplash_candidate():

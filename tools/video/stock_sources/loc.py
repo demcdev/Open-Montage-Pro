@@ -5,7 +5,10 @@ The Library of Congress holds 25+ digital collections of film and video
 materials including early cinema, newsreels, documentaries, and cultural
 recordings. Many items are public domain (pre-1928 or U.S. government).
 
-No API key required. Rate limiting is polite-crawl based.
+No API key required. The limit is 20 requests per minute; past it, or
+under heavy traffic, loc.gov answers JSON requests with a Cloudflare
+challenge page for about an hour. The adapter reports that as a block
+instead of a bare 403 and does not try to get past it.
 
 Fetch pattern
 -------------
@@ -39,6 +42,16 @@ _LICENSE_CHECK = "Rights status varies — verify per item (Library of Congress)
 
 # Video-related format filters for the LoC API
 _VIDEO_FORMATS = ["film/video", "motion picture"]
+
+
+def _is_bot_challenge(response: Any) -> bool:
+    if getattr(response, "status_code", 200) not in (403, 429):
+        return False
+    headers = getattr(response, "headers", None) or {}
+    return (
+        headers.get("cf-mitigated") == "challenge"
+        or "Just a moment..." in (getattr(response, "text", "") or "")[:500]
+    )
 
 
 class LibraryOfCongressSource:
@@ -82,6 +95,12 @@ class LibraryOfCongressSource:
                 timeout=30,
                 headers={"Accept": "application/json"},
             )
+            if _is_bot_challenge(r):
+                raise RuntimeError(
+                    "Library of Congress is blocking automated requests right now "
+                    "(Cloudflare challenge). Its docs say a block lasts about an hour; "
+                    "try again later."
+                )
             r.raise_for_status()
             data = r.json()
         except Exception as e:

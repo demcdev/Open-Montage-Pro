@@ -5,9 +5,13 @@ unified `StockSource` protocol. NARA holds billions of records including
 significant film and video holdings — all U.S. federal government work
 and therefore public domain.
 
-No API key required for basic searching. For higher rate limits, email
-Catalog_API@nara.gov to request a key. Rate limit: ~10,000 queries per
-month per API key.
+Every request needs an API key (free, read-only, 10,000 queries per
+month): email Catalog_API@nara.gov with your email address. Without one
+the API answers with the catalog's web page instead of JSON.
+
+TODO: ``_extract_candidates`` still reads the pre-2026 response shape. It
+has not been checked against ``/records/search``; verify it with a real
+key before trusting an empty result.
 
 Fetch pattern
 -------------
@@ -35,7 +39,7 @@ from .base import Candidate, SearchFilters
 
 _log = logging.getLogger(__name__)
 
-_SEARCH_URL = "https://catalog.archives.gov/api/v2/search"
+_SEARCH_URL = "https://catalog.archives.gov/api/v2/records/search"
 _LICENSE = "Public domain (U.S. federal government work)"
 
 
@@ -47,36 +51,35 @@ class NARASource:
     provider = "nara"
     priority = 35
     install_instructions = (
-        "NARA works without an API key. "
-        "Set NARA_API_KEY in .env for higher rate limits."
+        "Set NARA_API_KEY in .env. The key is free: email Catalog_API@nara.gov "
+        "with your email address to request a read-only key."
     )
     supports = {"video": True, "image": True}
 
     def is_available(self) -> bool:
-        # NARA is always available (no key required)
-        return True
+        return bool(os.environ.get("NARA_API_KEY"))
 
     def search(self, query: str, filters: SearchFilters) -> list[Candidate]:
         import requests
 
         kind = (filters.kind or "video").lower()
 
+        # Parameter names from the v2 docs (archives.gov, "Getting Started").
         params: dict[str, Any] = {
             "q": query,
-            "rows": max(1, min(filters.per_page, 50)),
-            "offset": (max(1, filters.page) - 1) * filters.per_page,
+            "limit": max(1, min(filters.per_page, 50)),
+            "page": max(1, filters.page),
+            "availableOnline": "true",
         }
-
-        # Filter by type if possible
         if kind == "video":
-            params["type"] = "moving-image"
+            params["typeOfMaterials"] = "Moving Images"
         elif kind == "image":
-            params["type"] = "still-image"
+            params["typeOfMaterials"] = "Photographs and other Graphic Materials"
 
-        headers: dict[str, str] = {}
-        api_key = os.environ.get("NARA_API_KEY")
-        if api_key:
-            headers["x-api-key"] = api_key
+        headers = {
+            "Content-Type": "application/json",
+            "x-api-key": os.environ.get("NARA_API_KEY", ""),
+        }
 
         try:
             r = requests.get(
@@ -86,7 +89,13 @@ class NARASource:
                 timeout=30,
             )
             r.raise_for_status()
-            data = r.json()
+            try:
+                data = r.json()
+            except ValueError:
+                raise RuntimeError(
+                    "NARA answered with a web page instead of JSON; "
+                    "check NARA_API_KEY."
+                ) from None
         except Exception as e:
             # Contract: an empty list means "nothing matched", so a
             # transport failure has to propagate. See `base.StockSource`.
