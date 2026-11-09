@@ -26,6 +26,16 @@ from tools.base_tool import (
 )
 
 
+def _js_runtimes() -> dict[str, dict]:
+    """JavaScript runtimes yt-dlp may use to solve YouTube's challenges.
+
+    yt-dlp only enables Deno by default; Node works too once the
+    ``yt-dlp-ejs`` package is installed. A fresh dict each call, because
+    yt-dlp normalises the one it is given in place.
+    """
+    return {"deno": {}, "node": {}}
+
+
 class VideoDownloader(BaseTool):
     name = "video_downloader"
     version = "0.1.0"
@@ -39,10 +49,10 @@ class VideoDownloader(BaseTool):
 
     dependencies = ["python:yt_dlp"]
     install_instructions = (
-        "Install yt-dlp: pip install yt-dlp\n"
-        "For YouTube support, also install Deno (JS runtime): "
-        "https://deno.land/#installation\n"
-        "Without Deno, YouTube downloads may fail but other platforms still work."
+        "Install yt-dlp: pip install yt-dlp yt-dlp-ejs\n"
+        "For YouTube support yt-dlp also needs a JavaScript runtime: Node "
+        "(https://nodejs.org) or Deno (https://deno.land/#installation).\n"
+        "Without one, YouTube downloads may miss formats or fail; other platforms still work."
     )
     agent_skills = ["video-download"]
 
@@ -158,6 +168,7 @@ class VideoDownloader(BaseTool):
             "quiet": True,
             "no_warnings": True,
             "skip_download": True,
+            "js_runtimes": _js_runtimes(),
         }
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -271,6 +282,7 @@ class VideoDownloader(BaseTool):
             "noplaylist": True,
             "quiet": True,
             "no_warnings": True,
+            "js_runtimes": _js_runtimes(),
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
@@ -316,6 +328,7 @@ class VideoDownloader(BaseTool):
             "noplaylist": True,
             "quiet": True,
             "no_warnings": True,
+            "js_runtimes": _js_runtimes(),
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
@@ -336,6 +349,7 @@ class VideoDownloader(BaseTool):
             "noplaylist": True,
             "quiet": True,
             "no_warnings": True,
+            "js_runtimes": _js_runtimes(),
         }
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:

@@ -11,6 +11,16 @@ google-genai>=1.0.0    # Gemini Developer API clients for Lyria, Veo, and Gemini
 openai>=2.44.0         # Videos API support for Sora 2
 beautifulsoup4>=4.12   # scraped stock sources: Mixkit, Dareful
 
+# Voice and transcription
+edge-tts>=7.0          # channel voice (Edge es-MX-JorgeNeural)
+faster-whisper>=1.1    # transcriber, narration_qc
+av<19                  # PyAV 19 breaks faster-whisper's decode_audio
+
+# Reference video analysis
+yt-dlp>=2026.10        # video_downloader, video_analyzer
+yt-dlp-ejs>=0.8        # lets yt-dlp solve YouTube challenges with Node (Deno also works)
+youtube-transcript-api>=1.2  # transcript_fetcher
+
 # Backlot - the living storyboard (local board server)
 fastapi>=0.110
 uvicorn>=0.29
