@@ -40,7 +40,7 @@ Custom handwriting rendered as **serif** in every render for a long time. The ca
 
 A working Patrick Hand TTF ships at **`ink-theater/assets/patrickhand.ttf`** (SIL Open Font License — the license ships beside it as `assets/OFL.txt`; see `THIRD_PARTY_NOTICES.md`) — copy it into your project's `assets/` and use `font-family: "InkHand"`. It renders real handwriting on normal **HTML overlay `<div>`s** (verified — put caption divs over the SVG scene). Don't hot-link Google Fonts (a render-time network fetch breaks determinism); a local `@font-face` file is auto-inlined by the compiler at build time.
 
-> Note: HyperFrames also pre-bundles ~18 fonts (none are handwriting) — see `hyperframes-creative/references/typography.md`. For handwriting you must embed your own full font as above.
+> Note: HyperFrames also pre-bundles ~18 fonts (none are handwriting) — see the Fonts section of `.agents/skills/hyperframes/references/format.md`. For handwriting you must embed your own full font as above.
 
 ## Usage in a HyperFrames project
 

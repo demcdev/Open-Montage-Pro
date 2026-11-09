@@ -99,24 +99,19 @@ motion via MotionPath, line-draw via DrawSVG, custom easing), `threejs-*` (3D), 
 (data-driven custom charts — build the chart by hand; do **not** drop in the stock
 `bar_chart`/`line_chart`), `manim-*` (math), `canvas-procedural-animation` (particles/weather).
 
-**On HyperFrames** — the vocabulary lives in `/hyperframes-animation`: 36+ atomic motion
-**rules** (`kinetic-beat-slam`, `3d-text-depth-layers`, `motion-blur-streak`,
-`physics-press-reaction`, `multi-phase-camera`, `depth-of-field-blur`, …), 15+ scene
-**blueprints** (`kinetic-type-beats`, `comparison-split`, `dataviz-countup`,
-`constellation-hub`, `ticker-takeover`, `device-surface-showcase`, …), 16 **transition**
-families (`css-distortion`, `css-destruction`, `css-radial`, `css-light`, `css-mechanical`,
-…), and **7 runtime adapters** under one composition: GSAP default, plus Lottie, Three.js,
-Anime.js, CSS keyframes, WAAPI, and TypeGPU (GPU compute). The headline capability is
-`adapters/html-in-canvas-patterns.md` — capture live HTML/CSS as a GPU texture and render
-through WebGL/Three.js for cinematic bloom, shatter, liquid, portal effects. Use it for 1–3
-hero beats per video, not every beat. **Compose 2–4 distinct atomic rules per beat** and use
-**at least 3 different easings across the piece** — that's the doctrine baked into the
-animation skill, not optional polish.
+**On HyperFrames** — the motion vocabulary lives in `/hyperframes`
+(`references/motion.md`: eases, titles, cuts, punch-ins, speed, holds;
+`references/runtimes.md`: GSAP by default, plus Lottie, Three.js, canvas and other
+adapters under one composition). Named effects — transitions, kinetic type, overlays,
+charts, camera moves — are about 450 editable blocks in `/hyperframes-registry`; read
+them as raw material and mechanics, never as finished looks (see above). Keep the
+OpenMontage doctrine on top: **compose 2–4 distinct motions per beat** and use **at
+least 3 different easings across the piece**.
 
-For HF creative direction (palette/type/narration/beat planning) read `/hyperframes-creative`.
-For HF assets (TTS/BGM/SFX/transcription/background-removal) read `/hyperframes-media` or
-`/media-use`. For HF CLI workflow (init/lint/validate/inspect/snapshot/beats/render) read
-`/hyperframes-cli`. The `/hyperframes` router skill maps it all.
+For HF story, spec and look read `/hyperframes` (`references/story.md`, `spec.md`,
+`look.md`, `sound.md`). For HF assets (BGM/SFX/transcription/background removal/grades)
+read `/media-use`. For the CLI (init/lint/check/snapshot/timeline/beats/render) read
+`/hyperframes-cli`.
 
 ### 4. Get the engine mechanics right — the gotcha codex
 This is the only place you "reuse": the engine's solved problems. These are facts about how
@@ -127,12 +122,12 @@ transitions, text-animations, transparent video, fonts, audio, sequencing, measu
 You may also read the stock components in `remotion-composer/src/components/` **as a
 mechanics codex — to learn idioms, never to import or imitate a look.**
 
-**For HyperFrames**, the composition contract is in `/hyperframes-core` (the `data-*`
-timing attributes — `data-start`, `data-duration`, `data-track-index` — plus the
-mandatory `class="clip"`, `data-composition-id`, `window.__timelines` registration, sub-
-composition mounts). Run `npx hyperframes lint && npx hyperframes validate` after every
-change — they catch missing root attrs, missing clip ids, GSAP-target unresolved, overlapping
-tweens, and contrast failures before render. Use `npx hyperframes snapshot . --at <times>`
+**For HyperFrames**, the composition contract is the Contract section of `/hyperframes`
+(the `data-*` timing attributes — `data-start`, `data-duration`, `data-track-index` — plus
+the mandatory `class="clip"`, `data-composition-id`, `window.__timelines` registration, sub-
+composition mounts; details in `references/format.md`). Run `npx hyperframes lint && npx
+hyperframes check --json` after every change — they catch missing root attrs, missing clip
+ids, GSAP-target unresolved, overlapping tweens, and contrast failures before render. Use `npx hyperframes snapshot . --at <times>`
 to spot-check beats visually before committing to a full render.
 
 Recurring mechanics that bite if you don't know them:
@@ -152,7 +147,7 @@ Recurring mechanics that bite if you don't know them:
   `data-composition-id`, `data-start="0"`, `data-duration`, `data-width`, `data-height`.
   Every timeline must be `gsap.timeline({ paused: true })` and registered as
   `window.__timelines["<composition-id>"]`. Use stable `id` attributes on clips and on
-  GSAP targets — `nth-of-type` selectors are flaky at validate time.
+  GSAP targets — `nth-of-type` selectors are flaky at check time.
 - **Captions vs on-screen text — pick one role, never both for the same content.** Decide
   once per piece, before authoring: are captions adding meaning the spoken words can't carry
   (a number, a name, a translation, a quote attribution), OR are they accessibility subtitles
@@ -206,7 +201,7 @@ registry (`src/components`, `src/Explainer`, etc.), and warns if `art_direction`
 - For music-driven pieces, run `npx hyperframes beats .` after dropping the track in
   `assets/` — it emits `beats/<audio>.json` with `{time, strength}` per beat so the agent
   can land scenes on real drops (not guesses).
-- Verify before render: `npx hyperframes lint . && npx hyperframes validate . && npx hyperframes snapshot . --at <times>`.
+- Verify before render: `npx hyperframes lint . && npx hyperframes check . --json && npx hyperframes snapshot . --at <times>`.
   Snapshot is HF's native visual-spotcheck (contact-sheet of PNG frames at chosen
   timestamps) — use it the same way an atelier `final_review.visual_spotcheck` would.
 - **Render**: call `video_compose` with `render_runtime: "hyperframes"`,
@@ -262,8 +257,9 @@ Two reference pieces — one per runtime — to study **processes**, never visua
   completely different visual languages.
 
 - **HyperFrames** — `in-a-hurry` (`projects/in-a-hurry/`): a music-driven kinetic-typography
-  piece using the new HF 0.7 `beats` command to lock scene timing to real drops. Exercises
-  **5 categories** of `/hyperframes-animation`: `kinetic-beat-slam`, `3d-text-depth-layers`
+  piece using the HF 0.7 `beats` command to lock scene timing to real drops. Exercises
+  **5 categories** of the HF 0.7 animation skill (since folded into `/hyperframes` and the
+  registry): `kinetic-beat-slam`, `3d-text-depth-layers`
   (stacked extrusion), `motion-blur-streak` (echo-ghost trails), `transitions/css-distortion`
   (chromatic-aberration RGB-split), and `adapters/html-in-canvas-patterns` (Three.js +
   UnrealBloom on a hero punchline). Each beat uses a distinct easing (`expo.out`,

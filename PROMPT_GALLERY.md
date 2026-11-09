@@ -144,7 +144,7 @@ These use the HyperFrames composition runtime — HTML + CSS + GSAP rendered det
 
 > "Here's my landing page URL: https://example.com. Make me a 15-second social ad for Instagram. Use HyperFrames and pick up the site's real colors and typography."
 
-**What you get:** `website-to-hyperframes` workflow — capture the site, extract colors/typography into a `DESIGN.md`, storyboard 3-4 beats, generate narration, build compositions with GSAP timelines, lint + validate + render.
+**What you get:** `hyperframes capture` workflow — capture the site, extract colors/typography into a `DESIGN.md`, storyboard 3-4 beats, generate narration, build compositions with GSAP timelines, lint + check + render.
 
 **Estimated time:** 8-12 minutes | **Cost:** $0 (or ~$0.05 with premium TTS)
 

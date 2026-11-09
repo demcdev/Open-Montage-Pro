@@ -396,7 +396,7 @@ def test_hyperframes_render_resolves_relative_output_path_once(tmp_path, monkeyp
     monkeypatch.setattr(tool, "_runtime_check", lambda: {"runtime_available": True})
     monkeypatch.setattr(tool, "_scaffold", lambda inputs: ToolResult(success=True, data={}))
     monkeypatch.setattr(tool, "_lint", lambda inputs: ToolResult(success=True, data={}))
-    monkeypatch.setattr(tool, "_validate", lambda inputs: ToolResult(success=True, data={}))
+    monkeypatch.setattr(tool, "_check", lambda inputs: ToolResult(success=True, data={}))
 
     def run_render(args, *, cwd, timeout, check):
         output = Path(args[args.index("--output") + 1])
@@ -415,6 +415,116 @@ def test_hyperframes_render_resolves_relative_output_path_once(tmp_path, monkeyp
     assert result.success, result.error
     assert result.data["output"] == str(expected)
     assert result.artifacts == [str(expected)]
+
+
+def test_cli_calls_run_with_telemetry_off_unless_overridden(monkeypatch):
+    """The CLI reports usage to HeyGen unless told not to."""
+    from tools.video import hyperframes_compose
+
+    monkeypatch.delenv("HYPERFRAMES_NO_TELEMETRY", raising=False)
+    assert hyperframes_compose._hf_env()["HYPERFRAMES_NO_TELEMETRY"] == "1"
+
+    monkeypatch.setenv("HYPERFRAMES_NO_TELEMETRY", "0")
+    assert hyperframes_compose._hf_env()["HYPERFRAMES_NO_TELEMETRY"] == "0"
+
+
+_REPO = Path(__file__).resolve().parents[2]
+_VENDORED_SKILLS = [
+    "hyperframes", "hyperframes-cli", "hyperframes-registry", "media-use", "remotion-to-hyperframes",
+]
+_RETIRED_SKILLS = [
+    "hyperframes-core", "hyperframes-animation", "hyperframes-creative", "hyperframes-media",
+    "music-to-video", "website-to-video", "motion-graphics",
+]
+
+
+def test_vendored_skills_version_is_read_from_provenance():
+    from tools.video import hyperframes_compose
+
+    version = hyperframes_compose._vendored_skills_version()
+    assert version and version[0].isdigit(), version
+    assert hyperframes_compose._skills_version_note(version) is None
+    assert hyperframes_compose._skills_version_note(None) is None
+
+    note = hyperframes_compose._skills_version_note("99.0.0")
+    assert f"v{version}" in note and "v99.0.0" in note and "PROVENANCE.md" in note
+
+
+def test_runtime_check_reports_a_skills_drift_without_blocking(monkeypatch):
+    tool = HyperFramesCompose()
+    monkeypatch.setattr(tool, "_node_major_version", lambda: 24)
+    monkeypatch.setattr("shutil.which", lambda name: f"/bin/{name}")
+    monkeypatch.setattr(tool, "_resolve_npm_package", lambda: {"version": "99.0.0"})
+    monkeypatch.setattr(tool, "_probe_cli", lambda: {"status": "ok"})
+
+    check = tool._runtime_check()
+    assert check["runtime_available"] is True
+    assert "v99.0.0" in check["skills_version_note"]
+
+
+@pytest.mark.parametrize("skill", _VENDORED_SKILLS)
+def test_vendored_skill_is_mirrored_identically(skill):
+    agents, claude = _REPO / ".agents" / "skills" / skill, _REPO / ".claude" / "skills" / skill
+    assert (agents / "SKILL.md").is_file()
+
+    def files(root):
+        return {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+
+    assert files(agents) == files(claude)
+
+
+@pytest.mark.parametrize("skill", _RETIRED_SKILLS)
+def test_retired_skill_is_gone(skill):
+    for root in (".agents", ".claude"):
+        assert not (_REPO / root / "skills" / skill).exists(), f"{root}/skills/{skill} came back"
+
+
+@pytest.mark.parametrize("operation", ["validate", "inspect", "check"])
+def test_deprecated_gate_names_run_check(tmp_path, monkeypatch, operation):
+    """`validate` and `inspect` are deprecated CLI aliases; only `check` is run."""
+    import subprocess
+
+    (tmp_path / "index.html").write_text("<html></html>", encoding="utf-8")
+    tool = HyperFramesCompose()
+    seen = []
+
+    def fake_run(args, *, cwd, timeout, check):
+        seen.append(args)
+        return subprocess.CompletedProcess(args, 0, '{"ok": true}', "")
+
+    monkeypatch.setattr(tool, "_run_hf", fake_run)
+    method = {"validate": tool._validate, "inspect": tool._inspect, "check": tool._check}[operation]
+    result = method({"workspace_path": str(tmp_path)})
+
+    assert result.success, result.error
+    assert [args[0] for args in seen] == ["check"]
+
+
+def test_render_gates_on_check_not_validate(tmp_path, monkeypatch):
+    import subprocess
+
+    from tools.base_tool import ToolResult
+
+    tool = HyperFramesCompose()
+    (tmp_path / "index.html").write_text("<html></html>", encoding="utf-8")
+    monkeypatch.setattr(tool, "_runtime_check", lambda: {"runtime_available": True})
+    monkeypatch.setattr(tool, "_scaffold", lambda inputs: ToolResult(success=True, data={}))
+    monkeypatch.setattr(tool, "_lint", lambda inputs: ToolResult(success=True, data={}))
+    commands = []
+
+    def fake_run(args, *, cwd, timeout, check):
+        commands.append(args[0])
+        if args[0] == "check":
+            return subprocess.CompletedProcess(args, 1, '{"errors": 1}', "")
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    monkeypatch.setattr(tool, "_run_hf", fake_run)
+    result = tool._render({"workspace_path": str(tmp_path)})
+
+    assert not result.success
+    assert "Check failed" in result.error
+    assert commands == ["check"]          # never validate, and no render after a failed gate
+    assert "check" in result.data["steps"] and "validate" not in result.data["steps"]
 
 
 # ------------------------------------------------------------------

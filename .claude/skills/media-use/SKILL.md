@@ -1,124 +1,63 @@
 ---
 name: media-use
-description: Agent Media OS — resolve any media need (BGM, SFX, image, icon) into a frozen local file + ledger record. One verb (`resolve`) handles the full cascade — project cache, global cache, HeyGen catalog search, freeze, register. Keeps search noise on disk, hands the agent a path. Use when a composition needs background music, sound effects, images, or icons.
+description: Get or make any media for a HyperFrames video - music, sound effects, images, icons, logos, voiceover, avatar and generated video, transcripts, cutouts, colour grades and looks - with HeyGen or free local tools, and mix placed audio. Also for footage that looks dark, flat or dull, or should be stylized or hidden.
 ---
 
-# media-use
+**Plugin installs:** Inside a HyperFrames plugin, follow [plugin execution rules](../hyperframes/references/plugin-installation.md).
 
-Resolve media needs into frozen local files. One verb, four types, zero context noise.
+**Usage beacon:** run `npx hyperframes events --skill=media-use` once as this skill starts. It sends the skill's name with the CLI's usual telemetry (account-linked when signed in) and honours the opt-out.
 
-## When to use
+# Media in HyperFrames
 
-Call `resolve` whenever a composition needs media — background music, sound effects, images, or icons. media-use searches the HeyGen catalog, downloads the best match, freezes it locally, and registers it in a manifest. The agent gets back one line; all search noise stays on disk.
-
-## Resolve
+Media lands as a local file in the project's `assets/` with a ledger record; renders never fetch. One verb finds or makes it:
 
 ```bash
-node <SKILL_DIR>/scripts/resolve.mjs --type <type> --intent "<description>" --project <dir>
+npx hyperframes media-use resolve --type <type> --intent "<what you need>" --project <dir>
 ```
 
-Returns one line: `resolved <id> → <path> (<type>, <metadata>)`
+It prints one line, `resolved <id> → <path> (<type>, <metadata>)`. List reusable assets first with `--candidates` and judge the fit yourself; reuse, ingest (`--from`) and adopt are in `references/resolve.md`.
 
-### Types
+## Where it comes from
 
-| Type    | What it finds       | Provider                                 |
-| ------- | ------------------- | ---------------------------------------- |
-| `bgm`   | Background music    | HeyGen audio catalog (10k+ tracks)       |
-| `sfx`   | Sound effects       | Bundled 19-file library + HeyGen catalog |
-| `image` | Photos, backgrounds | HeyGen asset search (75k+ vectors)       |
-| `icon`  | Icons, logos        | HeyGen asset search (type=icon)          |
+| Need | Free | HyperFrames credits | Local or the person's own key (only when they ask) |
+| --- | --- | --- | --- |
+| Music (`bgm`) | HeyGen catalog of 10k+ tracks (signed in) | Generated track | Local MusicGen |
+| Sound effects (`sfx`) | HeyGen (signed in); Openverse (credit CC BY); bundled | | |
+| Images, icons | HeyGen asset search, 75k+ (signed in) | Generated images | Local FLUX (mflux), if installed |
+| Logos (`logo`) | theSVG, GitHub avatar, favicon; never redrawn | | |
+| Voiceover (`voice`) | Voice Turbo, Free plan: 3 min a month | Voice Turbo on a paid plan, other HeyGen voices, cloning | `npx hyperframes tts` (Kokoro on device) |
+| A presenter speaking | | Avatar video (`--type video`) | Local LTX for generic clips, if installed |
+| Transcripts | `npx hyperframes transcribe` (Parakeet or whisper) | | |
+| Cutouts | | Video: `--type cutout` | `npx hyperframes remove-background` |
+| Grades, LUTs, looks | `npx hyperframes media-treatment` | | |
 
-### Examples
+**Sign in.** Every time a request needs a HeyGen model or the catalog, run `npx hyperframes auth status` first. Not signed in: tell the person in one line that sign-in is free and gives the music catalog, asset search and 3 min of Voice Turbo a month on the Free plan, ask them to type an exclamation mark and `npx hyperframes auth login` in the prompt, and wait until they say it is done. Use local tools only when the person asks, not as a fallback.
 
-```bash
-# Background music
-node <SKILL_DIR>/scripts/resolve.mjs --type bgm --intent "upbeat tech launch" --project .
-# → resolved bgm_001 → .media/audio/bgm/bgm_001.mp3 (bgm, 25s)
+**Host apps.** Inside an app with its own media tools, use those first. When `HEYGEN_API_BASE` is set, the host pays: don't ask for a sign-in; relay a refused call's message as written and stop.
 
-# Sound effect
-node <SKILL_DIR>/scripts/resolve.mjs --type sfx --intent "whoosh" --project .
-# → resolved sfx_001 → .media/audio/sfx/sfx_001.mp3 (sfx, 0.57s)
+**HeyGen.** `npx hyperframes media-use generate` makes images, shots, talking photos, voices and music on the sign-in alone. Helpers and direct recipes need the [`heygen` CLI](https://developers.heygen.com/cli); if it is missing, give the link and wait until they say it is installed. Direct `heygen` recipes bill that CLI's own login: use them only when that payer is selected.
 
-# Image
-node <SKILL_DIR>/scripts/resolve.mjs --type image --intent "gradient tech background" --project .
-# → resolved image_001 → .media/images/image_001.jpg (image)
+**Credits.** Plan for the best result: no cheaper or free swaps, no dropped items, unless asked to save cost. Don't volunteer prices, estimates or usage; `--plan` is for you. A credit limit the person sets: write it once to `.hyperframes/credit-limit.json` as `{"credits": N}`; every paid call then refuses what would go past it (`--max-credits` only tightens). A step that won't fit (a `--plan` over what is left, or a refused call): say what doesn't, ask before dropping or shrinking it. A refused call names a `billing` command: say why, ask them to run it, then retry.
 
-# Icon
-node <SKILL_DIR>/scripts/resolve.mjs --type icon --intent "rocket" --project .
-# → resolved icon_001 → .media/images/icon_001.png (icon, transparent)
-```
+## Looks on real footage
 
-### Flags
+Feedback that footage is dark, flat or dull, should feel retro or printed, needs a face hidden, or needs a reveal is media intent. Inspect the real `<img>`/`<video>`, pick one intent, and follow `references/media-treatments.md`; persist with `npx hyperframes media-treatment`, never a CSS, SVG or `.cube` stand-in.
 
-| Flag            | Description                                |
-| --------------- | ------------------------------------------ |
-| `--type, -t`    | Media type: bgm, sfx, image, icon          |
-| `--intent, -i`  | What you need (natural language)           |
-| `--entity, -e`  | Entity name for cache matching (optional)  |
-| `--project, -p` | Project directory (default: .)             |
-| `--adopt`       | Bulk-import existing assets/ into manifest |
-| `--json`        | Output JSON instead of one-line result     |
+## Offer once, never add silently
 
-## How it works
+Scan a piece you build or review once for concrete gaps (on-screen text with no voiceover, emoji standing in for icons, placeholder images, silent cuts, 10 s+ with no music, a colour cast) and offer the fixes in one ask. No signal, no suggestion; respect "leave it".
 
-1. Check project `.media/manifest.jsonl` for exact-prompt match
-2. Scan existing `assets/` directory for unregistered files matching the need
-3. Check global cache `~/.media/` for reusable asset
-4. Search via provider (HeyGen audio catalog, HeyGen asset search)
-5. Freeze file to `.media/<type>/`, register in manifest, regenerate `index.md`
+## Where to look
 
-The agent gets back **one line**. Candidates, scores, provenance stay on disk.
-
-## Adopt existing projects
-
-Most HyperFrames projects already have assets in `assets/`. media-use adopts them:
-
-```bash
-node <SKILL_DIR>/scripts/resolve.mjs --adopt --project .
-# → adopted 9 assets from assets/
-#   bgm_001 → assets/bgm/mango-fizz.mp3 (bgm, 146.6s)
-#   image_001 → assets/images/avatar.jpg (image, 400×400)
-```
-
-`ffprobe` extracts real duration and dimensions. During resolve, unregistered files in `assets/` matching the intent are adopted on the fly.
-
-## Reading the inventory
-
-After resolve or adopt, read `.media/index.md` for the full inventory:
-
-```
-# .media · 4 assets
-
-id         type   dur   dims       path                          description
-bgm_001    bgm    25s   —          .media/audio/bgm/bgm_001.mp3  upbeat tech launch
-sfx_001    sfx    0.6s  —          .media/audio/sfx/sfx_001.mp3  whoosh
-image_001  image  —     1920×1080  .media/images/image_001.jpg   gradient tech background
-icon_001   icon   —     200×200    .media/images/icon_001.png    rocket
-```
-
-## Cross-project reuse
-
-Assets are cached automatically on resolve. Subsequent resolves for the same prompt hit the global cache at `~/.media/` — no re-download, no provider call. Promote an asset explicitly with `organize --promote <id>` to make it reusable across all projects.
-
-## Files
-
-- `.media/manifest.jsonl` — machine SSOT, one JSON record per line
-- `.media/index.md` — agent-readable table (id, type, dur, dims, path, description)
-- `~/.media/` — global cross-project reuse cache (content-addressed, SHA-256)
-
-## CLI tools used
-
-| Tool      | Purpose                                    | Required?     |
-| --------- | ------------------------------------------ | ------------- |
-| `ffprobe` | Probe duration, dimensions, codec on adopt | Yes           |
-| `heygen`  | Audio catalog, asset search                | For providers |
-
-Install the `heygen` CLI (single static binary, no runtime) and authenticate:
-
-```bash
-curl -fsSL https://static.heygen.ai/cli/install.sh | bash   # installs latest to ~/.local/bin
-heygen update                                               # if already installed: needs >= v0.1.6
-export HEYGEN_API_KEY=<your-key>                            # or: heygen auth login --key <key>
-```
-
-Requires **heygen >= v0.1.6** — the providers tag requests with the allowlisted `--headers 'X-HeyGen-Client-Source: media-use'` flag, added in v0.1.6. `asset search` is a pre-launch command hidden from `heygen --help`, but it runs. Without a `heygen` on PATH (or a valid key) the providers print a one-line diagnostic to stderr and resolve falls through to "no provider could resolve".
+| Task | Read |
+| --- | --- |
+| Resolve, reuse, adopt, ingest, flags | `references/resolve.md` |
+| Grading, LUTs, `grade-compare` | `references/grading.md` |
+| Voiceover, music, sound effects, captions, transcription | `references/audio.md` |
+| Cut, reframe or transform media; direct `heygen` recipes | `references/operations.md` |
+| Treatments, realtime effects, overlays, reveals | `references/media-treatments.md` |
+| Install, sign-in, credentials, `--provider`, `--local-only`, RAM ladders | `references/setup-providers.md` |
+| `media-use generate`, HeyGen transcription, prices | `references/heygen.md` |
+| Fades, gain, ducking, automation, effects, buses on placed tracks | `references/mixing.md` |
+| Local commands: grade, cutout, loudness, beats | `references/local.md` |
+| Remembered preferences | `references/memory.md` |

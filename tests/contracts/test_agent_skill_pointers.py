@@ -59,7 +59,8 @@ def test_agent_skill_pointer_resolves(tool: str, skill: str) -> None:
     """Regression: four pointers named skills that do not exist.
 
     - hyperframes_compose -> `website-to-hyperframes`, renamed upstream to
-      `website-to-video` (recorded in .agents/skills/hyperframes/PROVENANCE.md)
+      `website-to-video` and later dropped (v0.9: `capture` in `hyperframes`;
+      see .agents/skills/hyperframes/PROVENANCE.md)
     - openai_tts, tts_selector -> `openai-docs`, never vendored
     - screen_capture_selector -> `screen-demo`, which names the Layer 2
       pipeline directory rather than a Layer 3 skill

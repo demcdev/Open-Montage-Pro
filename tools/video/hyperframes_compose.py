@@ -48,6 +48,45 @@ _VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm", ".mkv", ".m4v"}
 _AUDIO_EXTENSIONS = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"}
 
 
+_PROVENANCE = (
+    Path(__file__).resolve().parents[2] / ".agents" / "skills" / "hyperframes" / "PROVENANCE.md"
+)
+
+
+def _vendored_skills_version() -> Optional[str]:
+    """Release the vendored HyperFrames skills came from, e.g. "0.9.26"."""
+    try:
+        text = _PROVENANCE.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    match = re.search(r"\*\*Vendored tag\*\*: `v?([\d.]+)`", text)
+    return match.group(1) if match else None
+
+
+def _skills_version_note(cli_version: Optional[str]) -> Optional[str]:
+    """Say when the CLI npx resolves is not the release the skills describe."""
+    vendored = _vendored_skills_version()
+    if not cli_version or not vendored or cli_version == vendored:
+        return None
+    return (
+        f"Vendored HyperFrames skills are v{vendored} but npx resolves CLI "
+        f"v{cli_version}; flags and commands may differ. Re-vendor following "
+        f".agents/skills/hyperframes/PROVENANCE.md."
+    )
+
+
+def _hf_env() -> dict[str, str]:
+    """Environment for every HyperFrames CLI call.
+
+    The CLI sends usage counters to HeyGen unless HYPERFRAMES_NO_TELEMETRY is
+    set (linked to the HeyGen account once someone signs in). Off by default
+    here; an explicit value in the environment still wins.
+    """
+    env = dict(os.environ)
+    env.setdefault("HYPERFRAMES_NO_TELEMETRY", "1")
+    return env
+
+
 class HyperFramesCompose(BaseTool):
     name = "hyperframes_compose"
     version = "0.2.0"
@@ -73,7 +112,7 @@ class HyperFramesCompose(BaseTool):
         "hyperframes",
         "hyperframes-cli",
         "hyperframes-registry",
-        "website-to-video",
+        "media-use",
         "gsap-core",
         "gsap-timeline",
     ]
@@ -122,11 +161,10 @@ class HyperFramesCompose(BaseTool):
                     "add_block",
                 ],
                 "description": (
-                    "render: materialize workspace + lint + validate + render to MP4. "
+                    "render: materialize workspace + lint + check + render to MP4. "
                     "render_existing: preserve an authored index.html, then check + render it. "
                     "lint: run `hyperframes lint` on an existing workspace. "
-                    "validate: run `hyperframes validate` (browser-based). "
-                    "inspect: seek an existing workspace and audit layout/runtime issues. "
+                    "validate, inspect: deprecated names; both run `check`. "
                     "check: run the current unified lint/runtime/layout/motion/contrast gate. "
                     "doctor: run `hyperframes doctor` to check environment. "
                     "scaffold_workspace: materialize HTML/CSS/assets but do not render. "
@@ -354,6 +392,7 @@ class HyperFramesCompose(BaseTool):
                 capture_output=True,
                 text=True,
                 timeout=20,
+                env=_hf_env(),
             )
         except subprocess.TimeoutExpired:
             cls._cli_probe_cache = {"error": "doctor timed out after 20s"}
@@ -422,6 +461,9 @@ class HyperFramesCompose(BaseTool):
             "cli_probe_status": cli_probe.get("status"),
             "cli_probe_error": cli_probe.get("error"),
             "reasons": reasons,
+            # Advisory only: a newer CLI still renders, the skills may lag it.
+            "skills_version": _vendored_skills_version(),
+            "skills_version_note": _skills_version_note(npm_resolve.get("version")),
         }
 
     def get_status(self) -> ToolStatus:
@@ -650,53 +692,15 @@ class HyperFramesCompose(BaseTool):
             error=None if ok else f"hyperframes lint exit {proc.returncode}",
         )
 
+    # `validate` and `inspect` are deprecated CLI aliases of `check` ("don't
+    # run them", hyperframes-cli skill). The operations stay for callers that
+    # still name them, and run the unified gate.
+
     def _validate(self, inputs: dict[str, Any]) -> ToolResult:
-        workspace = self._require_workspace(inputs)
-        if not (workspace / "index.html").exists():
-            return ToolResult(
-                success=False,
-                error=f"No index.html in {workspace}. Run scaffold_workspace first.",
-            )
-        args = ["validate", "--json"]
-        if inputs.get("skip_contrast"):
-            args.append("--no-contrast")
-        proc = self._run_hf(args, cwd=workspace, timeout=300, check=False)
-        data: dict[str, Any] = {"exit_code": proc.returncode}
-        payload = self._parse_json_output(proc.stdout)
-        if payload is not None:
-            data["report"] = payload
-        else:
-            data["stdout_tail"] = (proc.stdout or "")[-4000:]
-        data["stderr_tail"] = (proc.stderr or "")[-2000:]
-        ok = proc.returncode == 0
-        return ToolResult(
-            success=ok,
-            data=data,
-            error=None if ok else f"hyperframes validate exit {proc.returncode}",
-        )
+        return self._check(inputs)
 
     def _inspect(self, inputs: dict[str, Any]) -> ToolResult:
-        """Seek through an authored workspace and audit runtime/layout issues."""
-        workspace = self._require_workspace(inputs)
-        if not (workspace / "index.html").exists():
-            return ToolResult(
-                success=False,
-                error=f"No index.html in {workspace}.",
-            )
-        proc = self._run_hf(["inspect", "--json"], cwd=workspace, timeout=300, check=False)
-        data: dict[str, Any] = {"exit_code": proc.returncode}
-        payload = self._parse_json_output(proc.stdout)
-        if payload is not None:
-            data["report"] = payload
-        else:
-            data["stdout_tail"] = (proc.stdout or "")[-4000:]
-        data["stderr_tail"] = (proc.stderr or "")[-2000:]
-        ok = proc.returncode == 0
-        return ToolResult(
-            success=ok,
-            data=data,
-            error=None if ok else f"hyperframes inspect exit {proc.returncode}",
-        )
+        return self._check(inputs)
 
     def _check(self, inputs: dict[str, Any]) -> ToolResult:
         """Run the unified HyperFrames quality gate for authored workspaces."""
@@ -789,7 +793,7 @@ class HyperFramesCompose(BaseTool):
         )
 
     def _render(self, inputs: dict[str, Any]) -> ToolResult:
-        """Full pipeline: scaffold → lint → validate → render."""
+        """Full pipeline: scaffold → lint → check → render."""
         runtime_ok = self._runtime_check()
         if not runtime_ok["runtime_available"]:
             return ToolResult(
@@ -833,19 +837,19 @@ class HyperFramesCompose(BaseTool):
                 )
             log.warning("hyperframes lint reported issues (non-strict mode, continuing)")
 
-        # 3. Validate — browser-based contract + contrast.
-        validate = self._validate(
+        # 3. Check — runtime, layout and contrast in the browser.
+        quality_check = self._check(
             {
                 "workspace_path": str(workspace),
                 "skip_contrast": inputs.get("skip_contrast", False),
             }
         )
-        steps["validate"] = validate.data
-        if not validate.success:
+        steps["check"] = quality_check.data
+        if not quality_check.success:
             return ToolResult(
                 success=False,
                 error=(
-                    f"Validate failed: {validate.error}. HyperFrames render "
+                    f"Check failed: {quality_check.error}. HyperFrames render "
                     f"is blocked — fix the composition and re-run."
                 ),
                 data={"steps": steps},
@@ -1391,7 +1395,7 @@ class HyperFramesCompose(BaseTool):
 
         We intentionally bypass `self.run_command` here because we do NOT
         want to raise CalledProcessError on non-zero exits — the caller
-        parses lint/validate/render exit codes itself.
+        parses lint/check/render exit codes itself.
         """
         cmd = ["npx", "--yes", "hyperframes", *args]
         # On Windows, resolve the .cmd wrapper so subprocess can find it
@@ -1402,7 +1406,7 @@ class HyperFramesCompose(BaseTool):
                 cmd[0] = resolved
         # A stale browser path makes `check` skip every browser pass and report
         # empty sections, so fall back to the browser HyperFrames manages itself.
-        env = dict(os.environ)
+        env = _hf_env()
         browser = env.get("HYPERFRAMES_BROWSER_PATH")
         if browser and not Path(browser).exists():
             log.warning("HYPERFRAMES_BROWSER_PATH does not exist, ignoring it: %s", browser)

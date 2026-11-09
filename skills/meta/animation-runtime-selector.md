@@ -62,15 +62,15 @@ when both were available is a CRITICAL reviewer finding.
 | Existing React scene stack (text_card, stat_card, chart, caption overlay, TalkingHead, CinematicRenderer) | **remotion** | `skills/core/remotion.md` |
 | Word-level caption burn / karaoke captions | **remotion** | `skills/core/remotion.md` |
 | Avatar / lip-sync / presenter | **remotion** | `skills/core/remotion.md` |
-| Kinetic typography, HTML/GSAP-native motion, product promo, launch reel | **hyperframes** | `skills/core/hyperframes.md` + `.agents/skills/hyperframes/SKILL.md` (router) → `hyperframes-core` (contract), `hyperframes-creative` (palette/type), `hyperframes-animation` (motion) |
-| Website → video, UI-driven composition | **hyperframes** | `.agents/skills/website-to-video/SKILL.md` (renamed from website-to-hyperframes in 0.7) |
+| Kinetic typography, HTML/GSAP-native motion, product promo, launch reel | **hyperframes** | `skills/core/hyperframes.md` + `.agents/skills/hyperframes/SKILL.md` (contract, work loop, `references/motion.md`, `references/types/launch.md`) |
+| Website → video, UI-driven composition | **hyperframes** | `npx hyperframes capture <url>` + `.agents/skills/hyperframes/references/film.md` |
 | Registry block needed (data-chart, grain-overlay, shader transitions, etc.) | **hyperframes** | `.agents/skills/hyperframes-registry/SKILL.md` |
 | Editable browser-native 3D terrain/world and free-viewpoint fly-through | **hyperframes** | `skills/creative/3d-world-generation.md` + `.agents/skills/threejs-world-generation/SKILL.md` |
 | Reference-grade 3D world film rendered in Blender | **ffmpeg packaging of Blender frames** | `skills/creative/3d-world-generation.md` + `.agents/skills/3d-asset-generation/SKILL.md` |
-| Beat-synced music video (audio drives scene timing) | **hyperframes** | `.agents/skills/music-to-video/SKILL.md` — uses `hyperframes beats` to detect drops, lays out frames on the beat grid |
+| Beat-synced music video (audio drives scene timing) | **hyperframes** | `.agents/skills/hyperframes/references/types/music.md` + `npx hyperframes beats` (`.agents/skills/hyperframes-cli/references/beats.md`) |
 | Porting an existing Remotion composition to HyperFrames | **hyperframes** | `.agents/skills/remotion-to-hyperframes/SKILL.md` — migration guidance, ONLY for explicit port requests |
-| BGM / SFX / image / icon resolution (any pipeline, any runtime) | n/a | `.agents/skills/media-use/SKILL.md` — `resolve` verb against project cache + global cache + HeyGen catalog |
-| Short design-led motion graphic (lower-third, stat reveal, logo sting, headline) | **hyperframes** | `.agents/skills/motion-graphics/SKILL.md` |
+| BGM / SFX / image / icon resolution (any pipeline, any runtime) | n/a | `.agents/skills/media-use/SKILL.md` — free local options first; HeyGen catalog only with the user's approval |
+| Short design-led motion graphic (lower-third, stat reveal, logo sting, headline) | **hyperframes** | `.agents/skills/hyperframes-registry/SKILL.md` (search the blocks first) + `.agents/skills/hyperframes/references/overlays.md` |
 | Pure concat / trim of source clips, no composition needed | **ffmpeg** | `skills/core/ffmpeg.md` |
 | Selected runtime is unavailable | **escalate** — do not substitute silently | `AGENT_GUIDE.md` → Escalate Blockers |
 
@@ -97,13 +97,13 @@ decision matrix and the list of features that stay Remotion-only in Phase 1.
 | Mathematical / scientific visualization | Manim | `.agents/skills/manim-composer`, `.agents/skills/manimce-best-practices` |
 | D3 data-driven visualization | D3 | `.agents/skills/d3-viz` |
 | Data chart (bar/line/pie/KPI) | Remotion built-in chart components | `remotion-composer/SCENE_TYPES.md` |
-| HyperFrames composition — animation knowledge (rules, blueprints, transitions, runtime adapters) | HyperFrames + GSAP default | `.agents/skills/hyperframes-animation` (consolidated motion skill) + `.agents/skills/gsap-core`, `.agents/skills/gsap-timeline` |
-| HyperFrames composition structure (data-* timing, tracks, sub-compositions) | HyperFrames | `.agents/skills/hyperframes-core` |
+| HyperFrames composition — motion (eases, titles, cuts, punch-ins) and runtime adapters (GSAP, Lottie, Three.js, canvas) | HyperFrames + GSAP default | `.agents/skills/hyperframes/references/motion.md`, `references/runtimes.md` + `.agents/skills/gsap-core`, `.agents/skills/gsap-timeline` |
+| HyperFrames composition structure (data-* timing, tracks, sub-compositions) | HyperFrames | `.agents/skills/hyperframes/SKILL.md` (Contract) + `references/format.md` |
 | Explicit Three.js world (terrain, regions, landmarks, camera path) | HyperFrames + `threejs_world` | `.agents/skills/threejs-world-generation` |
 | Detailed Blender world film (generated/catalog meshes, PBR, camera path) | Blender + FFmpeg packaging | `.agents/skills/3d-asset-generation` |
-| HyperFrames creative direction (palette, type, narration, beat planning) | HyperFrames | `.agents/skills/hyperframes-creative` |
-| HyperFrames audio/media (TTS, BGM, SFX, transcription, captions, bg-removal) | HyperFrames | `.agents/skills/hyperframes-media` |
-| HyperFrames composition CLI work (lint/validate/inspect/snapshot/benchmark/render/lambda) | HyperFrames CLI 0.7+ | `.agents/skills/hyperframes-cli` |
+| HyperFrames creative direction (story, spec, look, sound) | HyperFrames | `.agents/skills/hyperframes/references/` (`story.md`, `spec.md`, `look.md`, `sound.md`) |
+| HyperFrames audio/media (BGM, SFX, transcription, captions, bg-removal, grades) | HyperFrames | `.agents/skills/media-use` + `.agents/skills/hyperframes/references/captions.md` |
+| HyperFrames composition CLI work (lint/check/snapshot/timeline/render) | HyperFrames CLI | `.agents/skills/hyperframes-cli` |
 | HyperFrames registry block install (`hyperframes add ...`) | HyperFrames registry | `.agents/skills/hyperframes-registry` |
 
 ## The "keep it simple" bias

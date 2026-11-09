@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""QA Test 09: HyperFrames end-to-end — scaffold + lint + validate + render.
+"""QA Test 09: HyperFrames end-to-end — scaffold + lint + check + render.
 
-This test hits the real HyperFrames CLI via `npx @hyperframes/cli`. On first
+This test hits the real HyperFrames CLI via `npx hyperframes`. On first
 run, npm fetches the package (slow — ~30-90s) and then Chrome downloads its
 browser for validation (~30s extra, cached thereafter). Skip unless
 HYPERFRAMES_QA=1 is set so CI doesn't pay the cost on every run.
@@ -10,7 +10,7 @@ The test is still valuable even without `--render`:
   - scaffold_workspace proves the workspace generator emits a contract-valid
     composition.
   - lint exercises the static contract checker.
-  - validate exercises the browser-based contract + contrast audit.
+  - check exercises the browser-based contract + contrast audit.
 
 Full render (operation='render') is optional and gated on HYPERFRAMES_QA_RENDER=1.
 """
@@ -37,7 +37,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 
 _SKIP_REASON = (
-    "HyperFrames QA is opt-in. Set HYPERFRAMES_QA=1 to run scaffold+lint+validate, "
+    "HyperFrames QA is opt-in. Set HYPERFRAMES_QA=1 to run scaffold+lint+check, "
     "and HYPERFRAMES_QA_RENDER=1 to additionally run the real render."
 )
 
@@ -77,7 +77,7 @@ def _minimal_scenario(workspace: Path, asset: Path) -> dict:
                 {"id": "c1", "source": "hero_asset", "in_seconds": 0, "out_seconds": 2, "type": "image"},
                 {"id": "c2", "source": "", "in_seconds": 2, "out_seconds": 5,
                  "type": "text_card", "text": "HyperFrames smoke test",
-                 "subtitle": "scaffold + lint + validate + render"},
+                 "subtitle": "scaffold + lint + check + render"},
             ],
         },
         "asset_manifest": {"assets": [{"id": "hero_asset", "path": str(asset)}]},
@@ -104,7 +104,7 @@ def _minimal_scenario(workspace: Path, asset: Path) -> dict:
 
 
 @pytest.mark.skipif(not os.environ.get("HYPERFRAMES_QA"), reason=_SKIP_REASON)
-def test_hyperframes_scaffold_lint_validate(tmp_path: Path):
+def test_hyperframes_scaffold_lint_check(tmp_path: Path):
     if not _runtime_ready():
         pytest.skip("HyperFrames runtime floor not met (node>=22 + ffmpeg + npx).")
 
@@ -133,19 +133,19 @@ def test_hyperframes_scaffold_lint_validate(tmp_path: Path):
         f"Stderr tail: {lint.data.get('stderr_tail')}"
     )
 
-    # 3. Validate — browser-based. Skip contrast since our placeholder colors
+    # 3. Check — browser-based. Skip contrast since our placeholder colors
     # aren't tuned for WCAG.
-    validate = HyperFramesCompose().execute(
+    quality_check = HyperFramesCompose().execute(
         {
-            "operation": "validate",
+            "operation": "check",
             "workspace_path": str(workspace),
             "skip_contrast": True,
         }
     )
-    # Validate may return non-zero if the composition has warnings vs errors;
+    # Check may return non-zero if the composition has warnings vs errors;
     # what we care about is that it at least ran and produced a report.
-    assert "exit_code" in validate.data
-    assert validate.data.get("stderr_tail") is not None or validate.data.get("report")
+    assert "exit_code" in quality_check.data
+    assert quality_check.data.get("stderr_tail") is not None or quality_check.data.get("report")
 
 
 @pytest.mark.skipif(

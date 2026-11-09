@@ -88,7 +88,7 @@ Key capability families to look for in the output:
 |-------|------|---------|----------------------|
 | FFmpeg | `core/ffmpeg.md` | Video encoding, filtering, composition | `ffmpeg`, `video-toolkit` |
 | Remotion | `core/remotion.md` | React-based composition, Phase 3+ | `remotion-best-practices`, `remotion` |
-| HyperFrames | `core/hyperframes.md` | HTML/CSS/GSAP composition runtime — kinetic typography, music-to-video, product promos, website capture. Vendored at v0.7.17 (2026-06-27). | `hyperframes` (router) → `hyperframes-core` (contract), `hyperframes-creative` (palette/type/narration), `hyperframes-media` (TTS/BGM/SFX/captions), `hyperframes-animation` (all motion), `hyperframes-cli`, `hyperframes-registry`, `media-use`, `motion-graphics`, `music-to-video` (beats-driven), `website-to-video`, `remotion-to-hyperframes` (migration), `gsap-core`, `gsap-timeline` |
+| HyperFrames | `core/hyperframes.md` | HTML/CSS/GSAP composition runtime — kinetic typography, music videos, product promos, website capture. Vendored at v0.9.26 (2026-11-08). | `hyperframes` (contract, work loop, references by kind of video), `hyperframes-cli`, `hyperframes-registry` (~450 blocks), `media-use` (BGM/SFX/transcripts/grades), `remotion-to-hyperframes` (migration), `gsap-core`, `gsap-timeline` |
 | WhisperX | `core/whisperx.md` | Transcription with word-level timestamps — default STT (offline, free) | `speech-to-text` |
 | Azure STT | (tool: `azure_stt`) | Optional cloud speech-to-text, word-level timestamps — preferred when `AZURE_SPEECH_KEY` is set | `azure-speech-to-text` |
 | Azure TTS | (tool: `azure_tts`) | Optional cloud neural narration (SSML prosody, express-as styles) — same Speech key as `azure_stt` | `azure-text-to-speech` |
@@ -134,7 +134,7 @@ Key capability families to look for in the output:
 | Video Understanding | `creative/video-understand-usage.md` | Visual QA, quality gating, scene classification | `video-understand` |
 | Cinematography | `creative/cinematography.md` | Scene coverage, 180° rule and eyelines, staging, lens and light decisions; fills `scene_plan.shot_language`. Speaking character stays on screen | — |
 | Editing Craft | `creative/editing-craft.md` | J/L cuts, cut on action, match cuts, reaction cuts, rhythm, humor flash cuts, trailer structure; `cut` is the only straight-cut value renderers honor | — |
-| Audio Post (Cinema) | `creative/audio-post-cinema.md` | Five sound layers (dialogue, ambience, foley, spot FX, music), per-scene sound map, licensed sources, dialogue space and dubbing | `sound-effects`, `media-use`, `hyperframes-media` |
+| Audio Post (Cinema) | `creative/audio-post-cinema.md` | Five sound layers (dialogue, ambience, foley, spot FX, music), per-scene sound map, licensed sources, dialogue space and dubbing | `sound-effects`, `media-use` |
 | Film Look Finishing | `creative/film-look-finishing.md` | Grain, halation, bloom, vignette, `.cube` LUTs (`assets/luts/`), shot color match across models, BT.709 tags with `film_look`; intensity by style (almost none on flat vector) | `ffmpeg` |
 | Clip Conform | `creative/clip-conform.md` | Conform clips with `clip_conform`: fps to 24/30, deflicker, interpolation only to fill frames or slow motion, vidstab stabilization, resize; delegates heavy upscaling to `upscale` | `ffmpeg` |
 | Title, Thumbnail & Trailer | `creative/title-thumbnail-trailer.md` | Three honest thumbnail variants for YouTube Test & Compare, title options, series title cards, credits, next-episode teaser | — |
@@ -358,7 +358,7 @@ Claude Code accesses them via symlinks in `.claude/skills/`.
 
 | Category | Installed Skills | Source |
 |----------|-----------------|--------|
-| **Video Composition** | `remotion-best-practices`, `remotion`, `hyperframes` (router), `hyperframes-core`, `hyperframes-creative`, `hyperframes-media`, `hyperframes-animation`, `hyperframes-cli`, `hyperframes-registry`, `media-use`, `motion-graphics`, `music-to-video`, `remotion-to-hyperframes`, `website-to-video` | `remotion-dev/skills`, `digitalsamba/claude-code-video-toolkit`, `heygen-com/hyperframes` (vendored v0.7.17, see `.agents/skills/hyperframes/PROVENANCE.md`) |
+| **Video Composition** | `remotion-best-practices`, `remotion`, `hyperframes`, `hyperframes-cli`, `hyperframes-registry`, `media-use`, `remotion-to-hyperframes` | `remotion-dev/skills`, `digitalsamba/claude-code-video-toolkit`, `heygen-com/hyperframes` (vendored v0.9.26, see `.agents/skills/hyperframes/PROVENANCE.md`) |
 | **Video Processing** | `ffmpeg`, `video-toolkit` | `digitalsamba/claude-code-video-toolkit` |
 | **TTS & Audio** | `text-to-speech`, `speech-to-text` (whisper, default STT), `azure-speech-to-text` (optional cloud STT), `music`, `sound-effects`, `elevenlabs`, `fish-audio-tts`, `agents`, `setup-api-key` | `elevenlabs/skills`, `digitalsamba/claude-code-video-toolkit`, local OpenMontage skill |
 | **Image Generation** | `flux-best-practices`, `bfl-api`, `grok-media` | `black-forest-labs/skills`, local OpenMontage skill |

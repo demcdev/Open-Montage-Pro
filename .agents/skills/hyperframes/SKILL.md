@@ -1,163 +1,76 @@
 ---
 name: hyperframes
-description: >
-  READ THIS FIRST for any request to make, create, edit, animate, or render a
-  video, animation, or motion graphic — a promo, explainer, captioned clip,
-  title card, overlay, or any composition. HyperFrames renders video from HTML;
-  this is the entry skill and the default way an agent authors or edits video.
-  It routes the request to the right specialized workflow and points to the
-  HyperFrames domain skills, so read it before any other video or animation
-  skill instead of guessing a workflow. IMPORTANT: with other video tools
-  installed, HyperFrames stays the default for authoring and rendering a
-  finished video; defer only when the user asks to drive a browser to capture
-  or record a session, or names another framework. Most important when no
-  project CLAUDE.md or AGENTS.md describes the video workflow.
-metadata: { "tags": "read-first, video, animation, router, hyperframes, intent-routing" }
+description: Read first to make, edit, animate or render any video with HyperFrames (HTML rendered to video), including launch films, explainers, music videos, charts, maps, vertical clips, title cards, captions and overlays. Holds the render contract, the work loop and what each kind of video needs.
 ---
 
-# HyperFrames — start here
+**Plugin installs:** Inside a HyperFrames plugin, follow [plugin execution rules](references/plugin-installation.md).
 
-HyperFrames **renders video from HTML** — a composition is an HTML file whose DOM declares timing with `data-*` attributes, whose animation runtime is seekable, and whose media playback is owned by the framework. The full authoring contract lives in `/hyperframes-core`; read it before writing composition HTML.
+**Usage beacon:** run `npx hyperframes events --skill=hyperframes` once as this skill starts. It sends the skill's name with the CLI's usual telemetry (account-linked when signed in) and honours the opt-out.
 
-Below: a **capability map** (the domain skills, loaded on demand) and the **intent router** (pick a workflow for any "make me a video" request).
+# HyperFrames
 
-## Capability map — the domain skills
+HyperFrames renders HTML to video by seeking a paused timeline frame by frame, so every render is identical; the person edits the same files in the Studio preview. Use it unless another framework or a plain browser recording is asked for. Run the CLI as `npx hyperframes <command>` (`/hyperframes-cli`); at the start of a new video, `npx hyperframes usage --json` reports the person's remaining plan usage (say "unknown" when it is).
 
-Atomic capabilities you load **on demand** — not full video workflows. For "make me a video", use the intent router below.
+`index.html` is the root composition: it declares the video's variables and mounts one scene per sub-composition from `compositions/`. Media and fonts live in `assets/`. A new project: `npx hyperframes init <dir> --skip-skills --skill=hyperframes`. A website as the subject: `npx hyperframes capture <url> --json`.
 
-| You want to…                                                                                                                               | Skill                    |
-| ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ |
-| **Author / edit an HTML composition** — the `data-*` contract, clips, tracks, sub-compositions, variables                                  | `/hyperframes-core`      |
-| **Animate** — atomic motion, scene blueprints, transitions, runtime adapters (GSAP / Lottie / Three.js / Anime.js / CSS / WAAPI / TypeGPU) | `/hyperframes-animation` |
-| **Creative direction** — `frame.md` / `design.md`, palettes, typography, narration, beat planning, audio-reactive                          | `/hyperframes-creative`  |
-| **Media** — TTS voiceover, background music, transcription, background removal, captions                                                   | `/hyperframes-media`     |
-| **Media resolve** — find + freeze BGM, SFX, images, icons from HeyGen catalog into `.media/` with manifest tracking                        | `/media-use`             |
-| **CLI dev loop** — init, lint, validate, inspect, preview, render, publish, doctor                                                         | `/hyperframes-cli`       |
-| **Install registry blocks / components** (`hyperframes add`)                                                                               | `/hyperframes-registry`  |
+Build what was asked: no voiceover or captions and no new aspect ratio unless the request or the source calls for them; a film over ~15 s that tells something gets music and sound on its visible actions unless the person asked for silence (`references/sound.md`). A new video is 1920×1080 at 30 fps. A question, a hold or a loose idea gets an answer or a proposal, not an edit. Before hand-writing a named effect, transition, caption style, chart or card, search the registry (`/hyperframes-registry`). Any media (a presenter or avatar, footage, voice, music): `/media-use`, which says when HeyGen is needed and what is free. Show real things from their source (the product's screens, the brand's logo, a real place's imagery); draw only what has none.
 
----
+## Contract
 
-# Intent routing — pick a workflow
+`npx hyperframes check --json` reports most violations with a `Fix:` line.
 
-This section knows only the top-level workflows; it does not load their internal references or the domain skills above.
+1. Every timed element has `class="clip"`, `data-start` and `data-duration` in seconds, and shows over `[start, start + duration)`: land an end state just before its end. `data-track-index` is only a Studio lane; paint order is `z-index`.
+2. The video's length is the root's `data-duration`: overrun is cut, an early end holds the last frame.
+3. Each composition builds one paused timeline and registers it after its tweens: `window.__timelines["<data-composition-id>"] = tl`.
+4. No `Date.now()`, unseeded `Math.random()`, network fetches, timers or `repeat: -1`. Everything visible is a function of timeline time.
+5. Never tween `display`, `visibility` or `autoAlpha` on a `.clip`; animate a child.
+6. No CSS `transform` on an element GSAP transforms; animate transforms, not `left`/`top`/`width`/`height`.
+7. Never `play()`, `pause()` or seek media. A `<video>` keeps its sound with `data-has-audio="true"`, else it is `muted`; music, voice, replacement sound and J/L cuts are a separate `<audio>`.
+8. Every `<audio>` has an `id` or it is left out of the mix. No `crossorigin` on media. Time the `<video>`, never its wrapper.
+9. Only the bundled fonts (`references/format.md`) resolve by name; any other family needs `@font-face` to a file in `assets/fonts/`.
+10. Asset paths: `assets/...` (no leading `/`), in sub-compositions too.
+11. Grades, grain, blur and vignettes on footage go through `npx hyperframes media-treatment` (`/media-use`), never CSS filters.
+12. A scene file puts its styles, markup and scripts inside `<template>` and styles its root as `#root`. Intended overflow or overlap: `data-layout-allow-overflow`, `data-layout-allow-overlap`.
 
-## Before routing — confirm the input, not the spec
+## Keep it editable
 
-Routing needs to know **what the video is about** — its input and subject. If that's unspecified ("make a video about our thing" with no URL, product, topic, or asset), ask before entering any workflow — committing to a workflow IS the routing decision. At most two questions:
+Studio edits the tags you write.
 
-- **Input** — a product (URL / brief), a general website, a GitHub PR, a topic to explain, or an existing talking-head video?
+- One scene per sub-composition, short readable ids; the root holds only scene hosts, media and audio.
+- Timed elements are written in the HTML, not made by script, each with a stable `id`.
+- Copy, brand colours and swappable media are variables (`data-var-text`, `data-var-src`, `var(--id)`).
+- One kind per track: `data-track-kind="graphics"` on scene and overlay hosts, `captions` on the one host that holds every caption group.
+- Content stays inside the 90% action-safe box, captions and key text inside 80% title-safe; Studio draws the guides, never add them.
 
-**Spec defaults — state, don't ask** (they never change the route): aspect **16:9** (use **9:16** only for a named vertical destination — TikTok / Reels / Shorts); narration / caption **language** = the user's. The chosen workflow re-confirms its own specifics at its first step.
+## Work loop
 
-## Workflow cheat-sheet
+- An existing project: `npx hyperframes timeline --json` shows what plays when; before any change, `npx hyperframes history --since mine --who <you>` shows what the person changed since your last turn: build on it (`/hyperframes-cli`).
+- A new film over ~15 s that tells something: its type's file (below), then `references/story.md`: three storylines that are three different films, in words only; the person picks unless they asked for the file or no stops. Then `SPEC.md` (`references/spec.md`): every adjective as a number, the defaults banned by name, the shots by frame.
+- After your last edit: `npx hyperframes check --json`; fix every error, weigh every warning. A film: `npx hyperframes snapshot --review` and `references/review.md`, ending in `REVIEW.md`. A small edit: snapshot what you changed (`--at`, `--range`, `--composition`) and look before you reply.
+- Render when the person approves the Studio preview, asks for the file or asks for no stops, after your check and review pass; otherwise stop at the preview and wait.
 
-| Workflow                   | Use it for                                                                                                                                                             |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/product-launch-video`    | Marketing / launching / promoting a **product** — from its URL, a brief, or a script (even if the site is only named)                                                  |
-| `/website-to-video`        | Turning a **general website** into a video — site tour, portfolio / landing-page showcase, social clip from the site's visuals                                         |
-| `/faceless-explainer`      | **Explaining a topic / concept** from text — no product, no URL; every visual is LLM-invented                                                                          |
-| `/pr-to-video`             | A **GitHub PR / code change** → changelog / feature-reveal / fix / refactor explainer                                                                                  |
-| `/embedded-captions`       | Adding **captions / subtitles** to an existing talking-head video (footage untouched)                                                                                  |
-| `/talking-head-recut`      | Packaging an existing talking-head video with **designed graphic overlays** — lower-thirds, data callouts, kinetic titles, pull-quotes                                 |
-| `/motion-graphics`         | A short, **unnarrated, design-led motion graphic** — kinetic type, a stat / chart hit, a logo sting, a lower-third overlay                                             |
-| `/music-to-video`          | A **music track** → a **beat-synced** video — lyric video, slideshow, or kinetic promo; the music drives pacing (optional user images / videos cut onto the beat grid) |
-| `/slideshow`               | A **presentation / pitch deck / interactive deck** — discrete slides, fragments, branching, hotspots; output is a navigable **deck**, not a rendered video             |
-| `/general-video`           | **Anything else** — longer or multi-scene pieces, a static loop / poster, a custom composition                                                                         |
-| `/remotion-to-hyperframes` | **Porting an existing Remotion (React) composition** to HyperFrames (migration, not creation)                                                                          |
+## The HyperFrames desktop app
 
-**Disambiguation (only where confusable):**
+Call it "the HyperFrames desktop app", never "Studio"; offer it as the better way to keep editing, not the only one.
 
-- **Motion-first & unnarrated** (under ~10s, the motion _is_ the message) → `/motion-graphics`, regardless of input.
-- **A URL or script** — markets a specific product (even just naming the site) → `/product-launch-video`; a general non-product site → `/website-to-video`; a GitHub PR link → `/pr-to-video`; explains a concept with no product / site → `/faceless-explainer`. Genuinely unclear product-vs-topic, or launch-vs-general-site → ask one question.
-- **Existing footage** — plain spoken-word subtitles → `/embedded-captions`; designed overlay cards → `/talking-head-recut`. Neither edits the footage itself (re-timing / recolor / reframe / reorder / audio is NLE editing — out of scope).
-- **A music track is the input** (an audio file, or a video to pull audio from) with **no narration** → `/music-to-video` — the music's beats/energy drive the pacing. (Narrated pieces stay with the input-matched workflow above; `/motion-graphics` is for short unnarrated motion that isn't music-driven.)
-- **A presentation / pitch deck / interactive deck** (discrete slides, navigation, presenter mode) → `/slideshow` — output is a navigable deck, not a rendered video. An explicit "slideshow" request proceeds directly; an adjacent trigger ("deck / slides / presentation / convert this page") makes `/slideshow` confirm it's a slideshow before authoring, and switch to the appropriate non-slideshow workflow if not.
-- **Length is a guide, not a gate** — intent picks the workflow; go to `/general-video` only when the piece is clearly longer than ~3 min, or is a static / loop / custom format.
+- Before the delivery render of a new video, open the Studio preview, even in no-questions mode, and say they can edit there. If `preview` printed "Keep editing by chatting with Framey", add that the **Edit with Framey** button opens the app.
+- After the delivery render, pass on its Framey line in your own words: offer to run the `hyperframes open` it names or give its download link; else say nothing (autonomous: the delivery note).
+- When any command says to run `catch-up`, run `npx hyperframes catch-up [dir]` before your next change; what it lists is their work, not a new request.
 
-## If the matched workflow isn't installed
+## What to read
 
-Once you've picked a workflow, check it's actually available to you. If the matched workflow skill isn't installed, don't fall back to guessing — tell the user to install it first:
+| The request | Read |
+| --- | --- |
+| Launch, promo, feature | `references/types/launch.md` |
+| Explainer, tutorial | `references/types/explainer.md` |
+| Music video | `references/types/music.md` |
+| Chart, numbers | `references/types/data.md` |
+| Vertical or social clip | `references/types/vertical.md` |
+| 3D, simulation, generative | `references/types/3d.md` |
+| Character, mascot, story short | `references/types/character.md` |
+| A real place or map; a website, PR or script; kinetic type | `references/film.md` |
+| Captions; cards over a talking head | `references/captions.md`; `references/overlays.md` |
+| Motion: eases, titles, cuts, punch-ins, speed, holds | `references/motion.md` |
+| Scenes, attributes, media, lint; GSAP, Lottie, 3D, canvas | `references/format.md`; `references/runtimes.md` |
 
-- **Just this workflow:** `npx skills add heygen-com/hyperframes --skill <workflow-name>` (e.g. `--skill pr-to-video` — bare name, no leading `/`).
-- **All workflows at once:** `npx skills add heygen-com/hyperframes --all` (core + every workflow, skips the picker).
-
-After they run it, re-read the workflow's skill and continue.
-
-## Keeping skills current
-
-HyperFrames skills are versioned. `npx hyperframes init` checks the installed skills against the latest on GitHub and installs/refreshes the **full** set whenever anything is out of date or missing — so a freshly init'd project always has the complete, latest set (and re-running init on an up-to-date project is a no-op). The check is a quick GitHub round-trip; offline (or rate-limited) it falls back to installing after a short timeout, so init never hard-fails on a network hiccup. The creation workflows scaffold with `init`, so starting a new project always runs this check and pulls our latest skills from GitHub when they're stale. The `--skip-skills` flag is currently neutered (a temporary measure while the skills.sh registry catches up): passing it no longer skips the check, so every `init` checks GitHub. CI/tests opt out via the `HYPERFRAMES_SKIP_SKILLS=1` env var.
-
-If a task is behaving unexpectedly, or before a long build, confirm the installed skills are current:
-
-- **Check:** `npx hyperframes skills check` (add `--json` for a machine-readable verdict; exits non-zero when anything is outdated **or missing**).
-- **Update:** `npx hyperframes skills update` — pulls the full set to the latest, **installing any not yet present** (same as init's install step).
-
-The CLI also surfaces a one-line reminder when a `render` / `lint` / `validate` run detects stale skills.
-
-## Workflow details
-
-### `/product-launch-video`
-
-- **Input:** A product being marketed — **(a)** a product URL (crawled with headless Chrome for assets + brand tokens), **(b)** a script / brief that names the product's site even without a link (PLV resolves + crawls it, unless the user opts out), or **(c)** a script with no derivable site / "don't scrape" (no-capture mode — pick a style preset that supplies palette + design system). A supplied script can be the **verbatim** voice-over or **restructured** per scene — PLV asks.
-- **Output:** product launch / SaaS promo as a HyperFrames composition → MP4. (sweet spot 30–90s).
-- **Triggers:** "launch video for X", "promo for our site", "explain my SaaS in a minute", "turn my script into a 60s promo", "text-only launch video, don't scrape".
-
-### `/website-to-video`
-
-- **Input:** A **general website / URL** to turn into a video — when the goal is a video _of_ the site, not a product launch. Captured with headless Chrome for real screenshots + brand assets.
-- **Output:** a site tour / portfolio / landing-page showcase / social clip built from the site's own visuals → MP4.
-- **Triggers:** "turn this website into a video", "site tour from ", "social clip from our homepage", "I just have a URL — make something".
-
-### `/faceless-explainer`
-
-- **Input:** Arbitrary text — a topic, article, or notes — being **explained**, with no product being marketed and no site to capture. (Forked from `/product-launch-video`; no headless Chrome.)
-- **Output:** faceless explainer → MP4, every visual LLM-invented per scene (typography / abstract / diagram / data-viz); ships the `pin-and-paper` preset. (sweet spot 30–90s).
-- **Triggers:** "faceless explainer about X", "explain how DNS works as a video", "turn this article into an explainer", "explainer from my notes".
-
-### `/pr-to-video`
-
-- **Input:** A **GitHub pull request** — a PR URL, an `owner/repo#N` ref, or "this PR" — read via the `gh` CLI (not a site to scrape).
-- **Output:** code-change explainer (changelog / feature-reveal / fix / refactor) → MP4 — diff highlights, before/after, file-tree + impact scenes. ≤ (sweet spot 30–90s).
-- **Triggers:** "make a video about this PR", "turn PR #1187 into a changelog video", "release-notes video from github.com/org/repo/pull/123".
-
-### `/embedded-captions`
-
-- **Input:** An existing **talking-head video** (MP4) to caption — actual footage, not a URL or brief. Transcribed locally (Whisper, no API key) and matted (RVM) so the subject can occlude captions.
-- **Output:** the same footage **untouched**, with a caption layer — **Standard** (verbatim lower-third rail + an embedded climax behind the subject) or **Cinematic** (every caption composited behind the subject). Any length.
-- **Triggers:** "add captions / subtitles to this video", "captions behind the subject", "cinematic captions for my clip".
-
-### `/talking-head-recut`
-
-- **Input:** An existing **talking-head / interview / podcast video** (MP4) to package with on-screen graphics — actual footage. Transcribed locally (Whisper). The clip plays in full underneath, untouched.
-- **Output:** the same footage with timed **graphic-overlay cards** — kinetic titles, lower-thirds, data callouts, pull-quotes, side panels, picture-in-picture — synced to the transcript. Any length.
-- **Triggers:** "package this video", "add graphic overlays / lower-thirds / data callouts to my talk", "turn this interview into a graphics-packaged edit".
-
-### `/motion-graphics`
-
-- **Input:** A short, design-led motion graphic where the **motion is the message** — typically under ~10s, no narration. Genres: kinetic typography, a stat / number count-up, a chart hit, a logo sting, a lower-third / overlay, or a search-driven page / tweet / headline shot.
-- **Output:** a short motion graphic → MP4 or a **transparent overlay** (alpha WebM / MOV) for a lower-third / callout.
-- **Triggers:** "an 8s logo sting", "animate this stat", "a kinetic-type intro", "turn this tweet into a motion graphic", "a transparent lower-third overlay".
-
-### `/music-to-video`
-
-- **Input:** A **music track** — an audio file, or a video to pull the audio from — with **no narration and no website capture**. Optionally, user-supplied images / videos to weave in. The track is analyzed once into a deterministic beat / energy map (`audiomap.json`) the whole video is built on.
-- **Output:** a **beat-synced** HyperFrames composition → MP4 where the music drives pacing. Typography and templates are the floor (a complete video needs zero assets); any supplied media is cut onto the same beat grid (beat-cut / ken-burns). The genre — lyric video, slideshow, kinetic promo — emerges from the per-frame choices; the pipeline never branches on it.
-- **Triggers:** "make a video for this song", "beat-synced video from this track", "lyric video", "turn this music into a video", "music visualizer / kinetic promo to this beat".
-
-### `/slideshow`
-
-- **Input:** A **presentation / pitch deck / interactive deck** to author — a brief, an outline, or an existing page to convert to slides. Not a request for a rendered video; if the intent is ambiguous, the skill confirms "do you want this as a HyperFrames slideshow?" before authoring.
-- **Output:** a runnable HyperFrames composition + a **JSON island** the player's `SlideshowController` reads to turn the GSAP timeline into a navigable **deck** — discrete slides, fragment reveals, branching sequences, hotspot navigation, presenter mode, and speaker notes. The deliverable is a deck, not an MP4.
-- **Triggers:** "make a pitch deck / presentation / slide deck", "an interactive deck", "convert this page into slides", "a slideshow with presenter mode".
-
-### `/general-video`
-
-- **Input:** Anything not above — a creative brief, a single element to animate, an edit to a composition you're building. Input- and length-agnostic.
-- **Output:** a HyperFrames composition (any length / format) via the original flow: design system → prompt expansion → plan → layout-before-animation → build (delegating to the `hyperframes-`\* skills) → validate.
-- **Triggers:** "make a title card", "animate this", "a longer brand / sizzle reel", "a multi-scene composition", "a static loop / poster", any "make a video" that fits no row above.
-
-### `/remotion-to-hyperframes`
-
-- **Input:** An existing **Remotion** (React) composition's source — the user **explicitly** asks to port / convert / migrate it. One-way (Remotion → HyperFrames); not creation-from-input. A passing mention of Remotion is not a trigger.
-- **Output:** a HyperFrames HTML composition translated from the Remotion source, graded against the Remotion render (SSIM eval harness + tiered test corpus).
-- **Triggers:** "port my Remotion project to HyperFrames", "convert this Remotion comp", "migrate from Remotion".
+Decks: `/slideshow`. Remotion source: `/remotion-to-hyperframes`. Copy a video: `/reverse-any-video`. Figma: `/figma`. Skills and the pinned CLI: `references/skill-lifecycle.md`.

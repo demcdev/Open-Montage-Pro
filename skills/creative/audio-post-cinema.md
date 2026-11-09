@@ -38,8 +38,8 @@ Por orden de preferencia y siempre con licencia registrada en el `asset_manifest
 
 | Fuente | Para qué | Notas |
 |---|---|---|
-| Librería de SFX incluida en HyperFrames (`hyperframes-media`, 21 archivos) | Efectos básicos sin credenciales | Primera opción sin costo |
-| `media-use` (`resolve`) | Música, SFX e imágenes con caché y registro | Deja el archivo congelado y su registro |
+| Librería de SFX incluida en HyperFrames (`media-use/audio/assets/sfx`, 19 archivos, licencia Pixabay) | Efectos básicos sin credenciales | Primera opción sin costo |
+| `media-use` | Música, SFX e imágenes con caché y registro | Deja el archivo congelado y su registro; el catálogo de HeyGen requiere cuenta y aprobación |
 | ElevenLabs Sound Effects (`sound-effects`, `elevenlabs`) | Foley y efectos a medida desde una descripción | Requiere clave; describir material, acción y espacio ("pasos en baldosa mojada, eco de pasillo") |
 | `pixabay_music`, `freesound_music`, YouTube Audio Library, música propia | Música | Guardar la evidencia de licencia en `assets/music/LICENSES.md` |
 | Capa ambiental sintética con FFmpeg (ruido filtrado) | Solo como **provisional** | Sustituirla antes de publicar |

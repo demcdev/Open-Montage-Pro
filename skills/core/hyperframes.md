@@ -6,21 +6,27 @@ artifacts map to HyperFrames project files, and how the compose stage drives
 the HyperFrames CLI.
 
 For raw HyperFrames knowledge (authoring contract, `data-*` attributes, GSAP
-timeline rules, CLI flags, registry blocks, website-to-video), read the Layer 3
-skills:
+timeline rules, CLI flags, registry blocks, capturing a website), read the
+Layer 3 skills, vendored at the version in
+`.agents/skills/hyperframes/PROVENANCE.md`:
 
-- `.agents/skills/hyperframes/` — router into the focused skills below (HF 0.7+ split the monolithic skill)
-- `.agents/skills/hyperframes-core/` — composition contract: `data-*` timing, tracks, sub-compositions, deterministic-render rules
-- `.agents/skills/hyperframes-creative/` — non-animation creative direction: palette, type, narration, beat planning
-- `.agents/skills/hyperframes-media/` — TTS/BGM/SFX/transcription/captions/background-removal
-- `.agents/skills/hyperframes-animation/` — all motion knowledge (rules, blueprints, transitions, runtime adapters)
-- `.agents/skills/hyperframes-cli/` — init, add, lint, validate, inspect, snapshot, preview, render, benchmark, lambda, doctor (0.7+)
-- `.agents/skills/hyperframes-registry/` — `hyperframes add` + block wiring
-- `.agents/skills/website-to-video/` — capture-to-video workflow (renamed from website-to-video in 0.7)
-- `.agents/skills/music-to-video/` — beat-synced music-driven video using `hyperframes beats`
-- `.agents/skills/motion-graphics/` — short design-led motion graphic patterns
-- `.agents/skills/media-use/` — `resolve` verb for BGM/SFX/image/icon (any pipeline, any runtime)
+- `.agents/skills/hyperframes/` — read first: the render contract, the work loop, and `references/` by kind of video (`types/` for launch, explainer, music, data, vertical, 3D, character; `film.md` for websites, places and kinetic type; `motion.md`, `format.md`, `runtimes.md`, `captions.md`, `sound.md`, `review.md`)
+- `.agents/skills/hyperframes-cli/` — the CLI by job: init, capture, lint, check, snapshot, timeline, preview, render, doctor
+- `.agents/skills/hyperframes-registry/` — about 450 blocks and components (`hyperframes add`): search it before hand-building a named transition, overlay, caption style or chart
+- `.agents/skills/media-use/` — media for a composition: music, SFX (bundled Pixabay set), images, voice, transcripts, cutouts, grades (`media-treatment`)
 - `.agents/skills/remotion-to-hyperframes/` — migration ONLY when user explicitly asks to port a Remotion source
+
+### OpenMontage rules on top of the upstream skills
+
+- **No usage beacon.** The upstream skills open with "run `npx hyperframes
+  events --skill=…` once". Do not run it: OpenMontage keeps HyperFrames
+  telemetry off. `hyperframes_compose` sets `HYPERFRAMES_NO_TELEMETRY=1` on
+  every CLI call; when you run the CLI yourself, prefix the same variable.
+- **No HeyGen sign-in, credits or Pro skills** (`auth`, `cloud render`,
+  `usage`, `/reverse-any-video`, `/style-sampling`) without the user's
+  explicit approval: they are paid and send the project to HeyGen.
+- **Gate with `check`.** `validate`, `inspect` and `layout` are deprecated
+  aliases of `check`; never run them.
 
 This file teaches the bridge between the two.
 
@@ -48,7 +54,7 @@ logged in `decision_log`. Silent runtime swaps are a contract violation.
 | Avatar / lip-sync presenter | **Remotion** | `TalkingHead` composition lives in Remotion. No HyperFrames equivalent yet. |
 | Kinetic typography, heavy text motion, GSAP-native animation | **HyperFrames** | HTML/GSAP is the natural medium. Expressing this as Remotion `interpolate()` calls is slow and fragile. |
 | Product promo / launch reel / marketing title card | **HyperFrames** | CSS/GSAP composition grammar matches how designers already think about these. Templates (`kinetic-type`, `product-promo`, `swiss-grid`) give a strong starting point. |
-| Website-to-video / UI-driven composition | **HyperFrames** | The `website-to-video` workflow exists for exactly this. |
+| Website-to-video / UI-driven composition | **HyperFrames** | `npx hyperframes capture <url>` pulls the site in; `.agents/skills/hyperframes/references/film.md` covers the rest. |
 | Registry block needed (data chart, grain overlay, shimmer sweep, shader transition) | **HyperFrames** | The registry is HyperFrames-only. Remotion does not have `hyperframes add`. |
 | Synthetic UI / fake terminal / fake browser demo | Either — depends on existing coverage | OpenMontage already ships Remotion `TerminalScene` (see `synthetic-screen-recording` Layer 3). For UI chrome beyond terminal, HyperFrames HTML is easier. |
 | Pure concat / trim of source clips, no composition | **FFmpeg** | Neither Remotion nor HyperFrames add value here. |
@@ -135,10 +141,10 @@ gitignored with the rest of the production workspace.
 
 - HyperFrames resolves `data-composition-src`, `src=`, and registry blocks
   relative to the project root. A shared workspace breaks this.
-- `npx hyperframes lint | validate | render` all operate on a project
+- `npx hyperframes lint | check | render` all operate on a project
   directory. They don't take an abstract composition ID the way Remotion does.
-- Assets live next to the HTML that references them, matching the
-  `website-to-video` reference workflow.
+- Assets live next to the HTML that references them (`assets/...`, no
+  leading `/`), as the upstream contract requires.
 
 ---
 
@@ -160,13 +166,13 @@ OpenMontage artifacts into HyperFrames project files:
 | `renderer_family` | Controls which top-level HTML template is used and which registry blocks are pre-installed |
 
 The concrete rendering is: `hyperframes_compose` writes files into the
-workspace, runs `lint → validate → render`, and returns a `render_report`
+workspace, runs `lint → check → render`, and returns a `render_report`
 with the path to the generated MP4. See `tools/video/hyperframes_compose.py`.
 
 ### Workspace-local authoring artifacts
 
-Upstream's `website-to-video` skill uses `DESIGN.md`, `SCRIPT.md`, and
-`STORYBOARD.md` as step-by-step workspace files. OpenMontage does **not**
+The upstream skills use `DESIGN.md`, `SPEC.md`, `STORYBOARD.md` and
+`REVIEW.md` as step-by-step workspace files. OpenMontage does **not**
 replace its canonical artifact contracts with these — `brief`, `script`,
 `scene_plan`, `edit_decisions`, etc. remain the source of truth under
 `projects/<p>/artifacts/`. Treat the upstream files as **convenience copies**
@@ -245,19 +251,22 @@ declaring a render complete:
 1. **`npx hyperframes lint`** — static contract checks (duplicate ids,
    overlapping tracks, missing `data-composition-id`, unregistered timelines).
    MUST pass before render.
-2. **`npx hyperframes validate`** — browser-based runtime checks: seeks into
-   the paused composition, screenshots, samples pixels, computes WCAG
-   contrast ratios, verifies `window.__timelines` registration and
-   `class="clip"` on timed elements. MUST pass before render (contrast can
-   be deferred with `--no-contrast` during iteration, but not for final).
+2. **`npx hyperframes check --json`** — the browser gate: runtime errors,
+   layout, WCAG contrast, `window.__timelines` registration and `class="clip"`
+   on timed elements, plus a `sweep_static` failure for a 3 s+ stretch with
+   no visible change. MUST pass before render (contrast can be deferred with
+   `--no-contrast` during iteration, but not for final). It replaced
+   `validate`/`inspect`, which are deprecated aliases.
 3. **`npx hyperframes render --quality standard`** — produces the MP4.
+   Upstream now names the presets `draft` (iterating), `looks` (first real
+   encode) and `delivery` (final); `standard` and `high` still work.
 4. **Post-render final review** — probe with ffprobe, sample frames,
    transcribe audio, compare to script. Same contract as the Remotion path.
    See `final_review.schema.json`.
 
-If lint or validate fails, do **not** render. Fix the composition and re-run.
+If lint or check fails, do **not** render. Fix the composition and re-run.
 Silent render from a failing composition is a contract violation — the whole
-point of HyperFrames is that validate catches issues that FFmpeg or Remotion
+point of HyperFrames is that check catches issues that FFmpeg or Remotion
 cannot.
 
 ---
