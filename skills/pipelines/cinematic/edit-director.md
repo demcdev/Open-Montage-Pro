@@ -74,3 +74,8 @@ Read these before working in this stage. They are shared across pipelines; this 
 ## Technique Stack (Binding)
 
 Build `edit_decisions` from the approved `proposal_packet.production_plan.technique_stack`: cuts, transitions, camera and sound follow it, and an `accent` technique appears only where the stack places it. If a tool fails, apply that technique's `fallback`; any other change needs a new `technique_selection` decision.
+
+<!-- sound-plan -->
+## Sound Plan (Binding)
+
+Follow `skills/creative/sound-design.md` and write `artifacts/sound_plan.json`: what sounds when, by narration word or by second. Pick effects with `sound_library`, then call it with `operation: "resolve"` and pass the tracks to `audio_mixer`. `export_bundle` refuses a narrative project with no plan, unless a `sound_exception` decision records why this video goes without one.

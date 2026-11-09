@@ -62,7 +62,7 @@ class MusicGen(BaseTool):
             },
             "duration_seconds": {
                 "type": "number",
-                "minimum": 3,
+                "minimum": 0.5,
                 "maximum": 600,
                 "description": (
                     "Target duration in seconds (API supports 3-600s). "
@@ -71,6 +71,14 @@ class MusicGen(BaseTool):
                 ),
             },
             "output_path": {"type": "string"},
+            "sound_effect": {
+                "type": "boolean",
+                "default": False,
+                "description": (
+                    "Generate a sound effect from the prompt instead of music. "
+                    "duration_seconds then goes from 0.5 to 30."
+                ),
+            },
             "force_instrumental": {
                 "type": "boolean",
                 "default": True,
@@ -109,6 +117,8 @@ class MusicGen(BaseTool):
                 "Derive it from the approved target runtime in the script/proposal. "
                 "Silent defaults are not permitted."
             )
+        if inputs.get("sound_effect"):
+            return round(duration * 0.012, 4)  # Approximate: 40 credits per second
         # Approximate: ~$0.05 per 30 seconds
         return round(duration / 30 * 0.05, 4)
 
@@ -150,22 +160,26 @@ class MusicGen(BaseTool):
                 ),
             )
 
-        url = "https://api.elevenlabs.io/v1/music"
-
         headers = {
             "xi-api-key": api_key,
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "prompt": prompt,
-            "music_length_ms": int(duration * 1000),
-            # music-gen-usage mandate: always set force_instrumental=true for
-            # video background music (vocals collide with narration). The input
-            # schema defaults this to True, so callers get the mandate by
-            # default; they may opt out only by passing force_instrumental=False.
-            "force_instrumental": bool(inputs.get("force_instrumental", True)),
-        }
+        if inputs.get("sound_effect"):
+            url = "https://api.elevenlabs.io/v1/sound-generation"
+            payload = {"text": prompt, "duration_seconds": duration, "prompt_influence": 0.5}
+        else:
+            url = "https://api.elevenlabs.io/v1/music"
+
+            payload = {
+                "prompt": prompt,
+                "music_length_ms": int(duration * 1000),
+                # music-gen-usage mandate: always set force_instrumental=true for
+                # video background music (vocals collide with narration). The input
+                # schema defaults this to True, so callers get the mandate by
+                # default; they may opt out only by passing force_instrumental=False.
+                "force_instrumental": bool(inputs.get("force_instrumental", True)),
+            }
 
         response = requests.post(
             url, headers=headers, json=payload, timeout=180

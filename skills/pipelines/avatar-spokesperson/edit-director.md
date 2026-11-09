@@ -71,3 +71,8 @@ Build `edit_decisions` from the approved `brief.metadata.technique_stack`: cuts,
 ## Reference Skills
 
 - `skills/creative/sound-design.md` — Ducking, music choice and SFX timing for voice-led pieces
+
+<!-- sound-plan -->
+## Sound Plan (Binding)
+
+Follow `skills/creative/sound-design.md` and write `artifacts/sound_plan.json`: what sounds when, by narration word or by second. Pick effects with `sound_library`, then call it with `operation: "resolve"` and pass the tracks to `audio_mixer`. `export_bundle` refuses a narrative project with no plan, unless a `sound_exception` decision records why this video goes without one.

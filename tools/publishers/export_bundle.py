@@ -225,9 +225,14 @@ class ExportBundle(BaseTool):
         if inputs.get("pipeline") not in NARRATIVE_PIPELINES:
             return None
         project = inputs.get("project_dir") or project_of(video_path) or video_path.parent
-        if not approved_decisions(project):
+        decisions = approved_decisions(project)
+        if not decisions:
             return f"No decisions in {project}: write artifacts/decision_log.json before exporting."
-        return None
+        if (Path(project) / "artifacts" / "sound_plan.json").is_file():
+            return None
+        if any(decision.get("category") == "sound_exception" for decision in decisions):
+            return None
+        return f"No sound plan in {project}: write artifacts/sound_plan.json or record a sound_exception decision."
 
     @staticmethod
     def _qc_gate(video_path: Path, inputs: dict[str, Any]) -> tuple[Optional[str], dict[str, Any]]:

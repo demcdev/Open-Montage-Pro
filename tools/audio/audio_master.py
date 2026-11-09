@@ -35,6 +35,9 @@ from tools.base_tool import (
 )
 
 # Integrated LUFS, true-peak ceiling (dBTP), loudness range cap (LU).
+LEVEL_FILTER = "acompressor=threshold=-22dB:ratio=3:attack=4:release=90:makeup=4dB,alimiter=limit=0.8:attack=2:release=40"
+LEVEL_HEADROOM = 0.5
+
 PRESETS: dict[str, dict[str, float]] = {
     "youtube": {"I": -14.0, "TP": -1.0, "LRA": 11.0},
     "social": {"I": -14.0, "TP": -1.0, "LRA": 9.0},
@@ -122,17 +125,35 @@ class AudioMaster(BaseTool):
         return parse_loudnorm_json(self.run_command(cmd, timeout=3600).stderr)
 
     def _master(self, src: Path, inputs: dict[str, Any], target: dict[str, float]) -> dict[str, Any]:
-        is_video = src.suffix.lower() in VIDEO_EXTENSIONS
         out = Path(inputs.get("output_path") or src.with_name(f"{src.stem}_master{src.suffix}"))
         out.parent.mkdir(parents=True, exist_ok=True)
-
         pre = deess_filter() if inputs.get("deess") else ""
-        first = self.measure(src, target, pre)
-        chain = build_second_pass(first, target, pre)
+        data = self._pass(src, out, inputs, target, target, pre)
+        if data["verification_passed"]:
+            return data
+        # Peaky voices cannot reach the target on gain alone, so tame them and try once more.
+        safer = {**target, "TP": target["TP"] - LEVEL_HEADROOM}
+        leveled_src = out.with_name(f"{out.stem}_leveled.mkv")
+        try:
+            self._level(src, leveled_src)
+            return {**self._pass(leveled_src, out, inputs, target, safer, pre), "input": str(src), "leveled": True}
+        finally:
+            leveled_src.unlink(missing_ok=True)
+
+    def _level(self, src: Path, out: Path) -> None:
+        cmd = ["ffmpeg", "-hide_banner", "-y", "-i", str(src), "-af", LEVEL_FILTER, "-c:v", "copy", "-c:a", "pcm_s24le", "-ar", "48000", "-ac", "2", str(out)]
+        self.run_command(cmd, timeout=3600)
+
+    def _pass(
+        self, src: Path, out: Path, inputs: dict[str, Any], target: dict[str, float], ceiling: dict[str, float], pre: str
+    ) -> dict[str, Any]:
+        is_video = out.suffix.lower() in VIDEO_EXTENSIONS
+        first = self.measure(src, ceiling, pre)
+        chain = build_second_pass(first, ceiling, pre)
 
         cmd = ["ffmpeg", "-hide_banner", "-y", "-i", str(src), "-af", chain]
         if is_video:
-            cmd += ["-map", "0:v?", "-map", "0:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "320k"]
+            cmd += ["-map", "0:v?", "-map", "0:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "320k", "-ac", "2"]
         elif out.suffix.lower() == ".wav":
             cmd += ["-c:a", "pcm_s24le"]
         cmd += ["-ar", "48000", str(out)]

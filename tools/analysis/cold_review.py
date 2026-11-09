@@ -97,7 +97,7 @@ def approved_decisions(project_dir: str | Path | None) -> list[dict[str, Any]]:
     root = Path(project_dir)
     log = read_report(root / "artifacts" / "decision_log.json") or read_report(root / "decision_log.json") or {}
     return [
-        {key: decision.get(key) for key in ("subject", "selected", "reason")}
+        {key: decision.get(key) for key in ("category", "subject", "selected", "reason")}
         for decision in log.get("decisions") or []
         if decision.get("user_visible", True)
     ]

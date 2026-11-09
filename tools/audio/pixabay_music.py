@@ -131,8 +131,8 @@ class PixabayMusic(BaseTool):
     }
 
     def get_status(self) -> ToolStatus:
-        # Always available — no API key required
-        return ToolStatus.AVAILABLE
+        # No API key needed, but the site now answers its scraper with HTTP 403.
+        return ToolStatus.DEGRADED
 
     def estimate_cost(self, inputs: dict[str, Any]) -> float:
         return 0.0  # Pixabay Music is free

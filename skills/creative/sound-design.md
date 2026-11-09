@@ -139,6 +139,17 @@ Pass `stems_dir` to `audio_mixer` `full_mix`, and to `export_bundle` so they tra
 - Cut 2-4 kHz on the music bed to clear the "intelligibility band" for voice
 - Always test on phone speakers — if voice disappears, boost 2-4 kHz more aggressively
 
+## Sound Plan
+
+Cada video narrativo lleva `artifacts/sound_plan.json`. Sitúa los efectos por palabra de la narración para que sobrevivan a un cambio de voz:
+
+```json
+{"cues": [{"effect": "error", "word": "reprobaron"}, {"effect": "whoosh_suave", "seconds": 15.4, "volume": 0.4}],
+ "beds": [{"effect": "arrecife", "from": 0, "to": 16, "volume": 0.15}]}
+```
+
+`sound_library` con `operation: "resolve"` lo convierte en pistas para `audio_mixer`. Si un efecto no existe, genera uno con `music_gen` y `sound_effect: true`, y añádelo al catálogo.
+
 ## Applying to OpenMontage
 
 When the **audio_mixer** tool is used in the compose stage:

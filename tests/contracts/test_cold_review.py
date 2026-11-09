@@ -162,7 +162,7 @@ def _review(video: Path, verdict: str, sha: str | None = None) -> None:
 
 
 def _decide(project: Path) -> None:
-    decision = {"subject": "Apertura", "selected": "Imagina esto", "reason": "Aprobada por el usuario"}
+    decision = {"category": "sound_exception", "subject": "Apertura", "selected": "Imagina esto", "reason": "Aprobada por el usuario"}
     (project / "decision_log.json").write_text(json.dumps({"decisions": [decision]}), encoding="utf-8")
 
 
@@ -297,3 +297,17 @@ def test_reviewers_receive_decisions_and_earlier_findings(tmp_path):
 def test_a_project_without_a_log_has_no_decisions(tmp_path):
     assert cold_review.approved_decisions(tmp_path) == []
     assert cold_review.approved_decisions(None) == []
+
+
+def test_a_narrative_export_needs_a_sound_plan_or_an_exception(prepared, tmp_path):
+    _approve_qc(prepared)
+    _review(prepared, "pass")
+    log = {"decisions": [{"category": "concept_selection", "subject": "s", "selected": "x", "reason": "r"}]}
+    (prepared.parent / "decision_log.json").write_text(json.dumps(log), encoding="utf-8")
+    inputs = {"video_path": str(prepared), "title": "t", "export_dir": str(tmp_path / "out"), "pipeline": "cinematic", "project_dir": str(prepared.parent)}
+    result = ExportBundle().execute(inputs)
+    assert not result.success and "sound plan" in result.error
+    (prepared.parent / "artifacts").mkdir(exist_ok=True)
+    (prepared.parent / "artifacts" / "sound_plan.json").write_text("{}", encoding="utf-8")
+    assert ExportBundle().execute(inputs).success
+

@@ -56,6 +56,8 @@ required_skills:
   - meta/cold-review
   - meta/narration-qc
   - meta/pre-render-review
+  - creative/sound-design
+  - meta/voice-performance-director
 
 compatible_playbooks:
   recommended:
@@ -187,7 +189,7 @@ stages:
       - script
     produces:
       - edit_decisions
-    tools_available: [beat_grid, speed_ramp]
+    tools_available: [beat_grid, speed_ramp, sound_library]
     checkpoint_required: true
     human_approval_default: false
     review_focus:

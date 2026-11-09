@@ -45,7 +45,7 @@
               "technique_selection",
               "voice_language",
               "qc_exception",
-              "cold_exception"
+              "cold_exception", "sound_exception"
             ],
             "description": "What class of decision this is"
           },

@@ -37,6 +37,7 @@ corpus/
 
 # User music library (personal royalty-free tracks — not part of repo)
 music_library/
+sound_library/
 
 # Environment & credentials
 .env
