@@ -400,3 +400,67 @@ def test_dareful_resolves_a_page_url_to_the_mux_stream_not_an_ad(monkeypatch, tm
     )
     dareful.DarefulSource().download(candidate, tmp_path / "x.mp4")
     assert fetched == ["https://stream.mux.com/AbC123/high.mp4"]
+
+
+def _unsplash_candidate():
+    from tools.video.stock_sources.base import Candidate
+
+    return Candidate(
+        source="unsplash", source_id="abc", source_url="https://unsplash.com/photos/abc",
+        download_url="https://images.unsplash.com/photo-abc?w=1920", kind="image",
+        extra={"download_location": "https://api.unsplash.com/photos/abc/download?ixid=x"},
+    )
+
+
+def test_unsplash_reports_each_download_as_its_guidelines_require(monkeypatch, tmp_path):
+    import requests
+
+    from tools.video.stock_sources import unsplash
+
+    monkeypatch.setenv("UNSPLASH_ACCESS_KEY", "test-unsplash")
+    pings = []
+    monkeypatch.setattr(unsplash, "download_media", lambda *_a, **_k: True)
+    monkeypatch.setattr(
+        requests, "get", lambda url, **kw: pings.append((url, kw["headers"])) or _EmptyOkResponse()
+    )
+
+    unsplash.UnsplashSource().download(_unsplash_candidate(), tmp_path / "abc.jpg")
+    assert pings == [(
+        "https://api.unsplash.com/photos/abc/download?ixid=x",
+        {"Authorization": "Client-ID test-unsplash", "Accept-Version": "v1",
+         "User-Agent": unsplash._USER_AGENT},
+    )]
+
+
+def test_unsplash_does_not_report_a_failed_download(monkeypatch, tmp_path):
+    import requests
+
+    from tools.video.stock_sources import unsplash
+
+    monkeypatch.setenv("UNSPLASH_ACCESS_KEY", "test-unsplash")
+    pings = []
+    monkeypatch.setattr(requests, "get", lambda url, **_kw: pings.append(url))
+
+    def broken(*_a, **_k):
+        raise requests.ConnectionError("dropped")
+
+    monkeypatch.setattr(unsplash, "download_media", broken)
+    with pytest.raises(requests.ConnectionError):
+        unsplash.UnsplashSource().download(_unsplash_candidate(), tmp_path / "abc.jpg")
+    assert pings == []
+
+
+def test_a_failed_unsplash_ping_keeps_the_saved_photo(monkeypatch, tmp_path):
+    import requests
+
+    from tools.video.stock_sources import unsplash
+
+    monkeypatch.setenv("UNSPLASH_ACCESS_KEY", "test-unsplash")
+    monkeypatch.setattr(unsplash, "download_media", lambda *_a, **_k: True)
+
+    def offline(*_a, **_k):
+        raise requests.ConnectionError("api down")
+
+    monkeypatch.setattr(requests, "get", offline)
+    target = tmp_path / "abc.jpg"
+    assert unsplash.UnsplashSource().download(_unsplash_candidate(), target) == target

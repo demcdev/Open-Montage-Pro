@@ -6,6 +6,7 @@ high-quality still can still be valuable to the edit.
 """
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,7 @@ from lib.media_download import download_media
 
 from .base import Candidate, SearchFilters
 
+_log = logging.getLogger(__name__)
 
 _SEARCH_URL = "https://api.unsplash.com/search/photos"
 _UNSPLASH_LICENSE = "Unsplash License (use returned hotlinked image URLs)"
@@ -82,7 +84,24 @@ class UnsplashSource:
             candidate.download_url, out_path, kind=candidate.kind, timeout=180,
             headers={"User-Agent": _USER_AGENT},
         )
+        self._track_download(candidate)
         return out_path
+
+    def _track_download(self, candidate: Candidate) -> None:
+        """Tell Unsplash a photo was used, as its API guidelines require.
+
+        Unsplash checks this before approving an app for production. The
+        photo is already saved, so a failed ping is logged, not raised.
+        """
+        import requests  # lazy
+
+        location = candidate.extra.get("download_location")
+        if not location:
+            return
+        try:
+            requests.get(location, headers=self._headers(), timeout=30).raise_for_status()
+        except Exception as e:
+            _log.warning("Unsplash download tracking failed for %s: %s", candidate.source_id, e)
 
     def _headers(self) -> dict[str, str]:
         key = os.environ.get("UNSPLASH_ACCESS_KEY")
