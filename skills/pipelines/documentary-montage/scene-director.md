@@ -160,6 +160,9 @@ based on what footage lives where:
 | `dareful` | Boutique 4K nature — mountains, forests, waterfalls, time-lapses | High-quality nature B-roll, consistent visual style, aerial shots |
 | `wikimedia` | Commons photos and CC video, civic/documentary/public-event coverage | Public spaces, landmarks, protests, city texture, educational footage |
 | `unsplash` | Polished editorial stills, lifestyle, product-adjacent photography | Modern still-image support shots when motion footage is thin |
+| `openverse` | Stills only: openly licensed images from Flickr, agencies, museums, Commons | Niche topics and places other sources miss; CC BY results need the credit line in `extra.attribution` copied into the video's credits |
+| `smithsonian` | Stills only: CC0 museum objects and specimens — aircraft, spacecraft, locomotives, tools, natural history | Close-ups of a real historical object; catalogue framing, not scenes |
+| `artic` | Stills only: public-domain paintings, prints, maps and plates (Art Institute of Chicago) | History before photography, period illustration, scientific and natural-history drawings |
 
 If `era_mix = "vintage"`, bias slots toward `archive_org` and write
 queries in period-appropriate vocabulary ("commuter", "housewife",

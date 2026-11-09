@@ -100,6 +100,7 @@ _SOURCE_CREDENTIALS = {
     "NASA_API_KEY": "test-nasa",
     "PEXELS_API_KEY": "test-pexels",
     "PIXABAY_API_KEY": "test-pixabay",
+    "SMITHSONIAN_API_KEY": "test-smithsonian",
     "UNSPLASH_ACCESS_KEY": "test-unsplash",
 }
 
@@ -445,6 +446,189 @@ def test_nara_sends_the_key_and_explains_a_web_page_answer(monkeypatch):
     assert url == "https://catalog.archives.gov/api/v2/records/search"
     assert kwargs["headers"]["x-api-key"] == "test-nara"
     assert kwargs["params"]["typeOfMaterials"] == "Moving Images"
+
+
+# Trimmed from real api.openverse.org and api.artic.edu answers (November 2026).
+_OPENVERSE_ITEM = {
+    "id": "9b2e4a0c-65e2-4123-9664-76c940c801fa",
+    "title": "Chaparrastique Volcano Eruption Captured by Satellite",
+    "url": "https://live.staticflickr.com/2818/11653609255_5ddd09754a_b.jpg",
+    "thumbnail": "https://api.openverse.org/v1/images/9b2e4a0c-65e2-4123-9664-76c940c801fa/thumb/",
+    "width": 1024, "height": 576,
+    "creator": "NASA Goddard Photo and Video",
+    "license": "by", "license_version": "2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0/",
+    "attribution": '"Chaparrastique Volcano Eruption Captured by Satellite" by NASA Goddard '
+                   "Photo and Video is licensed under CC BY 2.0.",
+    "foreign_landing_url": "https://www.flickr.com/photos/24662369@N07/11653609255",
+    "source": "nasa", "provider": "flickr",
+    "tags": [{"name": "chaparrastique", "accuracy": None}, {"name": "volcano", "accuracy": None}],
+    "mature": False,
+}
+
+_ARTIC_ITEM = {
+    "id": 57996,
+    "title": "The Eruption of Vesuvius",
+    "thumbnail": {"width": 8600, "height": 3958, "alt_text": "A work made of oil on canvas."},
+    "date_display": "1771",
+    "artist_display": "Pierre-Jacques Volaire (French, 1729–1799)",
+    "term_titles": ["oil on canvas", "Volcanoes", "18th Century", "oil painting"],
+    "image_id": "6a676ee7-39c0-0b88-c37e-36ba0c5e3065",
+}
+
+
+# Trimmed from a real api.si.edu Open Access row (November 2026).
+_SMITHSONIAN_ROW = {
+    "id": "ld1-1643409378432-1643409389280-1",
+    "title": "Sida sp.",
+    "unitCode": "NMNHBOTANY",
+    "content": {
+        "descriptiveNonRepeating": {
+            "record_link": "http://n2t.net/ark:/65665/35c6aa33c-4f08-4c67-bc1a-f025eccd6b45",
+            "online_media": {"media": [{
+                "id": "media:NMNH-04214638",
+                "type": "Images",
+                "usage": {"access": "CC0"},
+                "width": 6893, "height": 8960,
+                "content": "https://ids.si.edu/ids/deliveryService/id/ark:/65665/m3a56d78dd3a5e4df6aa7134a604162ce9",
+                "thumbnail": "https://ids.si.edu/ids/deliveryService/id/ark:/65665/m3a56d78dd3a5e4df6aa7134a604162ce9/90",
+            }]},
+        },
+        "freetext": {"name": [
+            {"label": "Biogeographical Region", "content": "80 - Central America"},
+            {"label": "Collector", "content": "Vicki A. Funk"},
+        ]},
+        "indexedStructured": {"topic": ["Equisetopsida"]},
+    },
+}
+
+
+def test_smithsonian_asks_for_cc0_images_with_the_key_in_a_header(monkeypatch):
+    import copy
+
+    calls = []
+    model_3d = copy.deepcopy(_SMITHSONIAN_ROW)
+    model_3d["content"]["descriptiveNonRepeating"]["online_media"]["media"][0]["type"] = "3d_voyager"
+
+    def fake_get(url, **kwargs):
+        calls.append(kwargs)
+        return _JsonResponse({"response": {"rows": [_SMITHSONIAN_ROW, model_3d]}})
+
+    _install_fake_transport(monkeypatch, fake_get)
+    found = get_source("smithsonian").search('lunar "rover"', SearchFilters(kind="any", per_page=5, page=2))
+
+    sent = calls[0]
+    assert sent["params"]["q"] == '(lunar  rover) AND online_media_type:"Images" AND media_usage:"CC0"'
+    assert sent["params"]["start"] == 5
+    assert sent["headers"]["X-Api-Key"] == "test-smithsonian"
+    assert "api_key" not in sent["params"]          # never in the URL
+
+    assert [c.source_id for c in found] == ["NMNH-04214638"]
+    clip = found[0]
+    assert clip.download_url.endswith("/m3a56d78dd3a5e4df6aa7134a604162ce9/3000")
+    assert (clip.width, clip.height) == (2308, 3000)   # longest side capped at 3000
+    assert clip.license == "CC0 (Smithsonian Open Access)"
+    assert clip.creator == "Smithsonian Institution"   # "Collector" is not an author
+    assert clip.source_url.startswith("http://n2t.net/ark:/65665/")
+
+
+def test_smithsonian_sizes_both_kinds_of_image_link():
+    from tools.video.stock_sources.smithsonian import _sized
+
+    # Cooper Hewitt items use the query-string form; a path suffix 404s there.
+    assert _sized("https://ids.si.edu/ids/deliveryService?id=CHSDM-09593E1863632-000001", 3000) == (
+        "https://ids.si.edu/ids/deliveryService?id=CHSDM-09593E1863632-000001&max=3000"
+    )
+    assert _sized("https://ids.si.edu/ids/deliveryService/id/ark:/65665/m3a5", 3000) == (
+        "https://ids.si.edu/ids/deliveryService/id/ark:/65665/m3a5/3000"
+    )
+
+
+def test_smithsonian_needs_a_key(monkeypatch):
+    monkeypatch.delenv("SMITHSONIAN_API_KEY", raising=False)
+    assert get_source("smithsonian").is_available() is False
+
+
+def test_openverse_asks_only_for_licences_a_video_can_use(monkeypatch):
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append(kwargs)
+        mature = dict(_OPENVERSE_ITEM, id="m", mature=True)
+        return _JsonResponse({"results": [_OPENVERSE_ITEM, mature]})
+
+    _install_fake_transport(monkeypatch, fake_get)
+    found = get_source("openverse").search("volcano", SearchFilters(kind="image", per_page=50))
+
+    params = calls[0]["params"]
+    assert params["license"] == "cc0,pdm,by"       # no share-alike, no non-commercial
+    assert params["page_size"] == 20                # anonymous ceiling
+    assert [c.source_id for c in found] == [_OPENVERSE_ITEM["id"]]
+    clip = found[0]
+    assert clip.download_url == _OPENVERSE_ITEM["url"]
+    assert clip.license == "CC BY 2.0"
+    assert clip.creator == "NASA Goddard Photo and Video"
+    assert clip.extra["attribution"].startswith('"Chaparrastique Volcano')
+    assert clip.source_tags.endswith("chaparrastique volcano")
+
+
+def test_openverse_names_cc0_and_public_domain_without_a_cc_prefix():
+    from tools.video.stock_sources.openverse import _item_to_candidate
+
+    def licence(code, version):
+        item = dict(_OPENVERSE_ITEM, license=code, license_version=version)
+        return _item_to_candidate(item, SearchFilters(kind="image")).license
+
+    assert licence("cc0", "1.0") == "CC0 1.0"
+    assert licence("pdm", "1.0") == "Public Domain Mark"
+
+
+def test_openverse_has_no_video(monkeypatch):
+    _install_fake_transport(monkeypatch, lambda *_a, **_k: pytest.fail("no request expected"))
+    assert get_source("openverse").search("volcano", SearchFilters(kind="video")) == []
+
+
+def test_artic_asks_for_public_domain_images_at_a_size_iiif_can_serve(monkeypatch):
+    import json
+
+    calls = []
+    small = dict(_ARTIC_ITEM, id=1, image_id="small", thumbnail={"width": 1200, "height": 800})
+    no_image = dict(_ARTIC_ITEM, id=2, image_id=None)
+
+    def fake_get(url, **kwargs):
+        calls.append(kwargs)
+        return _JsonResponse({"data": [_ARTIC_ITEM, small, no_image]})
+
+    _install_fake_transport(monkeypatch, fake_get)
+    found = get_source("artic").search("volcano", SearchFilters(kind="any", per_page=5))
+
+    sent = calls[0]
+    query = json.loads(sent["params"]["params"])["query"]["bool"]
+    assert {"term": {"is_public_domain": True}} in query["filter"]
+    # The words must filter, not just rank (a bare q matched every work).
+    assert query["must"][0]["multi_match"]["query"] == "volcano"
+    assert "q" not in sent["params"]
+    assert sent["headers"]["AIC-User-Agent"].startswith("OpenMontage")
+
+    assert [c.source_id for c in found] == ["57996", "1"]
+    big, little = found
+    assert big.download_url == (
+        "https://www.artic.edu/iiif/2/6a676ee7-39c0-0b88-c37e-36ba0c5e3065/full/3000,/0/default.jpg"
+    )
+    assert (big.width, big.height) == (3000, 1381)
+    assert little.download_url.endswith("/small/full/1200,/0/default.jpg")
+    assert big.creator == "Pierre-Jacques Volaire (French, 1729–1799)"
+    assert big.source_url == "https://www.artic.edu/artworks/57996"
+
+
+def test_artic_sends_the_header_its_image_server_requires(monkeypatch, tmp_path):
+    from tools.video.stock_sources import artic
+
+    seen = []
+    monkeypatch.setattr(artic, "download_media", lambda url, path, **kw: seen.append(kw["headers"]))
+    candidate = artic._artwork_to_candidate(_ARTIC_ITEM, SearchFilters(kind="image"))
+    artic.ArticSource().download(candidate, tmp_path / "a.jpg")
+    assert "AIC-User-Agent" in seen[0]
 
 
 def _unsplash_candidate():
