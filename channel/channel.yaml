@@ -1,6 +1,6 @@
 # The channel's identity: what every narrated video shares unless a project decides otherwise.
 # A project that departs from it records a playbook_override or voice_selection decision.
-name: ""  # not chosen yet
+name: "Imagina Esto"
 language: es-MX
 
 voice:
