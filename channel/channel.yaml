@@ -1,0 +1,35 @@
+# The channel's identity: what every narrated video shares unless a project decides otherwise.
+# A project that departs from it records a playbook_override or voice_selection decision.
+name: ""  # not chosen yet
+language: es-MX
+
+voice:
+  provider: edge_tts
+  voice: es-MX-JorgeNeural
+  rate: "+10%"
+
+# Style playbook in styles/custom/; Remotion compositions import the same values from
+# remotion-composer/src/channel/tokens.ts.
+playbook: senal-nocturna
+remotion_kit: remotion-composer/src/channel
+
+# The narrative format approved for explainers (five decisions taken from the Depth Theory breakdown).
+format:
+  - "The title speaks to 'tú' and the video opens inside the scene with that viewer"
+  - "A detail planted in the opening is paid off at the end"
+  - "One drawing per narration line"
+  - "The same promise is repeated as the video goes on"
+  - "Every fact is checked, and the close asks which topic comes next"
+
+character:
+  role: "The viewer ('tú'), shown as a figure instead of the word, because of the No-Text Rule"
+  component: Viewer
+  look: "Rounded capsule body and round head with glowing cyan outlines, dark fill and one magenta eye"
+
+on_screen: "Numbers, symbols and icons only; no words and no burned-in subtitles"
+
+close:
+  component: EndCard
+  description: "The viewer looks at two silhouettes of the next topics while an arrow points down to the comments"
+
+music: none

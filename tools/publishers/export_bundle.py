@@ -29,6 +29,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+from lib.channel import load_channel, voice_warning
 from tools.analysis.cold_review import MAX_ROUNDS, NARRATIVE_PIPELINES, approved_decisions, cold_path, project_of, read_report
 from tools.analysis.technical_qc import file_sha256
 from tools.base_tool import (
@@ -464,8 +465,13 @@ class ExportBundle(BaseTool):
         }
         if inputs.get("visibility"):
             entry["visibility"] = inputs["visibility"]
-        if not inputs.get("thumbnail_path"):
-            entry["warnings"] = ["No thumbnail in this export."]
+        warnings = [] if inputs.get("thumbnail_path") else ["No thumbnail in this export."]
+        if inputs.get("pipeline") in NARRATIVE_PIPELINES:
+            project = inputs.get("project_dir") or project_of(video_path) or video_path.parent
+            voice = voice_warning(load_channel(), approved_decisions(project))
+            warnings += [voice] if voice else []
+        if warnings:
+            entry["warnings"] = warnings
 
         publish_log = {"version": "1.0", "entries": [entry]}
 

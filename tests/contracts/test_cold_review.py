@@ -311,3 +311,15 @@ def test_a_narrative_export_needs_a_sound_plan_or_an_exception(prepared, tmp_pat
     (prepared.parent / "artifacts" / "sound_plan.json").write_text("{}", encoding="utf-8")
     assert ExportBundle().execute(inputs).success
 
+
+
+def test_a_narrative_export_warns_when_the_voice_is_not_the_channels(prepared, tmp_path):
+    _approve_qc(prepared)
+    _review(prepared, "pass")
+    log = {"decisions": [{"category": "voice_selection", "subject": "Voz", "selected": "es-ES-AlvaroNeural", "reason": "r"}]}
+    (prepared.parent / "decision_log.json").write_text(json.dumps(log), encoding="utf-8")
+    (prepared.parent / "artifacts").mkdir(exist_ok=True)
+    (prepared.parent / "artifacts" / "sound_plan.json").write_text("{}", encoding="utf-8")
+    inputs = {"video_path": str(prepared), "title": "t", "export_dir": str(tmp_path / "out"), "pipeline": "cinematic", "project_dir": str(prepared.parent)}
+    warnings = ExportBundle().execute(inputs).data["publish_log"]["entries"][0]["warnings"]
+    assert any("not the channel voice" in warning for warning in warnings)

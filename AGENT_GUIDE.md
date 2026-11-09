@@ -664,6 +664,8 @@ Tool rules:
 | `minimalist-diagram` | Technical deep-dives, architecture |
 | `ink-sketch` (Ink Theater) | Hand-drawn ink-on-white doodle animation; a character that draws itself, walks, dances; contraption explainers |
 
+**Channel identity.** Narrated videos for the owner's channel start from `channel/channel.yaml`: its voice, its playbook (`senal-nocturna`), its viewer character and its close are the defaults, not one option among many. Remotion compositions import the kit from `remotion-composer/src/channel` (`Backdrop`, `Stage`, `Viewer`, `Check`, `Cross`, `Arrow`, `Swap`, `Figure`, `EndCard`, and the absolute-second `Scene`/`ramp`/`pop`; render `ChannelKitDemo` to see them). A project that departs from the channel records a `playbook_override` or `voice_selection` decision with the reason. Cold review gets the channel in its packet, and `export_bundle` warns when the recorded voice is not the channel's.
+
 For custom, atelier, brand, launch, or hero work, read `skills/meta/taste-direction.md` before choosing a playbook. Carry its `taste_profile` into the proposal so later stages can preserve the design read, visual variance, motion intensity, information density, reference strategy, and anti-patterns.
 
 ### Hand-drawn "doodle" animation → Ink Theater / Ink Puppet

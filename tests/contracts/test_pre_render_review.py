@@ -57,7 +57,8 @@ def test_the_plan_packet_holds_only_what_the_viewer_needs(tmp_path):
     assert result.success, result.error
     packet = json.loads(Path(result.data["packet_path"]).read_text(encoding="utf-8"))
     assert packet["stage"] == "plan" and packet["lines"] == [LINE]
-    assert set(packet) == {"stage", "brief", "lines", "approved_decisions", "earlier_findings"}
+    assert set(packet) == {"stage", "brief", "lines", "approved_decisions", "earlier_findings", "channel"}
+    assert packet["channel"]["playbook"] == "senal-nocturna"
     assert Path(result.data["packet_path"]).parent.name == "preview_plan"
 
 

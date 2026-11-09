@@ -1,0 +1,83 @@
+identity:
+  name: "Señal nocturna"
+  category: motion-graphics
+  mood: curious, mysterious, precise
+  pace: deliberate
+  best_for: "The channel's narrated science explainers: one drawing per line, a viewer character, numbers and icons only"
+
+visual_language:
+  color_palette:
+    primary: ["#29D3F5", "#1C8FB0"]
+    accent: ["#FF2E63", "#FFC94D"]
+    background: "#070A16"
+    text: "#E8EEFC"
+    muted: "#6F80AA"
+  composition: one idea per frame, the viewer character on the left third, numbers large on the right
+  texture: night-blue radial vignette over a faint grid; outlines glow, fills stay dark
+
+typography:
+  headings:
+    font: "Space Grotesk"
+    weight: 700
+    tracking: "-0.02em"
+  body:
+    font: "Space Grotesk"
+    weight: 500
+  stat_card:
+    font: "Space Grotesk"
+    weight: 700
+    size_multiplier: 3.0
+  scale_system: "major_third"
+
+motion:
+  transitions: [cut, crossfade, push-through-eye]
+  animation_style: "springs with moderate damping; outlines draw on before fills appear"
+  pacing_rules:
+    min_scene_hold_seconds: 1.5
+    max_scene_hold_seconds: 6
+    text_card_hold_seconds: 3
+    stat_card_hold_seconds: 3
+    transition_duration_seconds: 0.3
+  entrance: "outline draws on, then a soft glow pulse"
+  exit: "fade to the night background"
+
+audio:
+  voice_style: "es-MX-JorgeNeural (Edge), close and conversational, speaks to 'tú'"
+  music_mood: "none for now; sound design carries the mood"
+  music_volume: 0.0
+  sfx_style: "soft electric chirps, glassy pops and water-free whooshes from sound_library"
+  ducking_threshold_db: -3
+
+asset_generation:
+  image_prompt_prefix: "glowing neon line art on a near-black navy background, cyan and magenta outlines, dark fills, minimal, "
+  image_negative_prompt: "photorealistic, words, letters, captions, logos, bright backgrounds, clutter"
+  diagram_style: "thin glowing outlines, rounded corners, dark fills"
+  consistency_anchors:
+    - "Background #070A16 with a faint grid in every shot"
+    - "Cyan #29D3F5 means the viewer and right answers; magenta #FF2E63 means warnings and wrong answers"
+    - "Gold #FFC94D is reserved for the payoff moment"
+    - "No words on screen: numbers, symbols and icons only"
+
+overlays:
+  stat_card:
+    bg: "#0B1328"
+    border: "#29D3F5"
+    radius: 14
+
+quality_rules:
+  - "No words on screen; numbers, symbols and icons only"
+  - "At most two glow colors in a frame besides the numbers"
+  - "Numbers stay readable at 720p on a phone"
+  - "The viewer character appears in the opening and in the payoff"
+  - "Color never carries meaning alone: right and wrong also use the ✓ and ✗ shapes"
+
+chart_palette:
+  - "#29D3F5"
+  - "#FF2E63"
+  - "#FFC94D"
+  - "#3DDC97"
+
+color_rules:
+  harmony_type: "complementary"
+  contrast_validation: true
+  colorblind_safe: true

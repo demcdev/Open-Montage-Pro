@@ -16,6 +16,7 @@ import { ProductReveal, ProductRevealProps } from "./components/ProductReveal";
 import { CaptionOverlay, WordCaption } from "./components/CaptionOverlay";
 import { CollageBurst, CollageBurstProps } from "./CollageBurst";
 import { LyricOverlay, LyricOverlayProps } from "./LyricOverlay";
+import { CHANNEL_KIT_DEMO_FRAMES, ChannelKitDemo } from "./channel";
 
 // ---------------------------------------------------------------------------
 // Theme System — prevents every video from looking like dark fintech
@@ -102,6 +103,23 @@ export const THEMES: Record<string, ThemeConfig> = {
     transitionDuration: 1.0,
     captionHighlightColor: "#FFB347",
     captionBackgroundColor: "rgba(10, 10, 26, 0.8)",
+  },
+  // The channel's look (channel/channel.yaml); the same values live in ./channel/tokens.ts.
+  "senal-nocturna": {
+    primaryColor: "#29D3F5",
+    accentColor: "#FF2E63",
+    backgroundColor: "#070A16",
+    surfaceColor: "#0B1328",
+    textColor: "#E8EEFC",
+    mutedTextColor: "#6F80AA",
+    headingFont: "Space Grotesk",
+    bodyFont: "Space Grotesk",
+    monoFont: "JetBrains Mono",
+    chartColors: ["#29D3F5", "#FF2E63", "#FFC94D", "#3DDC97"],
+    springConfig: { damping: 11, stiffness: 150, mass: 1 },
+    transitionDuration: 0.3,
+    captionHighlightColor: "#29D3F5",
+    captionBackgroundColor: "rgba(7, 10, 22, 0.85)",
   },
 };
 
@@ -330,6 +348,7 @@ export const Root: React.FC = () => {
           overlay: true,
         } as EndTagProps}
       />
+      <Composition id="ChannelKitDemo" component={ChannelKitDemo} durationInFrames={CHANNEL_KIT_DEMO_FRAMES} fps={30} width={1920} height={1080} />
     </>
   );
 };

@@ -29,7 +29,7 @@ Si el máster cambia después, la revisión queda anulada.
 }
 ```
 
-El paquete toma dos fotogramas por escena: uno en su desarrollo y otro al final, con la animación terminada. Usa `cues` para pedir segundos exactos, como una cifra o una palabra clave. También incluye `approved_decisions`, leído del `decision_log`, y `earlier_findings`, de las revisiones previas: el revisor puntúa con honestidad, pero no propone revertirlos.
+El paquete toma dos fotogramas por escena: uno en su desarrollo y otro al final, con la animación terminada. Usa `cues` para pedir segundos exactos, como una cifra o una palabra clave. También incluye `approved_decisions`, leído del `decision_log`, y `earlier_findings`, de las revisiones previas: el revisor puntúa con honestidad, pero no propone revertirlos. Además lleva `channel`, la identidad del canal leída de `channel/channel.yaml`, para marcar lo que se salga de ella.
 
 2. **Revisar.** Llama al agente `cold-viewer` y pásale **solo** la ruta de `packet.json`. No le cuentes qué se intentó, qué costó ni qué crees que falla. En otro entorno sin subagentes, usa una sesión nueva sin historial.
 3. **Registrar.** `cold_review` con `operation: "record"`, las puntuaciones y hallazgos tal como vinieron, y `round`.

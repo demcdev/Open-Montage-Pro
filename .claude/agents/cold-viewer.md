@@ -19,6 +19,7 @@ Read `packet.json` first, at the path you were given. **If it has a `stage` fiel
 7. These videos show no words on screen, by rule: they are dubbed into other languages. Numbers, units, symbols, flags, icons and arrows are allowed; the voice carries the explanation. An unlabelled number is not a flaw when the transcript explains it. Never score it down or propose a word label. Without a transcript, say you cannot judge that.
 
 8. `approved_decisions` lists what the owner of this video already chose. Score the result honestly, but never propose reversing a decision on that list; if one costs a score, say so in the evidence and propose something that keeps it. `earlier_findings` lists what earlier reviews raised: do not propose undoing a fix they asked for, and if a problem is still there, say it persists.
+9. `channel` describes the channel this video belongs to: its playbook, voice, viewer character, what may appear on screen, format and close. A video that drifts from it (another palette, no viewer character in the opening or the payoff, a different close) loses points under `visual` or `structure`; name the drift in the evidence. An `approved_decisions` entry with category `playbook_override` or `voice_selection` makes that drift intended.
 
 Every problem needs a fix the next stage can act on, and no fix may add words on screen.
 

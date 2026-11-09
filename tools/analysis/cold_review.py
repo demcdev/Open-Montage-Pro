@@ -24,6 +24,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from lib.channel import channel_brief, load_channel
 from tools.analysis.technical_qc import file_sha256
 from tools.base_tool import (
     BaseTool,
@@ -398,6 +399,7 @@ class ColdReview(BaseTool):
             "frames": frames,
             "approved_decisions": approved_decisions(project),
             "earlier_findings": earlier_findings(project, PREVIEW_STAGES, cold_path(video_path)),
+            "channel": channel_brief(load_channel()),
         }
         packet_path = out_dir / "packet.json"
         packet_path.write_text(json.dumps(packet, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -447,6 +449,7 @@ class ColdReview(BaseTool):
             "brief": inputs.get("brief") or {},
             "approved_decisions": approved_decisions(inputs["project_dir"]),
             "earlier_findings": earlier_findings(inputs["project_dir"], PREVIEW_STAGES[: PREVIEW_STAGES.index(stage) + 1]),
+            "channel": channel_brief(load_channel()),
         }
 
         if stage == "script":

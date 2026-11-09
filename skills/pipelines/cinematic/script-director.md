@@ -102,3 +102,8 @@ Approval is per-gate — an earlier "go ahead" does not cover this gate.
 ## Pre-Render Review (Binding)
 
 Before generating any voice, write at least three different openings and a retention map, then run the `script` moment of `skills/meta/pre-render-review.md`. Show the user the openings and the one the reviewer chose. Fix the script here: after the voice exists, every change costs another approval.
+
+<!-- channel -->
+## Channel (Binding)
+
+This video belongs to the owner's channel unless the brief says otherwise. Read `channel/channel.yaml` before writing: narrate for its voice (`voice`), follow its `format` (the viewer is "tú", a detail planted in the opening pays off at the end, one drawing per line, the close asks for the next topic), and plan the viewer character into the opening and the payoff. Departing from the channel needs a `playbook_override` or `voice_selection` decision with the reason.

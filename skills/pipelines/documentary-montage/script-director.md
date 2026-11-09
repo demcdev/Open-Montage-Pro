@@ -121,3 +121,8 @@ Read these before working in this stage. They are shared across pipelines; this 
 
 - `skills/creative/title-thumbnail-trailer.md` — write the title and the thumbnail idea together with the hook; title cards and credits follow its timing rules.
 - `skills/core/delivery-specs.md` — every on-screen text exists in English and Spanish; subtitles are never burned in.
+
+<!-- channel -->
+## Channel (Binding)
+
+This video belongs to the owner's channel unless the brief says otherwise. Read `channel/channel.yaml` before writing: narrate for its voice (`voice`), follow its `format` (the viewer is "tú", a detail planted in the opening pays off at the end, one drawing per line, the close asks for the next topic), and plan the viewer character into the opening and the payoff. Departing from the channel needs a `playbook_override` or `voice_selection` decision with the reason.
