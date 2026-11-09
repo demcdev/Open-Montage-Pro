@@ -102,7 +102,6 @@ _SOURCE_CREDENTIALS = {
     "PIXABAY_API_KEY": "test-pixabay",
     "POND5_API_KEY": "test-pond5",
     "UNSPLASH_ACCESS_KEY": "test-unsplash",
-    "VIDEVO_API_KEY": "test-videvo",
 }
 
 # Adapters that still swallow transport failures, recorded as known
