@@ -58,6 +58,14 @@ MAX_PREVIEW_PASSES = 2
 PREVIEW_SCALE = 0.5
 SHEET_TILES = 4
 SHEET_TILE_WIDTH = 480
+# Review sheets, after HyperFrames' `snapshot --review`: a strip across every cut and
+# the scene frames at phone width, built from the master so every engine gets them.
+CUT_OFFSET = 0.2
+MAX_CUTS = 24
+PHONE_WIDTH = 360
+PHONE_COLUMNS = 4
+PHONE_PER_SHEET = 12
+MAX_PHONE_FRAMES = 24
 AI_TAGS = ("ai generated", "ai-generated")
 SPEECH_WORDS_PER_SECOND = 2.5
 MIN_HOOKS = 3
@@ -143,6 +151,32 @@ def frame_times(
         times = [times[int(index * stride)] for index in range(int(len(times) / stride))]
     moments = {round(min(moment, max(duration - 0.1, 0)), 2) for moment in times + flagged}
     return sorted(moments)
+
+
+def _spread(values: list[float], limit: int) -> list[float]:
+    """Keep at most `limit` values, evenly spread across the list."""
+    if len(values) <= limit:
+        return values
+    stride = len(values) / limit
+    return [values[int(index * stride)] for index in range(limit)]
+
+
+def cut_times(duration: float, scenes: list[dict[str, Any]]) -> list[float]:
+    """Every change of scene inside the video: where a black frame or a jump would hide."""
+    starts = {round(float(scene["start"]), 2) for scene in scenes}
+    return _spread(sorted(t for t in starts if CUT_OFFSET <= t <= duration - CUT_OFFSET), MAX_CUTS)
+
+
+def phone_times(duration: float, scenes: list[dict[str, Any]]) -> list[float]:
+    """The hook and one settled moment per scene, to read at phone width."""
+    if not scenes:
+        return _spread(frame_times(duration, [], None), MAX_PHONE_FRAMES)
+    times = [min(HOOK_SECONDS, duration / 2)]
+    for scene in scenes:
+        start, end = float(scene["start"]), float(scene["end"])
+        times.append(start + (end - start) * SCENE_MOMENT)
+    moments = sorted({round(min(moment, max(duration - 0.1, 0)), 2) for moment in times})
+    return _spread(moments, MAX_PHONE_FRAMES)
 
 
 def is_ai_tagged(tags: str) -> bool:
@@ -301,7 +335,10 @@ class ColdReview(BaseTool):
             "brief": {"type": "object", "description": "prepare: the brief or delivery promise."},
             "scenes": {
                 "type": "array",
-                "description": "prepare: scene windows in seconds, from edit_decisions or scene_plan.",
+                "description": (
+                    "prepare: scene windows in seconds, from edit_decisions or scene_plan. "
+                    "They also place the cut strips and the phone-width sheets."
+                ),
                 "items": {
                     "type": "object",
                     "required": ["start", "end"],
@@ -373,8 +410,9 @@ class ColdReview(BaseTool):
 
         out_dir = packet_dir(video_path)
         out_dir.mkdir(parents=True, exist_ok=True)
-        for old in out_dir.glob("frame_*.jpg"):
-            old.unlink()
+        for pattern in ("frame_*.jpg", "cut_*.jpg", "phone_*.jpg"):
+            for old in out_dir.glob(pattern):
+                old.unlink()
         frames = []
         for moment in frame_times(duration, inputs.get("scenes") or [], layout, inputs.get("cues")):
             frame = out_dir / f"frame_{moment:08.2f}.jpg"
@@ -384,6 +422,10 @@ class ColdReview(BaseTool):
                 timeout=120,
             )
             frames.append({"time": moment, "file": frame.name})
+
+        scenes = inputs.get("scenes") or []
+        cuts = [self._cut_strip(video_path, moment, duration, out_dir) for moment in cut_times(duration, scenes)]
+        phone_sheets = self._phone_sheets(video_path, phone_times(duration, scenes), out_dir)
 
         project = inputs.get("project_dir") or project_of(video_path)
         packet = {
@@ -397,13 +439,61 @@ class ColdReview(BaseTool):
             "layout": None if layout is None else {k: layout.get(k) for k in ("verdict", "findings", "samples_checked")},
             "technical_qc": None if qc is None else {k: qc.get(k) for k in ("verdict", "loudness", "findings")},
             "frames": frames,
+            "cuts": cuts,
+            "phone_sheets": phone_sheets,
             "approved_decisions": approved_decisions(project),
             "earlier_findings": earlier_findings(project, PREVIEW_STAGES, cold_path(video_path)),
             "channel": channel_brief(load_channel()),
         }
         packet_path = out_dir / "packet.json"
         packet_path.write_text(json.dumps(packet, indent=2, ensure_ascii=False), encoding="utf-8")
-        return {"packet_path": str(packet_path), "frames": len(frames), "caps": list(measured_caps(packet))}
+        return {
+            "packet_path": str(packet_path),
+            "frames": len(frames),
+            "cuts": len(cuts),
+            "phone_sheets": len(phone_sheets),
+            "caps": list(measured_caps(packet)),
+        }
+
+    def _cut_strip(self, video_path: Path, moment: float, duration: float, out_dir: Path) -> dict[str, Any]:
+        """Three frames side by side: just before the cut, on it, and just after."""
+        times = [max(moment - CUT_OFFSET, 0.0), moment, min(moment + CUT_OFFSET, max(duration - 0.05, 0.0))]
+        strip = out_dir / f"cut_{moment:08.2f}.jpg"
+        cmd = ["ffmpeg", "-y", "-v", "error"]
+        for t in times:
+            cmd += ["-ss", f"{t:.3f}", "-i", str(video_path)]
+        scaled = ";".join(f"[{i}:v]scale={SHEET_TILE_WIDTH}:-2,setsar=1[t{i}]" for i in range(3))
+        cmd += ["-filter_complex", f"{scaled};[t0][t1][t2]hstack=inputs=3",
+                "-frames:v", "1", "-q:v", "3", str(strip)]
+        self.run_command(cmd, timeout=120)
+        return {"time": moment, "file": strip.name, "offsets": [round(t - moment, 2) for t in times]}
+
+    def _phone_sheets(self, video_path: Path, times: list[float], out_dir: Path) -> list[dict[str, Any]]:
+        """Scene frames at phone width, in grids read left to right, top to bottom."""
+        sheets = []
+        for number, start in enumerate(range(0, len(times), PHONE_PER_SHEET), 1):
+            chunk = times[start:start + PHONE_PER_SHEET]
+            columns = min(PHONE_COLUMNS, len(chunk))
+            rows = -(-len(chunk) // columns)
+            sheet = out_dir / f"phone_{number:02d}.jpg"
+            cmd = ["ffmpeg", "-y", "-v", "error"]
+            for t in chunk:
+                cmd += ["-ss", f"{t:.3f}", "-i", str(video_path)]
+            tiles = ";".join(f"[{i}:v]scale={PHONE_WIDTH}:-2,setsar=1[p{i}]" for i in range(len(chunk)))
+            if len(chunk) == 1:
+                graph = tiles.replace("[p0]", "")
+            else:
+                # Same-size tiles: tile k sits k % columns widths right, k // columns heights down.
+                layout = "|".join(
+                    f"{'+'.join(['w0'] * (k % columns)) or '0'}_{'+'.join(['h0'] * (k // columns)) or '0'}"
+                    for k in range(len(chunk))
+                )
+                labels = "".join(f"[p{i}]" for i in range(len(chunk)))
+                graph = f"{tiles};{labels}xstack=inputs={len(chunk)}:layout={layout}:fill=black"
+            cmd += ["-filter_complex", graph, "-frames:v", "1", "-q:v", "3", str(sheet)]
+            self.run_command(cmd, timeout=180)
+            sheets.append({"file": sheet.name, "columns": columns, "rows": rows, "times": chunk})
+        return sheets
 
     def _record(self, video_path: Path, inputs: dict[str, Any]) -> dict[str, Any]:
         packet = read_report(packet_dir(video_path) / "packet.json")

@@ -113,6 +113,110 @@ def test_a_video_without_scenes_is_sampled_evenly():
     assert 10 <= len(times) <= cold_review.MAX_FRAMES and times[-1] > 50
 
 
+def test_cuts_are_the_scene_changes_inside_the_video():
+    scenes = [{"start": 0, "end": 4}, {"start": 4, "end": 8}, {"start": 8, "end": 12}]
+    assert cold_review.cut_times(12, scenes) == [4.0, 8.0]
+
+
+def test_cuts_stay_capped_and_spread_over_the_video():
+    scenes = [{"start": index, "end": index + 1} for index in range(100)]
+    cuts = cold_review.cut_times(100, scenes)
+    assert len(cuts) == cold_review.MAX_CUTS and cuts[0] < 10 and cuts[-1] > 90
+
+
+def test_phone_frames_are_the_hook_and_one_per_scene():
+    scenes = [{"start": 0, "end": 10}, {"start": 10, "end": 20}]
+    assert cold_review.phone_times(20, scenes) == [1.0, 3.5, 13.5]
+
+
+def test_phone_frames_without_scenes_are_sampled_and_capped():
+    times = cold_review.phone_times(600, [])
+    assert 1 < len(times) <= cold_review.MAX_PHONE_FRAMES
+
+
+needs_ffmpeg = pytest.mark.skipif(
+    not __import__("shutil").which("ffmpeg"), reason="ffmpeg not installed"
+)
+
+
+def _color_scenes(path: Path, colors: list[str], seconds: float, size: str) -> list[dict]:
+    """A real master: one solid colour per scene, so each tile shows which side of a cut it is."""
+    import subprocess
+
+    inputs = []
+    for color in colors:
+        inputs += ["-f", "lavfi", "-i", f"color={color}:s={size}:d={seconds}:r=30"]
+    concat = "".join(f"[{i}]" for i in range(len(colors))) + f"concat=n={len(colors)}:v=1:a=0"
+    subprocess.run(
+        ["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", concat,
+         "-c:v", "libx264", "-pix_fmt", "yuv420p", str(path)],
+        check=True,
+    )
+    return [{"id": f"s{i}", "start": i * seconds, "end": (i + 1) * seconds} for i in range(len(colors))]
+
+
+@needs_ffmpeg
+def test_prepare_adds_cut_strips_that_straddle_each_cut(tmp_path):
+    from PIL import Image
+
+    master = tmp_path / "final.mp4"
+    scenes = _color_scenes(master, ["red", "blue"], 3, "640x360")
+    result = ColdReview().execute(
+        {"operation": "prepare", "video_path": str(master), "scenes": scenes, "has_narration": False}
+    )
+    assert result.success, result.error
+    assert result.data["cuts"] == 1
+
+    folder = cold_review.packet_dir(master)
+    packet = json.loads((folder / "packet.json").read_text(encoding="utf-8"))
+    (cut,) = packet["cuts"]
+    assert cut["time"] == 3.0 and cut["offsets"] == [-0.2, 0.0, 0.2]
+
+    strip = Image.open(folder / cut["file"]).convert("RGB")
+    tile = cold_review.SHEET_TILE_WIDTH
+    assert strip.width == 3 * tile
+    before, on, after = (strip.getpixel((tile * i + tile // 2, strip.height // 2)) for i in range(3))
+    assert before[0] > 200 and before[2] < 50     # still the red scene
+    assert on[2] > 200 and after[2] > 200         # the blue scene from the cut on
+
+
+@needs_ffmpeg
+def test_prepare_adds_phone_sheets_at_phone_width(tmp_path):
+    from PIL import Image
+
+    master = tmp_path / "final.mp4"
+    colors = ["red", "green", "blue", "yellow", "white", "gray", "purple", "orange",
+              "cyan", "magenta", "brown", "pink", "navy"]
+    scenes = _color_scenes(master, colors, 1, "360x640")   # vertical, like a Short
+    result = ColdReview().execute(
+        {"operation": "prepare", "video_path": str(master), "scenes": scenes, "has_narration": False}
+    )
+    assert result.success, result.error
+
+    folder = cold_review.packet_dir(master)
+    sheets = json.loads((folder / "packet.json").read_text(encoding="utf-8"))["phone_sheets"]
+    assert [len(sheet["times"]) for sheet in sheets] == [12, 2]   # hook + 13 scenes, 12 per sheet
+    first, last = (Image.open(folder / sheet["file"]) for sheet in sheets)
+    assert first.size == (cold_review.PHONE_COLUMNS * cold_review.PHONE_WIDTH, 3 * 640)
+    assert last.size == (2 * cold_review.PHONE_WIDTH, 640)
+
+
+@needs_ffmpeg
+def test_prepare_replaces_sheets_from_an_earlier_run(tmp_path):
+    master = tmp_path / "final.mp4"
+    scenes = _color_scenes(master, ["red", "blue", "green"], 2, "320x180")
+    folder = cold_review.packet_dir(master)
+    folder.mkdir()
+    (folder / "cut_00099.00.jpg").write_bytes(b"stale")
+    (folder / "phone_09.jpg").write_bytes(b"stale")
+
+    result = ColdReview().execute(
+        {"operation": "prepare", "video_path": str(master), "scenes": scenes, "has_narration": False}
+    )
+    assert result.success, result.error
+    assert not (folder / "cut_00099.00.jpg").exists() and not (folder / "phone_09.jpg").exists()
+
+
 @pytest.fixture
 def video(tmp_path) -> Path:
     path = tmp_path / "final.mp4"

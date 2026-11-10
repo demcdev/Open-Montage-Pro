@@ -29,7 +29,12 @@ Si el máster cambia después, la revisión queda anulada.
 }
 ```
 
-El paquete toma dos fotogramas por escena: uno en su desarrollo y otro al final, con la animación terminada. Usa `cues` para pedir segundos exactos, como una cifra o una palabra clave. También incluye `approved_decisions`, leído del `decision_log`, y `earlier_findings`, de las revisiones previas: el revisor puntúa con honestidad, pero no propone revertirlos. Además lleva `channel`, la identidad del canal leída de `channel/channel.yaml`, para marcar lo que se salga de ella.
+El paquete toma dos fotogramas por escena: uno en su desarrollo y otro al final, con la animación terminada. Usa `cues` para pedir segundos exactos, como una cifra o una palabra clave.
+
+Con `scenes`, el paquete suma dos hojas sacadas del máster, sea cual sea el motor (copiadas de `snapshot --review` de HyperFrames):
+
+- **Tiras de corte** (`cuts`): en cada cambio de escena, tres fotogramas lado a lado, 0,2 s antes del corte, en el corte y 0,2 s después. Muestran lo que el revisor no ve entre fotogramas: un negro o un destello en el corte, un sujeto que salta de lugar, una cifra que desaparece a medio leer. Hasta 24 cortes, repartidos si hay más.
+- **Hojas de celular** (`phone_sheets`): el gancho y un momento por escena a 360 px de ancho, el tamaño de un celular, en grillas de 4 columnas. Muestran si cifras, símbolos y el sujeto se leen donde mira la mayoría del público. También incluye `approved_decisions`, leído del `decision_log`, y `earlier_findings`, de las revisiones previas: el revisor puntúa con honestidad, pero no propone revertirlos. Además lleva `channel`, la identidad del canal leída de `channel/channel.yaml`, para marcar lo que se salga de ella.
 
 2. **Revisar.** Llama al agente `cold-viewer` y pásale **solo** la ruta de `packet.json`. No le cuentes qué se intentó, qué costó ni qué crees que falla. En otro entorno sin subagentes, usa una sesión nueva sin historial.
 3. **Registrar.** `cold_review` con `operation: "record"`, las puntuaciones y hallazgos tal como vinieron, y `round`.
@@ -68,6 +73,6 @@ A diferencia de `reviewer.md`, aquí nada pasa solo. Si el usuario acepta entreg
 
 ## Límites
 
-- No ve el movimiento entre fotogramas ni oye el audio.
+- No ve el movimiento entre fotogramas ni oye el audio. Las tiras de corte cubren solo los 0,4 s alrededor de cada corte.
 - No sustituye la revisión del usuario: es un filtro antes de que el video le llegue.
 - Tres rondas son el máximo, para que el ciclo no se alargue sin fin.
